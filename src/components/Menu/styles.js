@@ -1,6 +1,7 @@
 export default {
     container: {
       paddingTop: 20,
+     
       flex: 1
     },
     navItemStyle: {
@@ -16,5 +17,7 @@ export default {
     footerContainer: {
       padding: 20,
       backgroundColor: 'lightgrey'
-    }
+    },
+
+   
   };

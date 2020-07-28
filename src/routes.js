@@ -1,5 +1,7 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity } from 'react-native';
+import { View, Text, Image, TouchableOpacity, Dimensions } from 'react-native';
+
+
 /*import { createAppContainer } from 'react-navigation'; */
 import { createStackNavigator } from 'react-navigation-stack'; 
 //import Main from './pages/main';
@@ -11,6 +13,7 @@ import formLogin from './components/signIn/index';
 ////import ouvidoria from './pages/reclama';
 import Map from './components/Map/index';
 import Search from './components/Search/index';
+import Menu from './components/Menu/index';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
@@ -27,7 +30,7 @@ import Ionicons from 'react-native-vector-icons/FontAwesome';
 
 import {   createAppContainer } from 'react-navigation';
 
-import { createDrawerNavigator } from "react-navigation-drawer";
+
 
 
 
@@ -40,13 +43,14 @@ class HomeScreen extends React.Component {
   
   render() {
     return (
+      
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
         <Text>Página Inicial</Text>
       </View>
+     
     );
   }
 }
-
 
 
 
@@ -57,11 +61,21 @@ const AppNavigator = createStackNavigator(
   {
      //Main: Main,
      formLogin: formLogin,
+     Menu: {
+      screen: Menu,  
+      navigationOptions: {
+
+   
+        headerShown: false,
+          }, 
+     },
      Search: {
       screen: Search,
       navigationOptions: { 
         title: 'Defina o seu destino',
         headerStyle: {
+
+           
  backgroundColor: '#3CB371',
        
                      },
@@ -76,16 +90,18 @@ const AppNavigator = createStackNavigator(
     // MapMotora: MapMotora,
      Map:  { 
          screen: Map,
-        navigationOptions: { 
-           title: 'Siga',
+        navigationOptions: ({navigation}) => ({ 
+           title: '',
                 headerTitleAlign: "center",
                 headerTintColor: '#FFF',
-                headerLeft: () => <Text style={{ color: 'black', marginHorizontal: 15, marginLeft: 10, fontWeight: "bold" }}>Solicitações</Text>
-                , 
-                             header: true
-
-                             
-        },
+                headerTransparent: true,
+                headerLeft: () => <View style={{  backgroundColor: 'transparent', }}>
+                  <TouchableOpacity onPress={() => navigation.navigate("Menu")}>
+                  <Icon name="menu" size={45} color="#3CB371" style={{ left: 10, top: 15}}  />
+                  </TouchableOpacity>
+                  </View>,
+                 
+        }),
        
         }, 
    //  CalloutMap: CalloutMap,
@@ -103,6 +119,12 @@ const AppNavigator = createStackNavigator(
     initialRouteName: 'Map',
   }
 );
+
+
+
+
+
+
 
 export default createAppContainer(AppNavigator); 
 

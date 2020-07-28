@@ -1,9 +1,11 @@
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
-import styles from './SideMenu.style';
+import styles from './styles';
 import {NavigationActions} from 'react-navigation';
-import {ScrollView, Text, View} from 'react-native';
-import { StackNavigator } from 'react-navigation';
+import {ScrollView, Text, View, Image, ImageBackground } from 'react-native';
+
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import { NavigationContainer } from '@react-navigation/native';
 
 class SideMenu extends Component {
   navigateToScreen = (route) => () => {
@@ -17,42 +19,30 @@ class SideMenu extends Component {
     return (
       <View style={styles.container}>
         <ScrollView>
-          <View>
-            <Text style={styles.sectionHeadingStyle}>
-              Section 1
-            </Text>
-            <View style={styles.navSectionStyle}>
-              <Text style={styles.navItemStyle} onPress={this.navigateToScreen('Page1')}>
-              Page1
-              </Text>
-            </View>
+          <View >
+          
+          <ImageBackground source={require('../../images/backgroundaparecida.png')} style={{ resizeMode: "cover",
+    justifyContent: "center", height: 200 }} >
+          <Image
+        style={{ height: 75, width: 75, left: 10, borderRadius: 35, top: 35 }}
+        source={ {uri: "https://siga.aparecida.go.gov.br/paperclip/users/profile_pictures/b57cdc667ef7832f45e76264c7825412bcecdd7d/thumb.jpg?1562098524"}}
+      /> 
+        <Image
+      style={{  left: 100, bottom: 35, height: 75, width: 210 }}
+      source={require('../../images/logoaparecida.png')}
+    />
+      <Text style={{ color: '#FFF', fontSize: 16,  left: 10, top: -25}}>Walison José de Deus</Text>
+      <Text style={{ color: '#FFF', fontSize: 16,  left: 10, top: -20}}>walison.deus@aparecida.go.gov.br</Text>
+
+          </ImageBackground>
+         
           </View>
-          <View>
-            <Text style={styles.sectionHeadingStyle}>
-              Section 2
-            </Text>
-            <View style={styles.navSectionStyle}>
-              <Text style={styles.navItemStyle} onPress={this.navigateToScreen('Page2')}>
-                Page2
-              </Text>
-              <Text style={styles.navItemStyle} onPress={this.navigateToScreen('Page3')}>
-                Page3
-              </Text>
-            </View>            
-          </View>
-          <View>
-            <Text style={styles.sectionHeadingStyle}>
-              Section 3
-            </Text>
-            <View style={styles.navSectionStyle}>
-              <Text style={styles.navItemStyle} onPress={this.navigateToScreen('Page4')}>
-              Page4
-              </Text>
-            </View>
-          </View>
+         
+         
+          
         </ScrollView>
         <View style={styles.footerContainer}>
-          <Text>This is my fixed footer</Text>
+          <Text>Footer Aqui!!</Text>
         </View>
       </View>
     );

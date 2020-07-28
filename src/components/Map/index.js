@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from "react";
 import { View, Image, Text, Menu, ImageBackground, Dimensions, StyleSheet, TouchableOpacity } from "react-native";
 import MapView, { Marker } from "react-native-maps";
+import { Divider } from 'react-native-elements';
 
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
@@ -118,16 +119,18 @@ verifica_date = () =>{
       
 
 { this.verifica_date() === 0 ? (
-  <Text  style={{   fontSize: 18,   fontWeight: "bold" }}>Bom dia</Text>
+  <Text  style={{ color: '#3CB371' ,  fontSize: 18,   fontWeight: "bold" }}>Bom dia</Text>
 ) : (
-  <Text style={{  fontSize: 18,   fontWeight: "bold" }} >Boa tarde</Text>
+  <Text style={{  color: '#3CB371' , fontSize: 18,   fontWeight: "bold" }} >Boa tarde</Text>
 )}
+
+<Divider style={{ backgroundColor: 'blue' }} />
   
         <View style={styles.buttonContainerOrigem} >
         
- <TextInput  onTouchStart={()=> this.onPress() }  style={{ right: -160,   height: 50, borderColor: 'gray', borderWidth: 2, borderRadius: 15, width: 330, bottom: 50}} placeholder="De onde?"   />
+ <TextInput  onTouchStart={()=> this.onPress() }  style={{ right: -160,    height: 50, paddingLeft: 10, borderColor: '#3CB371', borderWidth: 2, borderRadius: 15, width: 330, bottom: 50}} placeholder="De onde?"   />
            
- <TextInput  onTouchStart={()=> this.onPress() }  style={{  left: -168, height: 50, borderColor: 'gray', borderWidth: 2, borderRadius: 15, width: 330, bottom: -5, }} placeholder="Para onde?"   />
+ <TextInput  onTouchStart={()=> this.onPress() }  style={{  left: -168, height: 50, paddingLeft: 10,  borderColor: '#3CB371', borderWidth: 2, borderRadius: 15, width: 330, bottom: -5, }} placeholder="Para onde?"   />
  {/*
       onTouchStart={()=> this.onPress() } */}
     
@@ -258,12 +261,12 @@ verifica_date = () =>{
   render() {
     const { region, destination, duration, location, origin } = this.state;
 
-    
+   
    
 
     return (
       
-     
+
 <View style={{ flex: 1 }}>
  
  
@@ -381,7 +384,8 @@ verifica_date = () =>{
  
   
 </View>  
- 
+
+
 
       
     );
