@@ -2,9 +2,9 @@
   "devToolsPort": 19002,
   "expoServerPort": 19000,
   "packagerPort": 19001,
-  "packagerPid": 11000,
+  "packagerPid": 3468,
   "expoServerNgrokUrl": "https://9n-raf.ingohsys.siga-client.exp.direct",
   "packagerNgrokUrl": "https://packager.9n-raf.ingohsys.siga-client.exp.direct",
-  "ngrokPid": 11040,
+  "ngrokPid": 20056,
   "webpackServerPort": null
 }

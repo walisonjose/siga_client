@@ -1,11 +1,9 @@
 import React, { Component, Fragment } from "react";
 import { View, Image, Text, Menu, ImageBackground, Dimensions, StyleSheet, TouchableOpacity } from "react-native";
 import MapView, { Marker } from "react-native-maps";
-import { Divider } from 'react-native-elements';
 
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
-import { Button } from 'react-native-elements';
+
 
 import Geocoder from "react-native-geocoding";
 
@@ -26,7 +24,7 @@ import Details from "../Details";
 
 import BottomDrawer from 'rn-bottom-drawer';
 
-
+import Divider from 'react-native-divider';
 
 
 
@@ -38,7 +36,15 @@ const HEADER_HEIGHT = 0;
 import markerImage from "../../assets/marker.png";
 import backImage from "../../assets/back.png";
 
+import DrawnerMenu from '../../drawner.js';
 
+import { NavigationContainer, DrawerActions } from '@react-navigation/native';
+import {
+  createDrawerNavigator,
+  DrawerContentScrollView,
+  DrawerItemList,
+  DrawerItem,
+} from '@react-navigation/drawer';
 
 
 
@@ -105,6 +111,43 @@ verifica_date = () =>{
   return result;
 };
   
+ Notifications = () => {
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>Notifications Screen</Text>
+    </View>
+  );
+}
+
+
+
+
+ MyDrawer = () =>{
+  const Drawer = createDrawerNavigator();
+  return (
+    <Drawer.Navigator drawerContent={props => <CustomDrawerContent {...props} />}>
+    
+    
+      <Drawer.Screen name="Notifications" component={this.Notifications()} />
+    </Drawer.Navigator>
+  );
+}
+
+ CustomDrawerContent = (props) =>{
+  return (
+    <DrawerContentScrollView {...props}>
+      <DrawerItemList {...props} />
+      <DrawerItem
+        label="Close drawer"
+        onPress={() => props.navigation.dispatch(DrawerActions.closeDrawer())}
+      />
+      <DrawerItem
+        label="Toggle drawer"
+        onPress={() => props.navigation.dispatch(DrawerActions.toggleDrawer())}
+      />
+    </DrawerContentScrollView>
+  );
+}
 
 
   renderContent = () => {
@@ -114,24 +157,50 @@ verifica_date = () =>{
     return (
 
     
-      <View style={styles.contentContainer} > 
+      <View style={styles.contentContainer } > 
 
-      
+
 
 { this.verifica_date() === 0 ? (
+  
   <Text  style={{ color: '#3CB371' ,  fontSize: 18,   fontWeight: "bold" }}>Bom dia</Text>
+
+ 
+  
 ) : (
+  
   <Text style={{  color: '#3CB371' , fontSize: 18,   fontWeight: "bold" }} >Boa tarde</Text>
+
+
 )}
 
-<Divider style={{ backgroundColor: 'blue' }} />
+{/*
+  <Text  style={{ color: '#3CB371' ,  fontSize: 18,   fontWeight: "bold" }}>Bom dia</Text>
+  */}
+
+
+
   
-        <View style={styles.buttonContainerOrigem} >
+        <View style={styles.buttonContainerOrigem } >
+        <ImageBackground source={require('../../images/botao_origem.png')} style={{ resizeMode: "cover",
+    justifyContent: "center", height: 70 }} >
         
+      <TextInput  onTouchStart={()=> this.onPress() } placeholderTextColor = "#808080"  style={{     height: 40, paddingLeft: 70,   borderRadius: 15, width: 330, bottom: 5}} placeholder="De onde?"   />
+      </ImageBackground>
+      </View>
+
+
+      <View style={styles.buttonContainerOrigem } >
+      <ImageBackground source={require('../../images/botao_destino.png')} style={{ resizeMode: "cover",
+    justifyContent: "center", height: 70, bottom: 20 }} >
+        
+      <TextInput onTouchStart={()=> this.onPress() } placeholderTextColor = "#808080"  style={{    height: 40, paddingLeft: 70,   borderRadius: 15, width: 330, bottom: 0}} placeholder="Para onde?"   />
+      </ImageBackground>
+    {/*    
  <TextInput  onTouchStart={()=> this.onPress() }  style={{ right: -160,    height: 50, paddingLeft: 10, borderColor: '#3CB371', borderWidth: 2, borderRadius: 15, width: 330, bottom: 50}} placeholder="De onde?"   />
            
  <TextInput  onTouchStart={()=> this.onPress() }  style={{  left: -168, height: 50, paddingLeft: 10,  borderColor: '#3CB371', borderWidth: 2, borderRadius: 15, width: 330, bottom: -5, }} placeholder="Para onde?"   />
- {/*
+ 
       onTouchStart={()=> this.onPress() } */}
     
          
@@ -149,6 +218,9 @@ verifica_date = () =>{
    
 
 */}
+
+
+
   
         </View> 
         
@@ -262,14 +334,14 @@ verifica_date = () =>{
     const { region, destination, duration, location, origin } = this.state;
 
    
-   
+    const {navigation} = this.props.navigation;
 
     return (
       
-
+<NavigationContainer>
 <View style={{ flex: 1 }}>
  
- 
+
         <MapView
           style={styles.map}
           region={region}
@@ -346,14 +418,15 @@ verifica_date = () =>{
           </Fragment>
         ) : ( 
           <>
-          
-        
-         {/* 
+            
+         {/*
          
          <Search onLocationOriginSelected={this.handleLocationOrigSelected} placeholder={"Origem?"} type={0} /> 
            
              <Search  onLocationSelected={this.handleLocationSelected} placeholder={"Destino?"} type={1} /> 
          
+
+             <Icon name="menu" size={50} color="#3CB371" style={{ top: -450, left: 10}}  />
         
             */} 
 
@@ -361,13 +434,13 @@ verifica_date = () =>{
           </>  
         )}
 
-{/* 
-<Icon name="menu" size={40} color="#3CB371" style={{ top: -560, left: 10}} />
 
-*/}
- 
+
+
+
+  
 <BottomDrawer
-       containerHeight={200}
+       containerHeight={250}
        
        offset={0}
       
@@ -385,9 +458,8 @@ verifica_date = () =>{
   
 </View>  
 
+</NavigationContainer>  
 
-
-      
     );
   }
 }
@@ -444,12 +516,14 @@ const styles = StyleSheet.create({
 
   contentContainer: {
     flex: 1,
+    
     alignItems: 'center',
     justifyContent: 'space-around'
     
   },
   buttonContainerOrigem: {
     flexDirection: 'row',
+     borderRadius: 15
     
   },
   buttonContainerDestiny: {

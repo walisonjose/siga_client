@@ -29,6 +29,14 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/FontAwesome';
 
 import {   createAppContainer } from 'react-navigation';
+import { NavigationContainer, DrawerActions } from '@react-navigation/native';
+
+import {
+  createDrawerNavigator,
+  DrawerContentScrollView,
+  DrawerItemList,
+  DrawerItem,
+} from '@react-navigation/drawer';
 
 
 
