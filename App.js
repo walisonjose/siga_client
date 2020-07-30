@@ -4,13 +4,21 @@ import { StyleSheet, Text, View } from 'react-native';
 import Routes from './src/routes.js';
 import DrawnerMenu from './src/drawner.js';
 
+
+
+
+
 export default function App() {
   return (
    /* <View style={styles.container}>
       <Text>Open up App.js to start working on your app!</Text>
       <StatusBar style="auto" />
     </View>  */
-    <Routes /> 
+    <DrawnerMenu /> 
+
+   
+
+    
    
   );
 }

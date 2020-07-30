@@ -26,7 +26,9 @@ import BottomDrawer from 'rn-bottom-drawer';
 
 import Divider from 'react-native-divider';
 
+import {MenuSiga } from '../Menu/index';
 
+import { useNavigation } from '@react-navigation/native';
 
 
 
@@ -83,7 +85,7 @@ export default class Map extends Component {
     location: null
   };
 
- 
+   
 
   onPress = () => {
    
@@ -125,11 +127,13 @@ verifica_date = () =>{
  MyDrawer = () =>{
   const Drawer = createDrawerNavigator();
   return (
-    <Drawer.Navigator drawerContent={props => <CustomDrawerContent {...props} />}>
+    <NavigationContainer>
+    <Drawer.Navigator drawerContent={props => <MenuSiga {...props} />}>
     
     
-      <Drawer.Screen name="Notifications" component={this.Notifications()} />
+      <Drawer.Screen name="Notifications" component={() => <this.Notifications />} />
     </Drawer.Navigator>
+    </NavigationContainer>
   );
 }
 
@@ -334,11 +338,11 @@ verifica_date = () =>{
     const { region, destination, duration, location, origin } = this.state;
 
    
-    const {navigation} = this.props.navigation;
+   
 
     return (
       
-<NavigationContainer>
+
 <View style={{ flex: 1 }}>
  
 
@@ -436,8 +440,7 @@ verifica_date = () =>{
 
 
 
-
-
+<Icon name="menu" size={40} color="#3CB371"  style={{ top: -540, left: 10}} onPress={ () =>  this.props.navigation.dispatch(DrawerActions.openDrawer())} />
   
 <BottomDrawer
        containerHeight={250}
@@ -458,7 +461,7 @@ verifica_date = () =>{
   
 </View>  
 
-</NavigationContainer>  
+
 
     );
   }

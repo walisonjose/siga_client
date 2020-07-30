@@ -1,69 +1,167 @@
 import * as React from 'react';
-import { View, Text, Button } from 'react-native';
+
+import { Button, View, Text, Dimensions } from 'react-native';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import { NavigationContainer, DrawerActions } from '@react-navigation/native';
-import {
-  createDrawerNavigator,
-  DrawerContentScrollView,
-  DrawerItemList,
-  DrawerItem,
-} from '@react-navigation/drawer';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
+import { createStackNavigator} from '@react-navigation/stack';
+import { Ionicons } from '@expo/vector-icons';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { TouchableHighlight } from 'react-native-gesture-handler';
 
-function Feed({ navigation }) {
+/*Telas */
+import formLogin from './components/signIn/index';
+
+import Map from './components/Map/index';
+import Search from './components/Search/index';
+import Menu from './components/Menu/index';
+
+{/*const Tab = createBottomTabNavigator(); */}
+
+const Tab = createStackNavigator();
+
+
+function NotificationsScreen({ navigation }) {
   return (
-    <View >
-
-<Icon name="menu" size={40} color="#3CB371" 
-style={{ top: -450, left: 10}}
- onPress={() => navigation.dispatch(DrawerActions.openDrawer())} />
-
-     
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+      <Text>No New Notifications!</Text>
+      <Button 
+      onPress={() => navigation.goBack()}
+      title="Go back home"
+      />
     </View>
   );
 }
 
-function Notifications() {
+const Stack = createStackNavigator(
+  
+);
+
+function TabAScreen() {
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Notifications Screen</Text>
-    </View>
+    <Stack.Navigator > 
+      <Stack.Screen name="TabA Home" component={TabADetailsScreen} />
+      <Stack.Screen name="TabA Details" component={Details} />
+      <Stack.Screen name="Map" component={Map} />
+    </Stack.Navigator>
   );
 }
 
-function CustomDrawerContent(props) {
-  return (
-    <DrawerContentScrollView {...props}>
-      <DrawerItemList {...props} />
-      <DrawerItem
-        label="Close drawer"
-        onPress={() => props.navigation.dispatch(DrawerActions.closeDrawer())}
-      />
-      <DrawerItem
-        label="Toggle drawer"
-        onPress={() => props.navigation.dispatch(DrawerActions.toggleDrawer())}
-      />
-    </DrawerContentScrollView>
-  );
-}
 
-const Drawer = createDrawerNavigator();
-
-function MyDrawer() {
+function TabADetailsScreen({navigation}) {
   return (
-    <Drawer.Navigator drawerContent={props => <CustomDrawerContent {...props} />}>
+
+
+    <View style={{ flex: 1, justifyContent: 'center',  alignItems: 'center' }}>
+
+ 
+<Button
+        title="Open drawer"
+        onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
+      />
+      <Text>
+        Welcome to TabA page!
+      </Text>
+      <Button 
+      onPress={() => navigation.navigate('TabA Details')}
+      title="Go to TabA Details"
+      />
+
     
-    <Drawer.Screen name="Feed" component={Feed} />
-      <Drawer.Screen name="Notifications" component={Notifications} />
-    </Drawer.Navigator>
+    </View>
+
+   
+  );
+  
+}
+function Details() {
+  return (
+    <View style={{ flex: 1, justifyContent: 'center',  alignItems: 'center' }}>
+      <Text>
+        TabA Details here!
+      </Text>
+    </View>
   );
 }
+function TabBScreen() {
+  return (
+    <View>
+      <Text style={{textAlign: 'center', marginTop: 300}}>
+        Welcome to TabB page!
+      </Text>
+    </View>
+  );
+}
+
+
+
+function HomeScreen() {
+  return (
+    <Tab.Navigator 
+    screenOptions={({ route }) => ({
+      tabBarIcon: ({ focused, color, size }) => {
+     let iconName;
+     if (route.name === 'TabA') {
+        iconName = focused
+        ? 'ios-information-circle'
+        : 'ios-information-circle-outline';
+      } else if (route.name === 'TabB') {
+        iconName = focused
+        ? 'ios-list-box'
+        : 'ios-list';
+      }
+return <Ionicons name={iconName} size={size} color={color}     />;
+        },
+      })}
+      tabBarOptions={{
+      activeTintColor: 'tomato',
+      inactiveTintColor: 'gray',
+      }}
+    >
+      <Tab.Screen name="Map" component={Map}/>
+        <Tab.Screen name="TabA" component={TabAScreen} />
+        <Tab.Screen name="TabB" component={TabBScreen} />
+        
+    </Tab.Navigator>
+  );
+}
+
+const Drawer = createDrawerNavigator( 
+  
+);
+
+
+function Root() {
+  return (
+    <Stack.Navigator initialRouteName='Login'  screenOptions={{
+      headerShown: false
+    }}>
+      <Stack.Screen name="Map" component={Map} />
+      <Stack.Screen name="Login" component={formLogin} />
+    </Stack.Navigator>
+  );
+}
+
+
 
 export default function App() {
   return (
+
+    <NavigationContainer>
+      <Drawer.Navigator   drawerContent={props => <Menu {...props} />} >
+      
+        
+     <Drawer.Screen name="Home" component={Root} />
+       
+       
+  </Drawer.Navigator> 
+    </NavigationContainer>
     
-      <MyDrawer />
   
   );
 }
+
+
+
+
