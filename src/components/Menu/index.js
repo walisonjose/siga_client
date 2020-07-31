@@ -6,9 +6,7 @@ import {ScrollView, Text, View, Image, ImageBackground } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-import { createDrawerNavigator } from '@react-navigation/drawer';
-import { NavigationContainer } from '@react-navigation/native';
-import { color } from 'react-native-reanimated';
+
 
 class SideMenu extends Component {
   navigateToScreen = (route) => () => {

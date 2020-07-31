@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { View, Image, Text, Menu, ImageBackground, Dimensions, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Image, Text, Menu, ImageBackground, Dimensions, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 
 
@@ -24,12 +24,14 @@ import Details from "../Details";
 
 import BottomDrawer from 'rn-bottom-drawer';
 
-import Divider from 'react-native-divider';
+
 
 import {MenuSiga } from '../Menu/index';
 
-import { useNavigation } from '@react-navigation/native';
 
+
+
+import api from '../../services/api';
 
 
 const TAB_BAR_HEIGHT = 50;
@@ -48,6 +50,8 @@ import {
   DrawerItem,
 } from '@react-navigation/drawer';
 
+
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 
 
@@ -68,7 +72,7 @@ Geocoder.init("AIzaSyD157FiAI8dfBRzoH4qvzjFi3iKSPzA860");
 console.disableYellowBox = true;
 
 
-
+import googlemaps from '../../services/api';
 
 
 export default class Map extends Component {
@@ -82,7 +86,9 @@ export default class Map extends Component {
     destination: { latitude: 0, longitude: 0 },
     origin: { latitude: 0, longitude: 0 },
     duration: null,
-    location: null
+    location: null,
+    origem: null, 
+    destino: null
   };
 
    
@@ -98,6 +104,37 @@ export default class Map extends Component {
 
   
     };
+
+getAddress = async () => {
+  const response = await api.post('/geocode/json?latlng='+this.state.region.latitude+','+this.state.region.longitude+'&key=AIzaSyD157FiAI8dfBRzoH4qvzjFi3iKSPzA860')
+  .then(response =>{
+
+    //Toast.show('Tudo certo! Pode logar!', Toast.SHORT, [
+    //  'UIAlertController',
+    //]);
+   // console.log("Cookie-> "+response.headers["set-cookie"]);
+   
+    console.log("-> "+response.data.results[0].formatted_address);
+    this.setState({
+      origem: response.data.results[0].formatted_address
+  });
+
+  
+   
+}).catch(
+  function (error) {
+    
+    console.log("Ops! Login ou senha inválidos!");
+
+   {/*
+    Toast.show('Ops! Login ou senha inválidos!', Toast.SHORT, [
+      'UIAlertController',
+    ]);
+   */} 
+    //return Promise.reject(error)
+  }
+);
+}
 
 
 verifica_date = () =>{
@@ -160,20 +197,21 @@ verifica_date = () =>{
 
     return (
 
-    
+      
+
       <View style={styles.contentContainer } > 
 
 
 
 { this.verifica_date() === 0 ? (
   
-  <Text  style={{ color: '#3CB371' ,  fontSize: 18,   fontWeight: "bold" }}>Bom dia</Text>
+  <Text  style={{ color: '#3CB371' ,  fontSize: 18,   fontWeight: "bold" }}>Olá</Text>
 
  
   
 ) : (
   
-  <Text style={{  color: '#3CB371' , fontSize: 18,   fontWeight: "bold" }} >Boa tarde</Text>
+  <Text style={{  color: '#3CB371' , fontSize: 18,   fontWeight: "bold" }} >Olá</Text>
 
 
 )}
@@ -183,22 +221,26 @@ verifica_date = () =>{
   */}
 
 
+<Text style={{ color: '#808080', bottom: 15, borderWidth: 0.2 }}   >______________________________________________________</Text>
+  
 
   
-        <View style={styles.buttonContainerOrigem } >
+       <View style={styles.buttonContainerOrigem } >
         <ImageBackground source={require('../../images/botao_origem.png')} style={{ resizeMode: "cover",
-    justifyContent: "center", height: 70 }} >
+    justifyContent: "center", height: 70, top: -5 }} >
         
-      <TextInput  onTouchStart={()=> this.onPress() } placeholderTextColor = "#808080"  style={{     height: 40, paddingLeft: 70,   borderRadius: 15, width: 330, bottom: 5}} placeholder="De onde?"   />
+{/** onTouchStart={()=> this.onPress() } */}
+
+      <TextInput    value={""+this.state.origem}  placeholderTextColor = "#808080"  style={{     height: 40, paddingLeft: 70,   borderRadius: 15, width: 330, bottom: 5}} placeholder="De onde?"   />
       </ImageBackground>
       </View>
 
 
       <View style={styles.buttonContainerOrigem } >
       <ImageBackground source={require('../../images/botao_destino.png')} style={{ resizeMode: "cover",
-    justifyContent: "center", height: 70, bottom: 20 }} >
+    justifyContent: "center", height: 70, bottom: 10 }} >
         
-      <TextInput onTouchStart={()=> this.onPress() } placeholderTextColor = "#808080"  style={{    height: 40, paddingLeft: 70,   borderRadius: 15, width: 330, bottom: 0}} placeholder="Para onde?"   />
+      <TextInput   placeholderTextColor = "#808080"  style={{    height: 40, paddingLeft: 70,   borderRadius: 15, width: 330, bottom: 0}} placeholder="Para onde?"   />
       </ImageBackground>
     {/*    
  <TextInput  onTouchStart={()=> this.onPress() }  style={{ right: -160,    height: 50, paddingLeft: 10, borderColor: '#3CB371', borderWidth: 2, borderRadius: 15, width: 330, bottom: 50}} placeholder="De onde?"   />
@@ -227,6 +269,8 @@ verifica_date = () =>{
 
   
         </View> 
+
+       
         
       </View>
      
@@ -279,6 +323,7 @@ verifica_date = () =>{
             longitudeDelta: 0.0134
           }
         });
+        this.getAddress();
       }, //sucesso
       () => {}, //erro
       {
@@ -359,8 +404,13 @@ verifica_date = () =>{
 <Marker
           coordinate={region}
           title={'Vc está aqui!'}
+         
           
-        />
+        >
+        
+      <Image source={require('../../images/asset_pin_origin.png')}  style={{height: 60, width: 45 }} />
+
+</Marker>
           
           {destination && (
             <Fragment>
@@ -440,8 +490,11 @@ verifica_date = () =>{
 
 
 
-<Icon name="menu" size={40} color="#3CB371"  style={{ top: -540, left: 10}} onPress={ () =>  this.props.navigation.dispatch(DrawerActions.openDrawer())} />
-  
+<Icon name="menu" size={40} color="#3CB371"  style={{ top: -570, left: 10}} onPress={ () =>  this.props.navigation.dispatch(DrawerActions.openDrawer())} />
+   
+
+
+
 <BottomDrawer
        containerHeight={250}
        
@@ -456,10 +509,11 @@ verifica_date = () =>{
   </BottomDrawer > 
 
 
-
  
   
 </View>  
+
+
 
 
 
@@ -526,7 +580,8 @@ const styles = StyleSheet.create({
   },
   buttonContainerOrigem: {
     flexDirection: 'row',
-     borderRadius: 15
+     borderRadius: 15,
+     top: 5
     
   },
   buttonContainerDestiny: {

@@ -44,6 +44,7 @@ function TabAScreen() {
       <Stack.Screen name="TabA Home" component={TabADetailsScreen} />
       <Stack.Screen name="TabA Details" component={Details} />
       <Stack.Screen name="Map" component={Map} />
+      <Stack.Screen name="Search" component={Search} />
     </Stack.Navigator>
   );
 }
@@ -134,11 +135,12 @@ const Drawer = createDrawerNavigator(
 
 function Root() {
   return (
-    <Stack.Navigator initialRouteName='Login'  screenOptions={{
+    <Stack.Navigator initialRouteName='Map'  screenOptions={{
       headerShown: false
     }}>
       <Stack.Screen name="Map" component={Map} />
       <Stack.Screen name="Login" component={formLogin} />
+      <Stack.Screen name="Search" component={Search} />
     </Stack.Navigator>
   );
 }
