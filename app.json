@@ -14,7 +14,8 @@
       "package": "siga.cliente",
       "versionCode": 1
     },
-
+    
+   
 
     "updates": {
       "fallbackToCacheTimeout": 0

@@ -1,25 +1,39 @@
 import React, { Component } from "react";
-import { Platform, Image, Text } from "react-native";
+import { Platform, Image, Text, ImageBackground } from "react-native";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
+
 import { View } from "native-base";
+
+import Icon from 'react-native-vector-icons/MaterialIcons';
+
+import RNGooglePlaces from 'react-native-google-places';
 
 export default class Search extends Component {
   state = {
     searchFocused: false
   };
 
-  render() {
+ 
+  
+  
+
+  render( ) {
     const { searchFocused } = this.state;
     const { onLocationSelected, onLocationOriginSelected } = this.props;
     const { placeholder } = this.props;
-    const {type } = this.props;
+    const {type, itemId } = this.props.route.params;
+
+   
+    console.log(itemId);
+
 
     return (
 
-      
-
-<View>
-
+     
+    
+<View style={{ backgroundColor: '#008B8B', top: 20, height: '20%'}}>
+ 
+<Icon name="arrow-back" size={40} color="#3CB371" style={{ top: 30}} onPress={() =>  this.props.navigation.navigate('Map', { name: 'Jane' }) } />
 
        <GooglePlacesAutocomplete
         placeholder="Pesquise aqui.."
@@ -45,22 +59,23 @@ export default class Search extends Component {
         styles={{
           container: {
             position: "absolute",
-            top: Platform.select( type === 0 ? { ios: 60, android: 140 } : { ios: 90, android: 40 } ),
-            width: "105%",
-            right: -10
+            top: Platform.select( type === 0 ? { ios: 60, android: 150 } : { ios: 90, android: 25 } ),
+            width: "100%",
+            right: -5,
+            left: 15
             
           },
           textInputContainer: {
             flex: 1,
             backgroundColor: "transparent",
-            height: 54,
+            height: 50,
             marginHorizontal: 20,
             borderTopWidth: 0,
             borderBottomWidth: 0
 
           },
           textInput: {
-            height: 54,
+            height: 50,
             margin: 0,
             borderRadius: 0,
             paddingTop: 0,
@@ -99,14 +114,20 @@ export default class Search extends Component {
             fontSize: 16
           },
           row: {
-            padding: 20,
+            padding: 10,
             height: 58
           }
         }}
       />
+       
+
+
 
      
 </View>
+
+
+
 
   
 

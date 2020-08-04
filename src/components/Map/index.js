@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { View, Image, Text, Menu, ImageBackground, Dimensions, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import { View, Image, Text, Menu, ImageBackground, Dimensions, StyleSheet, TouchableOpacity, ScrollView, TextInput } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 
 
@@ -24,7 +24,7 @@ import Details from "../Details";
 
 import BottomDrawer from 'rn-bottom-drawer';
 
-
+import 'react-native-gesture-handler';
 
 import {MenuSiga } from '../Menu/index';
 
@@ -65,7 +65,7 @@ import {
   LocationTimeTextSmall,
   Logo,
 } from "./styles";
-import { TextInput } from "react-native-gesture-handler";
+
 
 Geocoder.init("AIzaSyD157FiAI8dfBRzoH4qvzjFi3iKSPzA860");
 
@@ -76,6 +76,12 @@ import googlemaps from '../../services/api';
 
 
 export default class Map extends Component {
+
+  static navigationOptions = {
+    headerShown: false
+  };
+
+
   state = {
     region:  {
       latitude: 0,
@@ -83,41 +89,58 @@ export default class Map extends Component {
       latitudeDelta: 0.0491,
       longitudeDelta: 0.0375,
     },
+    place:'',
+
+    buttonAddress: 0,
+
+    markers: [
+      { latitude: 0.001, longitude: 0.0 },
+    ],
+
     destination: { latitude: 0, longitude: 0 },
     origin: { latitude: 0, longitude: 0 },
     duration: null,
     location: null,
     origem: null, 
-    destino: null
+    destino: ""
   };
 
    
 
-  onPress = () => {
-   
+  googleSearch(button) {
+
+
+    console.log(button);
+
+    
+    this.setState({
+      buttonAddress: button
+  });
+    
     this.props.navigation.navigate('Search', {
-      placeholder: "Teste",
-      type: 0,
-      onLocationSelected: this.handleLocationSelected
+      itemId: 86,
+      otherParam: 'anything you want here',
+    });  
+      
+    }
 
-    }); 
+    
 
-  
-    };
-
-getAddress = async () => {
-  const response = await api.post('/geocode/json?latlng='+this.state.region.latitude+','+this.state.region.longitude+'&key=AIzaSyD157FiAI8dfBRzoH4qvzjFi3iKSPzA860')
+getAddress = async (coordinate) => {
+  const response = await api.post('/geocode/json?latlng='+coordinate.latitude+','+coordinate.longitude+'&key=AIzaSyD157FiAI8dfBRzoH4qvzjFi3iKSPzA860')
   .then(response =>{
 
-    //Toast.show('Tudo certo! Pode logar!', Toast.SHORT, [
-    //  'UIAlertController',
-    //]);
-   // console.log("Cookie-> "+response.headers["set-cookie"]);
-   
-    console.log("-> "+response.data.results[0].formatted_address);
+   if(this.state.buttonAddress === 0){
     this.setState({
       origem: response.data.results[0].formatted_address
   });
+   } else{
+    this.setState({
+      destino: response.data.results[0].formatted_address
+  });
+   }
+
+    
 
   
    
@@ -150,45 +173,7 @@ verifica_date = () =>{
   return result;
 };
   
- Notifications = () => {
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Notifications Screen</Text>
-    </View>
-  );
-}
 
-
-
-
- MyDrawer = () =>{
-  const Drawer = createDrawerNavigator();
-  return (
-    <NavigationContainer>
-    <Drawer.Navigator drawerContent={props => <MenuSiga {...props} />}>
-    
-    
-      <Drawer.Screen name="Notifications" component={() => <this.Notifications />} />
-    </Drawer.Navigator>
-    </NavigationContainer>
-  );
-}
-
- CustomDrawerContent = (props) =>{
-  return (
-    <DrawerContentScrollView {...props}>
-      <DrawerItemList {...props} />
-      <DrawerItem
-        label="Close drawer"
-        onPress={() => props.navigation.dispatch(DrawerActions.closeDrawer())}
-      />
-      <DrawerItem
-        label="Toggle drawer"
-        onPress={() => props.navigation.dispatch(DrawerActions.toggleDrawer())}
-      />
-    </DrawerContentScrollView>
-  );
-}
 
 
   renderContent = () => {
@@ -229,9 +214,10 @@ verifica_date = () =>{
         <ImageBackground source={require('../../images/botao_origem.png')} style={{ resizeMode: "cover",
     justifyContent: "center", height: 70, top: -5 }} >
         
-{/** onTouchStart={()=> this.onPress() } */}
+{/** onTouchStart={()=> this.onPress() } */
+}
 
-      <TextInput    value={""+this.state.origem}  placeholderTextColor = "#808080"  style={{     height: 40, paddingLeft: 70,   borderRadius: 15, width: 330, bottom: 5}} placeholder="De onde?"   />
+      <TextInput    value={""+this.state.origem}   onTouchStart={() => this.googleSearch(0)   } placeholderTextColor = "#808080"  style={{     height: 40, paddingLeft: 70,   borderRadius: 15, width: 330, bottom: 5}} placeholder="De onde?" selection={{start: 0, end: 0}}   />
       </ImageBackground>
       </View>
 
@@ -240,7 +226,7 @@ verifica_date = () =>{
       <ImageBackground source={require('../../images/botao_destino.png')} style={{ resizeMode: "cover",
     justifyContent: "center", height: 70, bottom: 10 }} >
         
-      <TextInput   placeholderTextColor = "#808080"  style={{    height: 40, paddingLeft: 70,   borderRadius: 15, width: 330, bottom: 0}} placeholder="Para onde?"   />
+      <TextInput   placeholderTextColor = "#808080"  value={""+this.state.destino} onTouchStart={()=> this.googleSearch(1) }  style={{    height: 40, paddingLeft: 70,   borderRadius: 15, width: 330, bottom: 0}} placeholder="Para onde?" selection={{start: 0, end: 0}}   />
       </ImageBackground>
     {/*    
  <TextInput  onTouchStart={()=> this.onPress() }  style={{ right: -160,    height: 50, paddingLeft: 10, borderColor: '#3CB371', borderWidth: 2, borderRadius: 15, width: 330, bottom: 50}} placeholder="De onde?"   />
@@ -323,7 +309,7 @@ verifica_date = () =>{
             longitudeDelta: 0.0134
           }
         });
-        this.getAddress();
+        this.getAddress(this.state.region);
       }, //sucesso
       () => {}, //erro
       {
@@ -376,7 +362,20 @@ verifica_date = () =>{
     this.setState({  duration: 0 });
   };
 
+  addMarker(coordinates) {
 
+    console.log("-> "+ coordinates.latitude+ " "+coordinates.longitude);
+
+
+{/* ...this.state.markers,*/}
+
+    this.setState({
+      markers: [  { latitude: coordinates.latitude, longitude: coordinates.longitude }]
+    });
+
+    this.getAddress(coordinates);
+    
+  }
   
 
   render() {
@@ -391,12 +390,16 @@ verifica_date = () =>{
 <View style={{ flex: 1 }}>
  
 
-        <MapView
+        <MapView 
           style={styles.map}
           region={region}
           showsUserLocation={false}
           loadingEnabled
           ref={el => (this.mapView = el)}
+
+          onPress={event => this.addMarker(event.nativeEvent.coordinate)}
+       
+          
         >
 
 
@@ -411,6 +414,23 @@ verifica_date = () =>{
       <Image source={require('../../images/asset_pin_origin.png')}  style={{height: 60, width: 45 }} />
 
 </Marker>
+
+
+<MapView.Overlay
+        
+          bounds={[[0.01, -0.01], [-0.01, 0.01]]}
+        />
+        {this.state.markers.map(marker =>
+          (<MapView.Marker
+            key={marker.index}
+            coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
+          >
+          { (this.state.buttonAddress === 0 ? ( <Image source={require('../../images/pin_origem.png')}  style={{height: 60, width: 45 }} />) :
+           ( <Image source={require('../../images/pin_destino.png')}  style={{height: 60, width: 45 }} />)) }
+         
+          </MapView.Marker>
+          )
+        )}
           
           {destination && (
             <Fragment>

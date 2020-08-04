@@ -12,7 +12,7 @@ import { StackActions, NavigationActions } from 'react-navigation';
 
 const RCTNetworking = require('react-native/Libraries/Network/RCTNetworking.android')
  
-import api from '../../services/api';
+import api2 from '../../services/api2';
 
 import {
   Container,
@@ -95,7 +95,7 @@ _openSafariWebView = async _URL => {
    // console.log(this.state.email);
 
 
-    const response = await api.post('/users/sign_in.json?user[login]='+email+'&user[password]='+this.state.password)
+    const response = await api2.post('/users/sign_in.json?user[login]='+this.state.email+'&user[password]='+this.state.password)
     .then(response =>{
 
       //Toast.show('Tudo certo! Pode logar!', Toast.SHORT, [

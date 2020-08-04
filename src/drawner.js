@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Button, View, Text, Dimensions } from 'react-native';
+import { Button, View, Text, TextInput, Dimensions } from 'react-native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { NavigationContainer, DrawerActions } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -16,6 +16,9 @@ import formLogin from './components/signIn/index';
 import Map from './components/Map/index';
 import Search from './components/Search/index';
 import Menu from './components/Menu/index';
+import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
+
+
 
 {/*const Tab = createBottomTabNavigator(); */}
 
@@ -135,16 +138,36 @@ const Drawer = createDrawerNavigator(
 
 function Root() {
   return (
-    <Stack.Navigator initialRouteName='Map'  screenOptions={{
-      headerShown: false
-    }}>
-      <Stack.Screen name="Map" component={Map} />
+    <Stack.Navigator initialRouteName='Map'  >
+      <Stack.Screen name="Map" component={Map}  options={{headerShown: false}} />
       <Stack.Screen name="Login" component={formLogin} />
-      <Stack.Screen name="Search" component={Search} />
+      <Stack.Screen name="Search" component={Search} options={{headerShown: false,   title: ''  , headerTransparent: true, headerStyle: {
+              backgroundColor: '#008B8B', top: -10
+           } }}  />
     </Stack.Navigator>
   );
 }
 
+
+
+{/* options={{headerShown: true,   title:   , headerTransparent: false, headerStyle: {
+              backgroundColor: '#008B8B'
+           } }} */}
+
+function googleSearch() {
+
+  return (
+    <>
+    <Text> asdasdasd</Text>
+    </>
+  
+  );
+
+}
+
+{/* options={{headerShown: true,    headerTransparent: false, title:"", headerStyle: {
+              backgroundColor: '#008B8B'
+           } }} */}
 
 
 export default function App() {
