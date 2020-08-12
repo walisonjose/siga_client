@@ -2,9 +2,12 @@ import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import styles from './styles';
 import {NavigationActions} from 'react-navigation';
-import {ScrollView, Text, View, Image, ImageBackground } from 'react-native';
+import {ScrollView, Text, View, Image, ImageBackground, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { TouchableHighlight } from 'react-native-gesture-handler';
+
+import {connect} from "react-redux";
 
 
 
@@ -26,14 +29,14 @@ class SideMenu extends Component {
     justifyContent: "center", height: 200 }} >
           <Image
         style={{ height: 75, width: 75, left: 10, borderRadius: 35, top: 35 }}
-        source={ {uri: "https://siga.aparecida.go.gov.br/paperclip/users/profile_pictures/b57cdc667ef7832f45e76264c7825412bcecdd7d/thumb.jpg?1562098524"}}
+        source={ {uri: this.props.avatar}}
       /> 
         <Image
       style={{  left: 90, bottom: 35, height: 60, width: 210 }}
       source={require('../../images/logoaparecida.png')}
     />
-      <Text style={{ color: '#FFF', fontSize: 16,  left: 10, top: -25}}>Walison José de Deus</Text>
-      <Text style={{ color: '#FFF', fontSize: 16,  left: 10, top: -20}}>walison.deus@aparecida.go.gov.br</Text>
+      <Text style={{ color: '#FFF', fontSize: 16,  left: 10, top: -25}}>{this.props.name}</Text>
+      <Text style={{ color: '#FFF', fontSize: 16,  left: 10, top: -20}}>{this.props.email}</Text>
 
           </ImageBackground>
          
@@ -56,9 +59,13 @@ class SideMenu extends Component {
 <Icon name="hearing" size={35} color="grey"  />
 <Text style={{ left: 50, top: -30, fontSize: 17, fontWeight: 'bold', color: 'grey'}}>Reclamação/Elogio</Text>
 
+<TouchableOpacity
+       
+        onPress={()=> { console.log("QQQQ"); this.props.navigation.navigate("Login"); } }
+      >
 <MaterialIcons name="logout" size={35} color="grey"  /> 
 <Text style={{ left: 50, top: -30, fontSize: 17, fontWeight: 'bold', color: 'grey'}}>Sair</Text>
-
+</TouchableOpacity>
 
 </View>  
           
@@ -72,8 +79,21 @@ class SideMenu extends Component {
   }
 }
 
+
+
 SideMenu.propTypes = {
   navigation: PropTypes.object
 };
 
-export default SideMenu;
+const mapStateToProps = state => {
+  return {
+    
+
+    name: state.AuthenticationReducer.name,
+     email: state.AuthenticationReducer.email,
+     avatar: state.AuthenticationReducer.avatar,
+  }
+};
+
+export default connect(mapStateToProps)(SideMenu);
+

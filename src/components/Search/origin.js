@@ -58,10 +58,10 @@ export default class Search extends Component {
           container: {
             position: "absolute",
             top: Platform.select( type === 0 ? { ios: 60, android: 15 } : { ios: 90, android: 15 } ),
-            width: "110%",
+            width: "95%",
            
             right: -10, 
-            left: -18
+            left: -10
             
           },
           textInputContainer: {
@@ -110,7 +110,7 @@ export default class Search extends Component {
             
           },
           description: {
-            fontSize: 12
+            fontSize: 16
           },
           row: {
             padding: 10,
@@ -118,10 +118,7 @@ export default class Search extends Component {
           }
         }}
       />
-      
- <IconClose name="close-box" size={45} color="#3CB371" style={{ top: 15, left: 310}} onPress={ icon} />
-       
-     
+      <IconClose name="close-box" size={50} color="#3CB371" style={{ top: 15, left: 310}} onPress={ icon} />
 
    </>
       );

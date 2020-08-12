@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from "react";
-import { View, Image, Text, Menu, ImageBackground, Dimensions, StyleSheet, TouchableOpacity, ScrollView, TextInput } from "react-native";
+import { View, AsyncStorage, Modal, Image, Text, Menu, ImageBackground, Dimensions, StyleSheet, TouchableOpacity, TouchableHighlight, ScrollView, TextInput } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 
-
+import { Avatar, IconButton,  Colors } from 'react-native-paper';
 
 
 import Geocoder from "react-native-geocoding";
@@ -16,6 +16,7 @@ import Geolocation from 'react-native-geolocation-service';
 import { getPixelSize } from "../../utils";
 
 import Search from "../Search";
+import Origin from "../Search/origin"
 
 import SideMenu from 'react-native-side-menu';
 
@@ -52,9 +53,9 @@ import {
 
 
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 
-
-
+import {connect} from "react-redux";
 
 import {
   Back,
@@ -75,7 +76,9 @@ console.disableYellowBox = true;
 import googlemaps from '../../services/api';
 
 
-export default class Map extends Component {
+
+
+ class Map extends Component {
 
   static navigationOptions = {
     headerShown: false
@@ -102,7 +105,14 @@ export default class Map extends Component {
     duration: null,
     location: null,
     origem: null, 
-    destino: ""
+    short_origin: null,
+    destino: "",
+    short_destination: null,
+    search_adress: false,
+    startUp: true,
+    dim: 250,
+    top_origin: -30,
+    top_destino: 25,
   };
 
    
@@ -112,15 +122,38 @@ export default class Map extends Component {
 
     console.log(button);
 
-    
+   
+
     this.setState({
-      buttonAddress: button
+      buttonAddress: button,
+      startUp: false,
+      search_adress: true,
+      
+      
   });
+
+
+  
+
+{/*     
+if(button === 0){
+  this.props.navigation.navigate('Search', {
+    type: 0,
+    onLocationOriginSelected: this.handleLocationOrigSelected,
     
-    this.props.navigation.navigate('Search', {
-      itemId: 86,
-      otherParam: 'anything you want here',
-    });  
+  }); 
+}else{
+  this.props.navigation.navigate('Search', {
+    type: 1,
+    onLocationSelected: this.handleLocationSelected
+    
+  }); 
+}
+
+  
+  */}
+  
+     
       
     }
 
@@ -130,13 +163,22 @@ getAddress = async (coordinate) => {
   const response = await api.post('/geocode/json?latlng='+coordinate.latitude+','+coordinate.longitude+'&key=AIzaSyD157FiAI8dfBRzoH4qvzjFi3iKSPzA860')
   .then(response =>{
 
+console.log("-> "+response.data.results[0].formatted_address);
+
+
    if(this.state.buttonAddress === 0){
     this.setState({
-      origem: response.data.results[0].formatted_address
+      origem: response.data.results[0].formatted_address,
+      origin: coordinate,
+      short_origin: response.data.results[0].address_components[1].short_name,
+     
   });
    } else{
     this.setState({
-      destino: response.data.results[0].formatted_address
+      destino: response.data.results[0].formatted_address,
+      destination: coordinate,
+      short_destination: response.data.results[0].address_components[1].short_name,
+      
   });
    }
 
@@ -166,14 +208,24 @@ verifica_date = () =>{
     var result = 0;
     
 
-  if(hours >= 12){
+  if(hours >= 12 && hours < 18){
     result = 1;
   }
+
+  if(hours >= 18){
+    result = 2;
+  }
+
 
   return result;
 };
   
 
+getFirstName = () =>{
+  var name = this.props.name;
+  return name.substring(0,name.indexOf(' '));
+  //console.log("-> "+name.indexOf(' '));
+}
 
 
   renderContent = () => {
@@ -184,49 +236,55 @@ verifica_date = () =>{
 
       
 
+
       <View style={styles.contentContainer } > 
 
-
+<Icon name="swap-vert" size={40} color="#3CB371"  style={{ top: -5, left: 145}}  />
+ 
 
 { this.verifica_date() === 0 ? (
   
-  <Text  style={{ color: '#3CB371' ,  fontSize: 18,   fontWeight: "bold" }}>Olá</Text>
+<Text  style={{ color: '#3CB371' ,  fontSize: 18,   fontWeight: "bold", bottom: 20 }}>Bom dia, {this.getFirstName() }</Text>
 
  
   
-) : (
+) : ( this.verifica_date() === 1 ? (
   
-  <Text style={{  color: '#3CB371' , fontSize: 18,   fontWeight: "bold" }} >Olá</Text>
+  <Text style={{  color: '#3CB371' , fontSize: 18,   fontWeight: "bold", bottom: 20 }} >Boa tarde, {this.getFirstName()}</Text>
 
 
-)}
+): ( this.verifica_date() === 2 ? (
 
-{/*
-  <Text  style={{ color: '#3CB371' ,  fontSize: 18,   fontWeight: "bold" }}>Bom dia</Text>
-  */}
+   <Text style={{  color: '#3CB371' , fontSize: 18,   fontWeight: "bold", bottom: 20 }} >Boa noite, {this.getFirstName()}</Text>
+
+): ( <Text style={{  color: '#3CB371' , fontSize: 18,   fontWeight: "bold", bottom: 20 }} > </Text> )))}
 
 
-<Text style={{ color: '#808080', bottom: 15, borderWidth: 0.2 }}   >______________________________________________________</Text>
+  
+  
+
+
+<Text style={{ color: '#808080', bottom: 15, borderWidth: 0.2, bottom: 30 }}   >______________________________________________________</Text>
   
 
   
        <View style={styles.buttonContainerOrigem } >
         <ImageBackground source={require('../../images/botao_origem.png')} style={{ resizeMode: "cover",
-    justifyContent: "center", height: 70, top: -5 }} >
+    justifyContent: "center", height: 70, top: -30, width:330 }} >
         
 {/** onTouchStart={()=> this.onPress() } */
 }
 
-      <TextInput    value={""+this.state.origem}   onTouchStart={() => this.googleSearch(0)   } placeholderTextColor = "#808080"  style={{     height: 40, paddingLeft: 70,   borderRadius: 15, width: 330, bottom: 5}} placeholder="De onde?" selection={{start: 0, end: 0}}   />
+      <TextInput    value={""+this.state.origem}     onTouchStart={() => this.googleSearch(0)   }  placeholderTextColor = "#808080"  style={{     height: 40, paddingLeft: 70,   borderRadius: 15, width: 300, bottom: 5}} placeholder="De onde?"  selection={ { start: 0 , end: 0}}  />
       </ImageBackground>
       </View>
 
 
       <View style={styles.buttonContainerOrigem } >
       <ImageBackground source={require('../../images/botao_destino.png')} style={{ resizeMode: "cover",
-    justifyContent: "center", height: 70, bottom: 10 }} >
+    justifyContent: "center", height: 70, bottom: 25, width:330 }} >
         
-      <TextInput   placeholderTextColor = "#808080"  value={""+this.state.destino} onTouchStart={()=> this.googleSearch(1) }  style={{    height: 40, paddingLeft: 70,   borderRadius: 15, width: 330, bottom: 0}} placeholder="Para onde?" selection={{start: 0, end: 0}}   />
+      <TextInput   placeholderTextColor = "#808080"  value={""+this.state.destino} onTouchStart={()=> this.googleSearch(1) }   style={{    height: 40, paddingLeft: 70,   borderRadius: 15, width: 300, bottom: 0}} placeholder="Para onde?" selection={ { start: 0 , end: 0}}    />
       </ImageBackground>
     {/*    
  <TextInput  onTouchStart={()=> this.onPress() }  style={{ right: -160,    height: 50, paddingLeft: 10, borderColor: '#3CB371', borderWidth: 2, borderRadius: 15, width: 330, bottom: 50}} placeholder="De onde?"   />
@@ -259,6 +317,7 @@ verifica_date = () =>{
        
         
       </View>
+
      
     )
   }
@@ -267,7 +326,10 @@ verifica_date = () =>{
   
 
   async componentDidMount() {
+    
+    const tokenExpo = await AsyncStorage.getItem('token');
 
+    console.log("TOKEN: "+tokenExpo);
   /*  Geolocation.getCurrentPosition(
       (position) => {
           let newOrigin = {
@@ -321,7 +383,7 @@ verifica_date = () =>{
 
    
 
-  }3
+  }
 
   handleLocationSelected = (data, { geometry }) => {
     const {
@@ -334,32 +396,65 @@ verifica_date = () =>{
         latitude,
         longitude,
         title: data.structured_formatting.main_text
-      }
+      },
+
+      destino: data.structured_formatting.secondary_text,
+      short_destination: data.structured_formatting.main_text,
+      search_adress: false
+
+
     });
 
-    console.log("Teste!");
+    console.log(" Aqui2 "+latitude);
   };
+
+  closeSearchGoogle = (status) =>{
+    this.setState({  
+      search_adress: false,
+      top_destino: 20,
+      top_origin: -30,
+    });
+     
+  };
+
+
 
   handleLocationOrigSelected = (data, { geometry }) => {
     const {
       location: { lat: latitude, lng: longitude }
     } = geometry;
+   
+   
+    
 
-    this.setState({
+ this.setState({
       origin: {
         latitude,
-        longitude,
-        title: data.structured_formatting.main_text
-      }
-    });
+        longitude
+        
+      },
+      origem: data.structured_formatting.secondary_text,
+      short_origin: data.structured_formatting.main_text,
+      search_adress: false
+      
+      
+    }); 
+    
+    
+    
+
+console.log(" Aqui "+data.structured_formatting.main_text);
+
+
+  }
 
 
 
-
-  };
 
   handleBack = () => {
-    this.setState({  duration: 0 });
+    
+    this.setState({  duration: 0, destination: null }); 
+    
   };
 
   addMarker(coordinates) {
@@ -381,7 +476,7 @@ verifica_date = () =>{
   render() {
     const { region, destination, duration, location, origin } = this.state;
 
-   
+    
    
 
     return (
@@ -406,12 +501,16 @@ verifica_date = () =>{
 
 <Marker
           coordinate={region}
-          title={'Vc está aqui!'}
+          
          
           
         >
+           <Image
+        style={{ height: 40, width: 40, borderColor: '#000',   borderRadius: 40}}
+        source={ {uri: this.props.avatar}}
+      /> 
         
-      <Image source={require('../../images/asset_pin_origin.png')}  style={{height: 60, width: 45 }} />
+     {/* <Image source={require('../../images/asset_pin_origin.png')}  style={{height: 60, width: 45 }} /> */} 
 
 </Marker>
 
@@ -420,7 +519,7 @@ verifica_date = () =>{
         
           bounds={[[0.01, -0.01], [-0.01, 0.01]]}
         />
-        {this.state.markers.map(marker =>
+        { /*this.state.markers.map(marker =>
           (<MapView.Marker
             key={marker.index}
             coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
@@ -430,7 +529,36 @@ verifica_date = () =>{
          
           </MapView.Marker>
           )
-        )}
+          ) */}
+
+          { this.state.origin != null ?
+          (
+            <MapView.Marker
+           
+            coordinate={{ latitude: this.state.origin.latitude, longitude: this.state.origin.longitude }}
+          >
+         <Image source={require('../../images/pin_origem.png')}  style={{height: 60, width: 45 }} />
+         
+         
+          </MapView.Marker>
+          ) : ""
+
+          }
+
+{ this.state.destination != null ?
+          (
+            <MapView.Marker
+           
+            coordinate={{ latitude: this.state.destination.latitude, longitude: this.state.destination.longitude }}
+          >
+         <Image source={require('../../images/pin_destino.png')}  style={{height: 60, width: 45 }} />
+         
+         
+          </MapView.Marker>
+          ) : ""
+
+          }
+
           
           {destination && (
             <Fragment>
@@ -456,7 +584,7 @@ verifica_date = () =>{
                 image={markerImage}
               >
                 <LocationBox>
-                  <LocationText>{origin.title}</LocationText>
+                  <LocationText>{this.state.short_origin}</LocationText>
                 </LocationBox>
               </Marker>
 
@@ -466,7 +594,7 @@ verifica_date = () =>{
                     <LocationTimeText>{duration}</LocationTimeText>
                     <LocationTimeTextSmall>MIN</LocationTimeTextSmall>
                   </LocationTimeBox>
-                   <LocationText>{destination.title}</LocationText>
+                   <LocationText>{this.state.short_destination}</LocationText>
                 </LocationBox>
               </Marker>
             </Fragment>
@@ -482,19 +610,23 @@ verifica_date = () =>{
 
         { duration > 0 ? (
           <Fragment>
-            <Back onPress={this.handleBack}>
-              <Image source={backImage} />
-            </Back>
-            
-           
-            <Details duration={duration} /> 
+{/* 
 
+      <Back onPress={this.handleBack} style={{  top: 250}}>
+           <Image source={backImage}   /> 
+           
+            </Back>
+          
+           
+           
+            <Details duration={duration} /> */} 
+ 
           </Fragment>
         ) : ( 
           <>
             
-         {/*
          
+      {/*   
          <Search onLocationOriginSelected={this.handleLocationOrigSelected} placeholder={"Origem?"} type={0} /> 
            
              <Search  onLocationSelected={this.handleLocationSelected} placeholder={"Destino?"} type={1} /> 
@@ -507,17 +639,52 @@ verifica_date = () =>{
 
           </>  
         )}
+{/* 
+<View style={{ backgroundColor: "#FFF",  height: 50, width:50, top: -520, left: 10}}>
+<Icon name="menu" size={40} color="#3CB371"  style={{ top: -520, left: 10}}  onPress={ () =>  this.props.navigation.dispatch(DrawerActions.openDrawer())} />
+ 
+</View>
 
 
+<TouchableHighlight 
+        onPress={() =>  this.props.navigation.dispatch(DrawerActions.openDrawer())}
+      >
+<Avatar.Icon size={50} icon="menu" color="#3CB371"   style={{ top: -545, left: 15, backgroundColor: "#FFF",}}  />
 
-<Icon name="menu" size={40} color="#3CB371"  style={{ top: -570, left: 10}} onPress={ () =>  this.props.navigation.dispatch(DrawerActions.openDrawer())} />
+</TouchableHighlight> */}
+
+<IconButton
+    icon="menu"
+    color="#3CB371"
+    animated={true}
+    size={40}
+    style={{ top: -545, left: 5, backgroundColor: "#FFF"}}
+    onPress={() =>  this.props.navigation.dispatch(DrawerActions.openDrawer())}
+  />
    
 
+<Modal
+animationType="slide"
+transparent={true}
+visible={this.state.search_adress}
+
+>
+  { this.state.buttonAddress === 0 ?
+  
+  (<Search onLocationOriginSelected={this.handleLocationOrigSelected} placeholder={"De onde?"} type={0} icon={this.closeSearchGoogle} /> ) :
+
+  ( <Search  onLocationSelected={this.handleLocationSelected} placeholder={"Para onde?"} type={1} icon={this.closeSearchGoogle} />  ) 
+
+  }
+
+         
+
+       </Modal>
 
 
 <BottomDrawer
-       containerHeight={250}
-       
+       containerHeight={this.state.dim}
+       startUp={this.state.startUp}
        offset={0}
       
       >
@@ -540,6 +707,19 @@ verifica_date = () =>{
     );
   }
 }
+
+const mapStateToProps = state => {
+  return {
+    //  user: state.AuthenticationReducer.user,
+    //  hospitalPrincipal: 1,
+    //  hospitalPrincipal: state.AuthenticationReducer.hospitalPrincipal,
+   // login: state.AuthenticationReducer.login,
+   name: state.AuthenticationReducer.name,
+   avatar: state.AuthenticationReducer.avatar,
+  }
+};
+
+export default connect(mapStateToProps)(Map);
 
 const styles = StyleSheet.create({
   map: {
@@ -593,7 +773,7 @@ const styles = StyleSheet.create({
 
   contentContainer: {
     flex: 1,
-    
+    borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'space-around'
     
@@ -610,5 +790,45 @@ const styles = StyleSheet.create({
   },
   text: {
     paddingHorizontal: 5
+  },
+
+
+  
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5
+  },
+  openButton: {
+    backgroundColor: "#F194FF",
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center"
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center"
   }
+
 });

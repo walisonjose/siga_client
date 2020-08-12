@@ -1,14 +1,17 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import { StatusBar, ToastAndroid, ImageBackground } from 'react-native';
+import { connect } from "react-redux";
+
+import { StatusBar, ToastAndroid, ImageBackground, AsyncStorage } from 'react-native';
 
 import Toast from 'react-native-simple-toast';
 
 import * as WebBrowser from "expo-web-browser";
 import { StackActions, NavigationActions } from 'react-navigation';
+import { savePropsAuthentication, saveToken } from '../actions/AuthenticationActions';
 
-//import CookieManager from 'react-native-cookies';
+//import CookieManager from 'react-native-cookies'; 
 
 const RCTNetworking = require('react-native/Libraries/Network/RCTNetworking.android')
  
@@ -29,7 +32,7 @@ import {
 
 const resetPasswordURL = 'https://sigadev.aparecida.go.gov.br/pt-BR/users/password/new'
 
-export default class SignIn extends Component {
+ class SignIn extends Component {
   static navigationOptions = {
     header: null,
   };
@@ -43,9 +46,9 @@ export default class SignIn extends Component {
   };
 
   state = {
-    email: '',
+    email: "walison.deus@aparecida.go.gov.br",
     itemId: null,
-    password: '',
+    password: "javajade",
     error: '',
   };
 
@@ -80,6 +83,8 @@ _openSafariWebView = async _URL => {
   loginUserSiga = async () => {
 
 
+    
+
     var email = null;
     if(this.state.email.indexOf("@") === -1){
      
@@ -98,14 +103,27 @@ _openSafariWebView = async _URL => {
     const response = await api2.post('/users/sign_in.json?user[login]='+this.state.email+'&user[password]='+this.state.password)
     .then(response =>{
 
+
+      console.log(" data: "+response.headers["set-cookie"]);
+
       //Toast.show('Tudo certo! Pode logar!', Toast.SHORT, [
       //  'UIAlertController',
       //]);
-     // console.log("Cookie-> "+response.headers["set-cookie"]);
+      //console.log("Cookie-> "+response.headers["set-cookie"]);
+      this.props.savePropsAuthentication({
+        
      
-      console.log("passou aqui!!");
-     this.props.navigation.navigate('Map', {
-      itemId: this.state.itemId,
+       email: this.state.email,
+       name: response.data.name,
+      avatar: response.data.profile_picture[0],
+    token: response.headers["set-cookie"],
+    });
+  //   saveToken(response.headers["set-cookie"]);
+      
+     
+     // console.log("passou aqui!!"+respon);
+    this.props.navigation.navigate('Map', {
+  //    itemId: this.state.itemId,
       
     });
       
@@ -290,3 +308,15 @@ statusLogin = 0;
     );
   }
 }
+
+
+const mapStateToProps = state => {
+  return {
+      token: state.AuthenticationReducer.token,
+      login: state.AuthenticationReducer.login,
+      password: state.AuthenticationReducer.password,
+      
+  }
+};
+
+export default connect(mapStateToProps, { savePropsAuthentication })(SignIn);

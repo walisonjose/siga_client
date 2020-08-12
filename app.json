@@ -12,7 +12,8 @@
     },
     "android": {
       "package": "siga.cliente",
-      "versionCode": 1
+      "versionCode": 1,
+      "softwareKeyboardLayoutMode": "pan"
     },
     
    

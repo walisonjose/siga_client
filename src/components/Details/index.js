@@ -6,10 +6,13 @@ import {
   TypeDescription,
   TypeImage,
   RequestButton,
-  RequestButtonText
+  RequestButtonText,
+  Back,
+  
 } from "./styles";
 
 import uberx from "../../assets/uberx.png";
+import backImage from "../../assets/back.png";
 
 export default class Details extends Component {
   state = {
@@ -24,7 +27,8 @@ export default class Details extends Component {
     return (
 <Container>
         <TypeTitle>Siga</TypeTitle>
-       
+
+        
 
         <TypeImage source={uberx} /> 
         <TypeTitle>Tempo de viagem</TypeTitle>
