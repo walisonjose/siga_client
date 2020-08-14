@@ -13,6 +13,7 @@ import {
 
 import uberx from "../../assets/uberx.png";
 import backImage from "../../assets/back.png";
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 export default class Details extends Component {
   state = {
@@ -26,15 +27,14 @@ export default class Details extends Component {
     const { duration, destination } = this.props;
     return (
 <Container>
-        <TypeTitle>Siga</TypeTitle>
 
-        
+        <TypeTitle>Siga</TypeTitle>
 
         <TypeImage source={uberx} /> 
         <TypeTitle>Tempo de viagem</TypeTitle>
     <TypeDescription>{duration} minutos</TypeDescription>
 
-        <RequestButton onPress={() => {}}>
+        <RequestButton onPress={() => { console.log("Teste") }}>
           <RequestButtonText>SOLICITAR MOTORISTA</RequestButtonText>
         </RequestButton>
       </Container> 

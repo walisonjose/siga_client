@@ -19,16 +19,19 @@ export const Container = styled.View`
 export const TypeTitle = styled.Text`
   font-size: 20px;
   color: #222;
+ 
 `;
 
 export const TypeDescription = styled.Text`
   color: #666;
   font-size: 14px;
+  
 `;
 
 export const TypeImage = styled.Image`
   height: 80px;
   margin: 10px 0;
+  
 `;
 
 export const RequestButton = styled.TouchableOpacity`
@@ -39,6 +42,7 @@ export const RequestButton = styled.TouchableOpacity`
   align-self: stretch;
   margin-top: 15px;
   borderRadius: 15;
+  
 `;
 
 export const RequestButtonText = styled.Text`

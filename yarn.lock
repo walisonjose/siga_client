@@ -5130,6 +5130,11 @@ react-native-axios@^0.17.1:
   dependencies:
     follow-redirects "0.0.7"
 
+react-native-callout@^0.0.8:
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/react-native-callout/-/react-native-callout-0.0.8.tgz#432ac90dd56b2ae53a50981b17d6c96e80c8505b"
+  integrity sha1-QyrJDdVrKuU6UJgbF9bJboDIUFs=
+
 react-native-circle-drawer@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/react-native-circle-drawer/-/react-native-circle-drawer-1.0.0.tgz#e8a59d53227371ff703870c0c3a0524bc7b13ce6"

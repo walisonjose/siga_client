@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from "react";
-import { View, AsyncStorage, Modal, Image, Text, Menu, ImageBackground, Dimensions, StyleSheet, TouchableOpacity, TouchableHighlight, ScrollView, TextInput } from "react-native";
-import MapView, { Marker } from "react-native-maps";
+import { View, AsyncStorage, Animated, Modal, Image, Text, Menu, ImageBackground, Dimensions, StyleSheet, TouchableOpacity, TouchableHighlight, ScrollView, TextInput } from "react-native";
+import MapView, { Marker, Callout } from "react-native-maps";
 
 import { Avatar, IconButton,  Colors } from 'react-native-paper';
 
@@ -28,6 +28,8 @@ import BottomDrawer from 'rn-bottom-drawer';
 import 'react-native-gesture-handler';
 
 import {MenuSiga } from '../Menu/index';
+
+import uberx from "../../assets/uberx.png";
 
 
 
@@ -64,7 +66,15 @@ import {
   LocationTimeBox,
   LocationTimeText,
   LocationTimeTextSmall,
+  RequestButton,
+  LocationBoxRun,
+  RequestButtonText,
+  LocationTextRun,
   Logo,
+  Container,
+  TypeTitle,
+  TypeDescription,
+  TypeImage,
 } from "./styles";
 
 
@@ -227,6 +237,30 @@ getFirstName = () =>{
   //console.log("-> "+name.indexOf(' '));
 }
 
+details = () =>{
+  return (
+    
+    <Container>
+
+<Back onPress={this.handleBack} >
+          
+          
+          <Icon name="arrow-back" size={40} color="#3CB371"    onPress={ () =>   this.setState({ duration: 0, destination: null, short_destination: null }) }/>
+
+           </Back>
+
+            <TypeTitle>Siga</TypeTitle>
+    
+            <TypeImage source={uberx} /> 
+            <TypeTitle>Tempo de viagem</TypeTitle>
+        <TypeDescription>{this.state.duration} minutos</TypeDescription>
+    
+            <RequestButton onPress={() =>  console.log("Teste") }>
+              <RequestButtonText>SOLICITAR MOTORISTA</RequestButtonText>
+            </RequestButton>
+            </Container>
+        );
+}
 
   renderContent = () => {
 
@@ -244,18 +278,18 @@ getFirstName = () =>{
 
 { this.verifica_date() === 0 ? (
   
-<Text  style={{ color: '#3CB371' ,  fontSize: 18,   fontWeight: "bold", bottom: 20 }}>Bom dia, {this.getFirstName() }</Text>
+<Text  style={{ color: '#3CB371' ,  fontSize: 18,   fontWeight: "bold", bottom: 20 }}>Bom dia, {/*this.getFirstName() */}</Text>
 
  
   
 ) : ( this.verifica_date() === 1 ? (
   
-  <Text style={{  color: '#3CB371' , fontSize: 18,   fontWeight: "bold", bottom: 20 }} >Boa tarde, {this.getFirstName()}</Text>
+  <Text style={{  color: '#3CB371' , fontSize: 18,   fontWeight: "bold", bottom: 20 }} >Boa tarde, {/*this.getFirstName() */}</Text>
 
 
 ): ( this.verifica_date() === 2 ? (
 
-   <Text style={{  color: '#3CB371' , fontSize: 18,   fontWeight: "bold", bottom: 20 }} >Boa noite, {this.getFirstName()}</Text>
+   <Text style={{  color: '#3CB371' , fontSize: 18,   fontWeight: "bold", bottom: 20 }} >Boa noite, {/*this.getFirstName() */}</Text>
 
 ): ( <Text style={{  color: '#3CB371' , fontSize: 18,   fontWeight: "bold", bottom: 20 }} > </Text> )))}
 
@@ -326,6 +360,7 @@ getFirstName = () =>{
   
 
   async componentDidMount() {
+
     
     const tokenExpo = await AsyncStorage.getItem('token');
 
@@ -400,10 +435,19 @@ getFirstName = () =>{
 
       destino: data.structured_formatting.secondary_text,
       short_destination: data.structured_formatting.main_text,
-      search_adress: false
+      search_adress: false,
 
+      region: {latitude: latitude, longitude: longitude, latitudeDelta: 0.0491,
+        longitudeDelta: 0.0375 }
+      
+      
+    }); 
+    
+    
+    
+    
 
-    });
+    this.mapView.animateToRegion(this.state.region, 1000);
 
     console.log(" Aqui2 "+latitude);
   };
@@ -435,13 +479,19 @@ getFirstName = () =>{
       },
       origem: data.structured_formatting.secondary_text,
       short_origin: data.structured_formatting.main_text,
-      search_adress: false
+      search_adress: false,
+
+      region: {latitude: latitude, longitude: longitude, latitudeDelta: 0.0491,
+        longitudeDelta: 0.0375 }
       
       
     }); 
     
     
     
+    
+
+    this.mapView.animateToRegion(this.state.region, 1000);
 
 console.log(" Aqui "+data.structured_formatting.main_text);
 
@@ -453,7 +503,7 @@ console.log(" Aqui "+data.structured_formatting.main_text);
 
   handleBack = () => {
     
-    this.setState({  duration: 0, destination: null }); 
+    this.setState({  duration: 0 }); 
     
   };
 
@@ -465,13 +515,44 @@ console.log(" Aqui "+data.structured_formatting.main_text);
 {/* ...this.state.markers,*/}
 
     this.setState({
-      markers: [  { latitude: coordinates.latitude, longitude: coordinates.longitude }]
+      markers: [  { latitude: coordinates.latitude, longitude: coordinates.longitude }],
+      region: {latitude: coordinates.latitude, longitude: coordinates.longitude, latitudeDelta: 0.0491,
+        longitudeDelta: 0.0375 }
     });
 
+    
+
+    this.mapView.animateToRegion(this.state.region, 1000);
+
+
+
     this.getAddress(coordinates);
+
+
     
   }
   
+
+  CustomMarker = () =>  {
+  return(
+    <View
+      style={{
+        paddingVertical: 10,
+        paddingHorizontal: 30,
+        backgroundColor: "#007bff",
+        borderColor: "#eee",
+        borderRadius: 5,
+        elevation: 10
+      }}
+    >
+      <Text style={{ color: "#fff" }}>Berlin</Text>
+    </View>
+  );
+    }
+
+
+
+
 
   render() {
     const { region, destination, duration, location, origin } = this.state;
@@ -486,14 +567,18 @@ console.log(" Aqui "+data.structured_formatting.main_text);
  
 
         <MapView 
+        
           style={styles.map}
           region={region}
           showsUserLocation={false}
           loadingEnabled
           ref={el => (this.mapView = el)}
-
-          onPress={event => this.addMarker(event.nativeEvent.coordinate)}
-       
+          
+          onPress={event => {this.addMarker(event.nativeEvent.coordinate);
+          
+          }
+          }
+        
           
         >
 
@@ -509,7 +594,11 @@ console.log(" Aqui "+data.structured_formatting.main_text);
         style={{ height: 40, width: 40, borderColor: '#000',   borderRadius: 40}}
         source={ {uri: this.props.avatar}}
       /> 
-        
+       
+
+       
+
+
      {/* <Image source={require('../../images/asset_pin_origin.png')}  style={{height: 60, width: 45 }} /> */} 
 
 </Marker>
@@ -540,6 +629,9 @@ console.log(" Aqui "+data.structured_formatting.main_text);
          <Image source={require('../../images/pin_origem.png')}  style={{height: 60, width: 45 }} />
          
          
+         
+
+         
           </MapView.Marker>
           ) : ""
 
@@ -547,21 +639,42 @@ console.log(" Aqui "+data.structured_formatting.main_text);
 
 { this.state.destination != null ?
           (
+            
+
             <MapView.Marker
-           
+            
             coordinate={{ latitude: this.state.destination.latitude, longitude: this.state.destination.longitude }}
+            
+           
           >
          <Image source={require('../../images/pin_destino.png')}  style={{height: 60, width: 45 }} />
-         
+       
          
           </MapView.Marker>
-          ) : ""
+         
+    
+   
+          
+          ) : ( 
+            <MapView.Marker
+           
+            coordinate={{ latitude: this.state.origin.latitude, longitude: this.state.origin.longitude }}
+          >
+         <Image source={require('../../images/pin_origem.png')}  style={{height: 60, width: 45 }} />
+         
+         
+         
+
+         
+          </MapView.Marker>
+
+          )
 
           }
 
           
           {destination && (
-            <Fragment>
+             <Fragment>
               <Directions
                 origin={origin}
                 destination={destination}
@@ -588,16 +701,27 @@ console.log(" Aqui "+data.structured_formatting.main_text);
                 </LocationBox>
               </Marker>
 
+             
+
               <Marker coordinate={destination} anchor={{ x: 0, y: 0 }} image={markerImage}>
+             
+             
                 <LocationBox>
                   <LocationTimeBox>
                     <LocationTimeText>{duration}</LocationTimeText>
                     <LocationTimeTextSmall>MIN</LocationTimeTextSmall>
                   </LocationTimeBox>
-                   <LocationText>{this.state.short_destination}</LocationText>
+                    <LocationText>{this.state.short_destination}</LocationText> 
+                
                 </LocationBox>
+
+             
+                
               </Marker>
-            </Fragment>
+
+             
+
+            </Fragment> 
 
 
           )}
@@ -609,19 +733,34 @@ console.log(" Aqui "+data.structured_formatting.main_text);
 
 
         { duration > 0 ? (
-          <Fragment>
-{/* 
-
-      <Back onPress={this.handleBack} style={{  top: 250}}>
-           <Image source={backImage}   /> 
-           
-            </Back>
           
+          <Fragment>
+
+      
+          
+          {/* 
+           
+             <Details duration={duration} /> 
+            {this.details()}
+
+ */}
            
            
-            <Details duration={duration} /> */} 
- 
-          </Fragment>
+
+          {/*   <Modal
+animationType="fade"
+transparent={true}
+visible={true}
+
+> */}
+
+
+
+{this.details()}
+
+
+</Fragment> 
+         
         ) : ( 
           <>
             
@@ -668,7 +807,7 @@ animationType="slide"
 transparent={true}
 visible={this.state.search_adress}
 
->
+> 
   { this.state.buttonAddress === 0 ?
   
   (<Search onLocationOriginSelected={this.handleLocationOrigSelected} placeholder={"De onde?"} type={0} icon={this.closeSearchGoogle} /> ) :

@@ -138,7 +138,7 @@ const Drawer = createDrawerNavigator(
 
 function Root() {
   return (
-    <Stack.Navigator initialRouteName='Login'  >
+    <Stack.Navigator initialRouteName='Map'  >
       <Stack.Screen name="Map" component={Map}  options={{headerShown: false}} />
       <Stack.Screen name="Login" component={formLogin} options={{headerShown: false}} />
       <Stack.Screen name="Search" component={Search} options={{headerShown: false,   title: ''  , headerTransparent: true, headerStyle: {
