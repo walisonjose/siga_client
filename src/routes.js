@@ -4,7 +4,7 @@ import { View, Text, Image, TouchableOpacity, Dimensions } from 'react-native';
 
 /*import { createAppContainer } from 'react-navigation'; */
 import { createStackNavigator } from 'react-navigation-stack'; 
-//import Main from './pages/main';
+
 import formLogin from './components/signIn/index';
 //import listaUser from './pages/listauser';
 //import listaMotora from './pages/listamotora';

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { connect } from "react-redux";
 
-import { StatusBar, ToastAndroid, ImageBackground, AsyncStorage } from 'react-native';
+import { StatusBar, ImageBackground, ToastAndroid } from 'react-native';
 
 import Toast from 'react-native-simple-toast';
 
@@ -106,10 +106,7 @@ _openSafariWebView = async _URL => {
 
       console.log(" data: "+response.headers["set-cookie"]);
 
-      //Toast.show('Tudo certo! Pode logar!', Toast.SHORT, [
-      //  'UIAlertController',
-      //]);
-      //console.log("Cookie-> "+response.headers["set-cookie"]);
+      
       this.props.savePropsAuthentication({
         
      
@@ -141,10 +138,11 @@ _openSafariWebView = async _URL => {
       function (error) {
         
         console.log("Ops! Login ou senha inválidos!");
+        
 
-        Toast.show('Ops! Login ou senha inválidos!', Toast.SHORT, [
+      /*  Toast.show('Ops! Login ou senha inválidos!', Toast.SHORT, [
           'UIAlertController',
-        ]);
+        ]);*/
         //return Promise.reject(error)
       }
     );
@@ -159,9 +157,9 @@ var statusLogin = 0;
 
     if (this.state.email.length === 0 || this.state.password.length === 0) {
      
-      Toast.show('Preencha usuário e senha para continuar.', Toast.SHORT, [
+     /* Toast.show('Preencha usuário e senha para continuar.', Toast.SHORT, [
         'UIAlertController',
-      ]);
+      ]);*/
 
       statusLogin++;
     } else {
@@ -187,9 +185,11 @@ if(this.state.email.indexOf("@") === -1){
   }
 
 if(element != "aparecida.go.gov.br"){
-  Toast.show('Apenas e-mails institucionais são permitidos!(@aparecida.go.gov.br)', Toast.SHORT, [
+ /* ToastAndroid.show("Apenas e-mails institucionais são permitidos!(@aparecida.go.gov.br)", ToastAndroid.LONG);*/
+
+  /*Toast.show('Apenas e-mails institucionais são permitidos!(@aparecida.go.gov.br)', Toast.SHORT, [
     'UIAlertController',
-  ]);
+  ]);*/
   statusLogin++;
 }
 
@@ -268,7 +268,7 @@ statusLogin = 0;
 <Container>
 
   { RCTNetworking.clearCookies(() => { })}
-      <ImageBackground  style={{width: '100%', height: '100%' }} source={require('../../images/backgroundaparecida.png')}  resizeMode="contain" >
+      <ImageBackground  style={{width: '105%', height: '105%' }} source={require('../../images/backgroundaparecida.png')}  resizeMode="contain" >
       
         <StatusBar hidden />
         <Logo style={{width: 200,height:200, top: 40, alignSelf: 'center'}} source={require('../../images/icon_lock.png')} resizeMode="contain" />

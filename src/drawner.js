@@ -14,6 +14,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import formLogin from './components/signIn/index';
 
 import Map from './components/Map/index';
+import Timer from './components/Map/timer';
 import Search from './components/Search/index';
 import Menu from './components/Menu/index';
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
@@ -48,6 +49,7 @@ function TabAScreen() {
       <Stack.Screen name="TabA Details" component={Details} />
       <Stack.Screen name="Map" component={Map} />
       <Stack.Screen name="Search" component={Search} />
+      
     </Stack.Navigator>
   );
 }
@@ -138,8 +140,9 @@ const Drawer = createDrawerNavigator(
 
 function Root() {
   return (
-    <Stack.Navigator initialRouteName='Map'  >
+    <Stack.Navigator initialRouteName='Login'  >
       <Stack.Screen name="Map" component={Map}  options={{headerShown: false}} />
+      <Stack.Screen name="Timer" component={Timer}  options={{headerShown: false}} />
       <Stack.Screen name="Login" component={formLogin} options={{headerShown: false}} />
       <Stack.Screen name="Search" component={Search} options={{headerShown: false,   title: ''  , headerTransparent: true, headerStyle: {
               backgroundColor: '#008B8B', top: -10

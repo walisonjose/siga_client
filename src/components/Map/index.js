@@ -1,5 +1,5 @@
-import React, { Component, Fragment } from "react";
-import { View, AsyncStorage, Animated, Modal, Image, Text, Menu, ImageBackground, Dimensions, StyleSheet, TouchableOpacity, TouchableHighlight, ScrollView, TextInput } from "react-native";
+import React, { Component, Fragment,  useState, useEffect  } from "react";
+import { View, Button, AsyncStorage, Animated, Modal, Image, Text, Menu, ImageBackground, Dimensions, StyleSheet, TouchableOpacity, TouchableHighlight, ScrollView, TextInput } from "react-native";
 import MapView, { Marker, Callout } from "react-native-maps";
 
 import { Avatar, IconButton,  Colors } from 'react-native-paper';
@@ -66,6 +66,9 @@ import {
   LocationTimeBox,
   LocationTimeText,
   LocationTimeTextSmall,
+  LocationTimeBoxRun,
+  LocationTimeTextRun,
+  LocationTimeTextSmallRun,
   RequestButton,
   LocationBoxRun,
   RequestButtonText,
@@ -77,6 +80,7 @@ import {
   TypeImage,
 } from "./styles";
 
+const screen = Dimensions.get('window');
 
 Geocoder.init("AIzaSyD157FiAI8dfBRzoH4qvzjFi3iKSPzA860");
 
@@ -86,9 +90,15 @@ console.disableYellowBox = true;
 import googlemaps from '../../services/api';
 
 
+import Timer from './timer';
+
+
 
 
  class Map extends Component {
+
+
+
 
   static navigationOptions = {
     headerShown: false
@@ -123,7 +133,13 @@ import googlemaps from '../../services/api';
     dim: 250,
     top_origin: -30,
     top_destino: 25,
+    marker: null,
+    timer: false,
   };
+
+  
+/*TESTES TIMER */
+
 
    
 
@@ -175,6 +191,10 @@ getAddress = async (coordinate) => {
 
 console.log("-> "+response.data.results[0].formatted_address);
 
+coordinate: {
+
+}
+
 
    if(this.state.buttonAddress === 0){
     this.setState({
@@ -183,6 +203,10 @@ console.log("-> "+response.data.results[0].formatted_address);
       short_origin: response.data.results[0].address_components[1].short_name,
      
   });
+
+  this.mapView.animateToRegion(this.state.origin, 1000);
+  
+
    } else{
     this.setState({
       destino: response.data.results[0].formatted_address,
@@ -190,6 +214,8 @@ console.log("-> "+response.data.results[0].formatted_address);
       short_destination: response.data.results[0].address_components[1].short_name,
       
   });
+  this.mapView.animateToRegion(this.state.destination, 1000);
+  
    }
 
     
@@ -201,16 +227,20 @@ console.log("-> "+response.data.results[0].formatted_address);
     
     console.log("Ops! Login ou senha inválidos!");
 
-   {/*
-    Toast.show('Ops! Login ou senha inválidos!', Toast.SHORT, [
-      'UIAlertController',
-    ]);
-   */} 
-    //return Promise.reject(error)
+   
   }
 );
 }
 
+timer = () =>{
+
+  
+console.log("asdasd");
+
+this.setState({ timer: true});
+
+
+}
 
 verifica_date = () =>{
 
@@ -242,6 +272,8 @@ details = () =>{
     
     <Container>
 
+
+
 <Back onPress={this.handleBack} >
           
           
@@ -249,15 +281,38 @@ details = () =>{
 
            </Back>
 
-            <TypeTitle>Siga</TypeTitle>
+      {/*        <TypeTitle>Siga</TypeTitle>
     
-            <TypeImage source={uberx} /> 
-            <TypeTitle>Tempo de viagem</TypeTitle>
-        <TypeDescription>{this.state.duration} minutos</TypeDescription>
+   <TypeImage source={uberx} /> */}
+            <LocationBoxRun>
+                  <LocationTimeBoxRun>
+                    <LocationTimeTextRun>ORIGEM</LocationTimeTextRun>
+  <LocationTimeTextSmallRun>{this.state.origem}</LocationTimeTextSmallRun>
+                  </LocationTimeBoxRun>
+                  
+                
+                </LocationBoxRun>
+             
+                <LocationBoxRun>
+                  <LocationTimeBoxRun>
+                    <LocationTimeTextRun>DESTINO</LocationTimeTextRun>
+                   <LocationTimeTextSmallRun>{this.state.destino}</LocationTimeTextSmallRun>
+                  </LocationTimeBoxRun>
+                   
+                    
+                </LocationBoxRun>
+          {/*  <TypeTitle>Origem</TypeTitle>
+        <TypeDescription>{this.state.origem} </TypeDescription> 
+
+            <TypeTitle>Destino</TypeTitle> 
+        <TypeDescription>{this.state.destino}</TypeDescription>  */} 
     
             <RequestButton onPress={() =>  console.log("Teste") }>
               <RequestButtonText>SOLICITAR MOTORISTA</RequestButtonText>
             </RequestButton>
+
+            
+
             </Container>
         );
 }
@@ -278,18 +333,18 @@ details = () =>{
 
 { this.verifica_date() === 0 ? (
   
-<Text  style={{ color: '#3CB371' ,  fontSize: 18,   fontWeight: "bold", bottom: 20 }}>Bom dia, {/*this.getFirstName() */}</Text>
+<Text  style={{ color: '#3CB371' ,  fontSize: 18,   fontWeight: "bold", bottom: 20 }}>Bom dia, {this.getFirstName()}</Text>
 
  
   
 ) : ( this.verifica_date() === 1 ? (
   
-  <Text style={{  color: '#3CB371' , fontSize: 18,   fontWeight: "bold", bottom: 20 }} >Boa tarde, {/*this.getFirstName() */}</Text>
+  <Text style={{  color: '#3CB371' , fontSize: 18,   fontWeight: "bold", bottom: 20 }} >Boa tarde, {this.getFirstName() }</Text>
 
 
 ): ( this.verifica_date() === 2 ? (
 
-   <Text style={{  color: '#3CB371' , fontSize: 18,   fontWeight: "bold", bottom: 20 }} >Boa noite, {/*this.getFirstName() */}</Text>
+   <Text style={{  color: '#3CB371' , fontSize: 18,   fontWeight: "bold", bottom: 20 }} >Boa noite, {this.getFirstName()}</Text>
 
 ): ( <Text style={{  color: '#3CB371' , fontSize: 18,   fontWeight: "bold", bottom: 20 }} > </Text> )))}
 
@@ -361,6 +416,8 @@ details = () =>{
 
   async componentDidMount() {
 
+
+    
     
     const tokenExpo = await AsyncStorage.getItem('token');
 
@@ -447,9 +504,6 @@ details = () =>{
     
     
 
-    this.mapView.animateToRegion(this.state.region, 1000);
-
-    console.log(" Aqui2 "+latitude);
   };
 
   closeSearchGoogle = (status) =>{
@@ -511,18 +565,23 @@ console.log(" Aqui "+data.structured_formatting.main_text);
 
     console.log("-> "+ coordinates.latitude+ " "+coordinates.longitude);
 
+    coordinates.latitudeDelta = 0;
+    coordinates.longitudeDelta = 0.0375;
+
+
 
 {/* ...this.state.markers,*/}
 
+{/*
     this.setState({
-      markers: [  { latitude: coordinates.latitude, longitude: coordinates.longitude }],
-      region: {latitude: coordinates.latitude, longitude: coordinates.longitude, latitudeDelta: 0.0491,
+     
+      region: {latitude: coordinates.latitude, longitude: coordinates.longitude, latitudeDelta: 0,
         longitudeDelta: 0.0375 }
     });
-
+ */}
     
 
-    this.mapView.animateToRegion(this.state.region, 1000);
+    
 
 
 
@@ -532,33 +591,26 @@ console.log(" Aqui "+data.structured_formatting.main_text);
     
   }
   
-
-  CustomMarker = () =>  {
-  return(
-    <View
-      style={{
-        paddingVertical: 10,
-        paddingHorizontal: 30,
-        backgroundColor: "#007bff",
-        borderColor: "#eee",
-        borderRadius: 5,
-        elevation: 10
-      }}
-    >
-      <Text style={{ color: "#fff" }}>Berlin</Text>
-    </View>
-  );
+  
+ onRegionChangeComplete = () => {
+   
+ 
+  if (this.marker && marker.current && this.state.marker.current.showCallout) {
+    this.state.marker.current.showCallout();
     }
+  };
 
 
+  componentDidUpdate () {
 
-
+    this.marker.showCallout()
+  }
 
   render() {
-    const { region, destination, duration, location, origin } = this.state;
+    const { region, destination, location, duration, origin } = this.state;
 
-    
-   
+  
+  
 
     return (
       
@@ -572,6 +624,9 @@ console.log(" Aqui "+data.structured_formatting.main_text);
           region={region}
           showsUserLocation={false}
           loadingEnabled
+          zoomEnabled={true}
+          scrollEnabled={true}
+          showsScale={true}
           ref={el => (this.mapView = el)}
           
           onPress={event => {this.addMarker(event.nativeEvent.coordinate);
@@ -581,6 +636,8 @@ console.log(" Aqui "+data.structured_formatting.main_text);
         
           
         >
+
+
 
 
 
@@ -599,15 +656,20 @@ console.log(" Aqui "+data.structured_formatting.main_text);
        
 
 
-     {/* <Image source={require('../../images/asset_pin_origin.png')}  style={{height: 60, width: 45 }} /> */} 
 
 </Marker>
+
+
+
+
 
 
 <MapView.Overlay
         
           bounds={[[0.01, -0.01], [-0.01, 0.01]]}
         />
+
+       
         { /*this.state.markers.map(marker =>
           (<MapView.Marker
             key={marker.index}
@@ -620,61 +682,119 @@ console.log(" Aqui "+data.structured_formatting.main_text);
           )
           ) */}
 
+
+          
+
           { this.state.origin != null ?
           (
             <MapView.Marker
            
             coordinate={{ latitude: this.state.origin.latitude, longitude: this.state.origin.longitude }}
+            
+            image={markerImage}
           >
          <Image source={require('../../images/pin_origem.png')}  style={{height: 60, width: 45 }} />
          
+        
          
-         
-
+ 
          
           </MapView.Marker>
           ) : ""
 
           }
 
-{ this.state.destination != null ?
+         
+
+{this.state.destination != null   ?
           (
-            
+           
+            <Fragment> 
+              
+            <Directions
+              origin={origin}
+              destination={destination}
+              onReady={result => {
+                this.setState({ duration: Math.floor(result.duration) });
+
+                console.log("-> "+result.duration);
+                
+              
+
+                this.mapView.fitToCoordinates(result.coordinates, {
+                  edgePadding: {
+                    right: getPixelSize(50),
+                    left: getPixelSize(50),
+                    top: getPixelSize(50),
+                    bottom: getPixelSize(350)
+                  }
+                
+                });
+
+               
+                
+              }}
+            /> 
 
             <MapView.Marker
             
-            coordinate={{ latitude: this.state.destination.latitude, longitude: this.state.destination.longitude }}
+            coordinate={destination}
             
            
+            ref={_marker => {this.marker = _marker}}
           >
-         <Image source={require('../../images/pin_destino.png')}  style={{height: 60, width: 45 }} />
-       
+         <Image source={require('../../images/pin_destino.png')}  style={{height: 60, width: 45 }} />  
+
+
+
+         <Callout style={{ width: 175, borderRadius: 15}}
+tooltip = {true}
+onPress={() => {  this.timer()}}
+
+> 
+
+
+
+         <LocationBoxRun>
+                
+                <LocationTimeBoxRun>
+                  <LocationTimeTextRun>{this.state.duration}</LocationTimeTextRun>
+                  <LocationTimeTextSmallRun>MIN</LocationTimeTextSmallRun>
+                </LocationTimeBoxRun>
+                  <LocationTextRun>CHAMAR CARRO</LocationTextRun> 
+              
+              </LocationBoxRun>
+              </Callout>
          
+             
+          
           </MapView.Marker>
-         
+       
     
-   
+   </Fragment>
           
           ) : ( 
-            <MapView.Marker
+          {/*   <MapView.Marker
            
             coordinate={{ latitude: this.state.origin.latitude, longitude: this.state.origin.longitude }}
           >
          <Image source={require('../../images/pin_origem.png')}  style={{height: 60, width: 45 }} />
          
          
-         
 
          
           </MapView.Marker>
+*/}
+          ) }
 
-          )
+           
+         {destination && (
+            
 
-          }
 
-          
-          {destination && (
-             <Fragment>
+              <Fragment> 
+
+             
               <Directions
                 origin={origin}
                 destination={destination}
@@ -691,6 +811,7 @@ console.log(" Aqui "+data.structured_formatting.main_text);
                   });
                 }}
               />
+              {/*
               <Marker
                 coordinate={origin}
                 anchor={{ x: 0, y: 0 }}
@@ -703,28 +824,31 @@ console.log(" Aqui "+data.structured_formatting.main_text);
 
              
 
-              <Marker coordinate={destination} anchor={{ x: 0, y: 0 }} image={markerImage}>
+              <Marker coordinate={destination} anchor={{ x: 0, y: 0 }}  
              
-             
-                <LocationBox>
-                  <LocationTimeBox>
-                    <LocationTimeText>{duration}</LocationTimeText>
-                    <LocationTimeTextSmall>MIN</LocationTimeTextSmall>
-                  </LocationTimeBox>
-                    <LocationText>{this.state.short_destination}</LocationText> 
+              >
                 
-                </LocationBox>
+                <Image source={require('../../images/pin_destino.png')}  style={{height: 60, width: 45 }} />
 
+                <LocationBoxRun>
+                
+                <LocationTimeBoxRun>
+                  <LocationTimeTextRun>{this.state.duration}</LocationTimeTextRun>
+                  <LocationTimeTextSmallRun>MIN</LocationTimeTextSmallRun>
+                </LocationTimeBoxRun>
+                  <LocationTextRun>CHAMAR CARRO</LocationTextRun> 
+              
+              </LocationBoxRun>
+             
              
                 
-              </Marker>
+              </Marker>   */}  
 
-             
+</Fragment>
+          
+           
 
-            </Fragment> 
-
-
-          )}
+          )}  
         </MapView>
 
         
@@ -732,34 +856,35 @@ console.log(" Aqui "+data.structured_formatting.main_text);
      
 
 
-        { duration > 0 ? (
+        { this.state.duration > 0 ? (
           
-          <Fragment>
+           <Fragment> 
 
-      
+
           
-          {/* 
+          {/*
            
              <Details duration={duration} /> 
             {this.details()}
 
- */}
+
            
            
 
-          {/*   <Modal
+<Modal
 animationType="fade"
 transparent={true}
 visible={true}
 
-> */}
+> 
+
 
 
 
 {this.details()}
 
-
-</Fragment> 
+</Modal> */}
+</Fragment>
          
         ) : ( 
           <>
@@ -797,7 +922,7 @@ visible={true}
     color="#3CB371"
     animated={true}
     size={40}
-    style={{ top: -545, left: 5, backgroundColor: "#FFF"}}
+    style={{ top: -515, left: 5, backgroundColor: "#FFF"}}
     onPress={() =>  this.props.navigation.dispatch(DrawerActions.openDrawer())}
   />
    
@@ -819,6 +944,32 @@ visible={this.state.search_adress}
          
 
        </Modal>
+
+
+       <Modal
+ animationType="slide"
+ transparent={true}
+ visible={this.state.timer}
+>
+<View style={styles.containertimer}>
+<Image source={require('../../assets/logoaparecida.png')}  style={{width: 220, height: 75, borderWidth: 10, top: -90 }} />
+<Text style={styles.timerText}>SUA SOLICITAÇÃO FOI REALIZADA.</Text>
+
+
+
+<Button
+  
+  title="CANCELAR"
+  color="#FFB533"
+  style={{ borderRadius: 10}}
+  accessibilityLabel="Learn more about this purple button"
+/>
+   
+     
+  </View>
+</Modal>
+  
+
 
 
 <BottomDrawer
@@ -968,6 +1119,41 @@ const styles = StyleSheet.create({
   modalText: {
     marginBottom: 15,
     textAlign: "center"
-  }
+  },
+  containertimer: {
+    flex: 1,
+    backgroundColor: '#000',
+    alignItems: 'center',
+    justifyContent: 'center',
+  opacity: .7
+    
+  },
+
+  button: {
+    
+   
+    width: 350, 
+    height: 100,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center'
+},
+buttonText: {
+    fontSize: 45,
+    color: '#B9AAFF'
+},
+timerText: {
+    color: '#fff',
+    fontSize: 20,
+    marginBottom: 20,
+    top: -60
+},
+buttonReset: {
+    marginTop: 20,
+    borderColor: "#FF851B"
+},
+buttonTextReset: {
+  color: "#FF851B"
+},
 
 });
