@@ -1,5 +1,5 @@
 import React, { Component, Fragment,  useState, useEffect  } from "react";
-import { View, Button, AsyncStorage, Animated, Modal, Image, Text, Menu, ImageBackground, Dimensions, StyleSheet, TouchableOpacity, TouchableHighlight, ScrollView, TextInput } from "react-native";
+import { View,  AsyncStorage, Animated, Modal, Image, Text, Menu, ImageBackground, Dimensions, StyleSheet, TouchableOpacity, TouchableHighlight, ScrollView, TextInput } from "react-native";
 import MapView, { Marker, Callout } from "react-native-maps";
 
 import { Avatar, IconButton,  Colors } from 'react-native-paper';
@@ -35,6 +35,7 @@ import uberx from "../../assets/uberx.png";
 
 
 import api from '../../services/api';
+import api2 from '../../services/api2';
 
 
 const TAB_BAR_HEIGHT = 50;
@@ -78,6 +79,8 @@ import {
   TypeTitle,
   TypeDescription,
   TypeImage,
+  Button,
+  ButtonText,
 } from "./styles";
 
 const screen = Dimensions.get('window');
@@ -93,10 +96,7 @@ import googlemaps from '../../services/api';
 import Timer from './timer';
 
 
-
-
  class Map extends Component {
-
 
 
 
@@ -135,13 +135,42 @@ import Timer from './timer';
     top_destino: 25,
     marker: null,
     timer: false,
+    secs: 0,
+    cancel_timer: 0,
   };
 
   
 /*TESTES TIMER */
 
 
-   
+
+ 
+
+
+
+
+
+ getTimer = () => {
+
+  this.state.interval = setInterval(() => {
+
+if(this.state.secs > 50 ){
+  console.log("parou!! ");
+  clearInterval(this.state.interval);
+}
+
+if(this.state.cancel_timer === 1){
+  console.log("parou!! ");
+  clearInterval(this.state.interval);
+}
+
+    this.setState({ secs: this.state.secs+1});
+
+
+    console.log("Cont "+ this.state.secs)
+   }, 1000);
+
+ }
 
   googleSearch(button) {
 
@@ -232,15 +261,68 @@ coordinate: {
 );
 }
 
-timer = () =>{
+timer = async () =>{
 
+  this.create_run();
+
+
+this.setState({ timer: true,
+ secs: 55});
+
+this.state.interval = setInterval(() => {
+
+  if(this.state.secs === 0 || this.state.cancel_timer === 1 ){
+    console.log("parou!! ");
+    clearInterval(this.state.interval);
+    this.setState({ timer: false, cancel_timer: 0 });
+  }
   
-console.log("asdasd");
+  
 
-this.setState({ timer: true});
+      this.setState({ secs: this.state.secs-1});
+
+      console.log("Cont "+ this.state.secs)
+     }, 1000);
 
 
 }
+
+
+create_run = async () =>{
+
+ let token = ""+this.props.token;
+ var config = {
+  headers: {'Set-Cookie': token}
+};
+
+  console.log("Passou aqui...  "+token);
+
+
+  const response = await api2.post('/runs/user_create.json?run[origin_lat]=-16.7179881&run[origin_lng]=-49.2650003&run[origin_address]=Teste&run[run_type]=run&run[request_reason_id]=3&run[destination_lat]=-16.7053716&run[destination_lng]=-49.2568214&run[destination_address]=DEstination',
+  { headers: {  'Content-Type': 'application/json',
+  'Set-Cookie': ""+token,
+  Cookie: {'_Siga_session': ""+token.substring(14,token.length),}
+
+} }
+  
+  
+  ) 
+    .then(response =>{
+
+console.log("Resposta: "+response.data);
+
+    }).catch(
+      function (error) {
+        
+        console.log("deu algo de errado!! "+error);
+        
+
+      }
+    );
+
+}
+
+
 
 verifica_date = () =>{
 
@@ -418,10 +500,6 @@ details = () =>{
 
 
     
-    
-    const tokenExpo = await AsyncStorage.getItem('token');
-
-    console.log("TOKEN: "+tokenExpo);
   /*  Geolocation.getCurrentPosition(
       (position) => {
           let newOrigin = {
@@ -922,7 +1000,7 @@ visible={true}
     color="#3CB371"
     animated={true}
     size={40}
-    style={{ top: -515, left: 5, backgroundColor: "#FFF"}}
+    style={{ top: -545, left: 5, backgroundColor: "#FFF"}}
     onPress={() =>  this.props.navigation.dispatch(DrawerActions.openDrawer())}
   />
    
@@ -952,18 +1030,18 @@ visible={this.state.search_adress}
  visible={this.state.timer}
 >
 <View style={styles.containertimer}>
-<Image source={require('../../assets/logoaparecida.png')}  style={{width: 220, height: 75, borderWidth: 10, top: -90 }} />
-<Text style={styles.timerText}>SUA SOLICITAÇÃO FOI REALIZADA.</Text>
+<Image source={require('../../assets/logoaparecida.png')}  style={{width: 220, height: 75, borderWidth: 10, top: -100 }} />
+<Text style={styles.timerText1}>SUA SOLICITAÇÃO FOI REALIZADA.</Text>
+
+<Text style={{ color: "#FFF", fontSize: 18, top: -50}}> Aguarde a confirmação do motorista.</Text>
+
+<Text style={styles.timerText}>{this.state.secs} segundos</Text>
+
+<Button style={{ top: 120 }} onPress={() => { this.setState({ timer: false, cancel_timer: 1 })}}>
+          <ButtonText >CANCELAR</ButtonText>
+        </Button>
 
 
-
-<Button
-  
-  title="CANCELAR"
-  color="#FFB533"
-  style={{ borderRadius: 10}}
-  accessibilityLabel="Learn more about this purple button"
-/>
    
      
   </View>
@@ -1006,6 +1084,7 @@ const mapStateToProps = state => {
    // login: state.AuthenticationReducer.login,
    name: state.AuthenticationReducer.name,
    avatar: state.AuthenticationReducer.avatar,
+   token: state.AuthenticationReducer.token,
   }
 };
 
@@ -1142,11 +1221,17 @@ buttonText: {
     fontSize: 45,
     color: '#B9AAFF'
 },
+timerText1: {
+  color: '#fff',
+  fontSize: 20,
+  marginBottom: 20,
+  top: -70
+},
 timerText: {
     color: '#fff',
     fontSize: 20,
     marginBottom: 20,
-    top: -60
+    top: 40
 },
 buttonReset: {
     marginTop: 20,

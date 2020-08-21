@@ -159,3 +159,21 @@ export const TypeImage = styled.Image`
   margin: 10px 0;
   
 `;
+
+export const Button = styled.TouchableHighlight`
+  padding: 20px;
+  borderRadius: 15px;
+  backgroundColor: #EEDD82;
+  alignSelf: stretch;
+  margin: 15px;
+  left: 8px;
+  marginHorizontal: 20px;
+  marginTop: 45px
+`;
+
+export const ButtonText = styled.Text`
+  color: #FFF;
+  fontWeight: bold;
+  fontSize: 16px;
+  textAlign: center;
+`;

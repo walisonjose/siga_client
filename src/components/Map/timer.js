@@ -12,7 +12,7 @@ const getRemaining = (time) => {
 }
 
 export default function Timer() {
-  const [remainingSecs, setRemainingSecs] = useState(0);
+  const [remainingSecs, setRemainingSecs] = useState(55);
   const [isActive, setIsActive] = useState(false);
   const { mins, secs } = getRemaining(remainingSecs);
 
@@ -21,7 +21,7 @@ export default function Timer() {
   }
 
   reset = () => {
-    setRemainingSecs(0);
+    setRemainingSecs(55);
     setIsActive(false);
   }
 
@@ -29,7 +29,7 @@ export default function Timer() {
     let interval = null;
     if (isActive) {
       interval = setInterval(() => {
-        setRemainingSecs(remainingSecs => remainingSecs + 1);
+        setRemainingSecs(remainingSecs => remainingSecs - 1);
       }, 1000);
     } else if (!isActive && remainingSecs !== 0) {
       clearInterval(interval);
@@ -44,10 +44,10 @@ export default function Timer() {
 <View style={styles.container}>
     
       <Text style={styles.timerText}>{`${mins}:${secs}`}</Text>
-      <TouchableOpacity  style={styles.button}>
+      <TouchableOpacity  style={styles.button} onPress={this.toggle}>
           <Text style={styles.buttonText}>{isActive ? 'Pause' : 'Start'}</Text>
       </TouchableOpacity>
-      <TouchableOpacity  style={[styles.button, styles.buttonReset]}>
+      <TouchableOpacity onPress={this.reset} style={[styles.button, styles.buttonReset]}>
           <Text style={[styles.buttonText, styles.buttonTextReset]}>Reset</Text>
       </TouchableOpacity>
 
