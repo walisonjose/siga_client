@@ -17,6 +17,8 @@ const RCTNetworking = require('react-native/Libraries/Network/RCTNetworking.andr
  
 import api2 from '../../services/api2';
 
+import axios from 'axios';
+
 import {
   Container,
   Logo,
@@ -118,36 +120,90 @@ _openSafariWebView = async _URL => {
   //   saveToken(response.headers["set-cookie"]);
       
      
+//this.createRun();
+
+
+
+
+
+
+
      // console.log("passou aqui!!"+respon);
-    this.props.navigation.navigate('Map', {
-  //    itemId: this.state.itemId,
+   this.props.navigation.navigate('Map', {
+  //   itemId: this.state.itemId,
       
     });
-      
-      /*
-      CookieManager.getAll()
-      .then((response) => {
-       
-        console.log('CookieManager.getAll =>', response.request.responseHeaders._Siga_session);
-      });
-      
-      this.setState({ docs: response.data.status });
 
-     console.log('CookieManager.getAll =>', response.headers["set-cookie"]);*/ 
     }).catch(
       function (error) {
         
         console.log("Ops! Login ou senha inválidos!");
         
 
-      /*  Toast.show('Ops! Login ou senha inválidos!', Toast.SHORT, [
-          'UIAlertController',
-        ]);*/
-        //return Promise.reject(error)
       }
     );
+
   }
 
+
+  createRun = async () => {
+
+    const token = this.props.token;
+/*
+
+const api = axios.create({
+  baseURL: 'https://sigadev.aparecida.go.gov.br',
+  credentials: "same-origin",
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json', // This is set on request
+    'Content-Type': 'application/json',
+    'Cookie': token
+}
+});
+
+
+
+
+  const response = await api.post('/runs/user_create.json?run[origin_lat]=-16.7179881&run[origin_lng]=-49.2650003&run[origin_address]=Teste&run[run_type]=run&run[request_reason_id]=3&run[destination_lat]=-16.7053716&run[destination_lng]=-49.2568214&run[destination_address]=DEstination',
+ ) .then(response =>{
+
+console.log("Resposta: "+response.data.id);
+
+    }).catch(
+      function (error) {
+        
+        console.log(error);
+        
+
+      }
+    ); */
+
+    const url = "https://sigadev.aparecida.go.gov.br";
+
+    const response = await fetch(url+'/runs/user_create.json?run[origin_lat]=-16.7179881&run[origin_lng]=-49.2650003&run[origin_address]=Teste&run[run_type]=run&run[request_reason_id]=3&run[destination_lat]=-16.7053716&run[destination_lng]=-49.2568214&run[destination_address]=DEstination',
+   {
+    credentials: "same-origin",
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json', // This is set on request
+    'Content-Type': 'application/json',
+			'Cookie': token
+		}
+   }
+    ).then(response => { return response.json();})
+    .then(responseData => {console.log(responseData.id); return responseData;})
+          .catch(
+            function (error) {
+              
+              console.log("Deu ruim:"+error);
+              
+      
+            } 
+          )
+
+
+  };
 
 
   handleSignInPress = async () => {

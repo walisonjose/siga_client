@@ -8,6 +8,7 @@
     "eject": "expo eject"
   },
   "dependencies": {
+    "@react-native-community/cookies": "^4.0.1",
     "@react-native-community/masked-view": "0.1.10",
     "@react-navigation/bottom-tabs": "^5.7.2",
     "@react-navigation/drawer": "^5.8.7",
@@ -16,6 +17,7 @@
     "add": "^2.0.6",
     "axios": "^0.19.2",
     "expo": "^38.0.0",
+    "expo-google-sign-in": "~8.2.1",
     "expo-status-bar": "^1.0.0",
     "expo-web-browser": "~8.3.1",
     "native-base": "^2.13.13",

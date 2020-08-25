@@ -11,29 +11,21 @@
       "backgroundColor": "#ffffff"
     },
     "android": {
+      "googleServicesFile": "./google-services.json",
       "package": "siga.cliente",
       "versionCode": 1,
       "softwareKeyboardLayoutMode": "pan",
       "permissions": [
         "ACCESS_FINE_LOCATION",
         "ACCESS_BACKGROUND_LOCATION",
-        "ACCESS_COARSE_LOCATION"
+        "ACCESS_COARSE_LOCATION" 
       ]
+
+
     },
     
-   
-
-    "updates": {
-      "fallbackToCacheTimeout": 0
-    },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
     "ios": {
       "supportsTablet": true
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
     }
   }
 }

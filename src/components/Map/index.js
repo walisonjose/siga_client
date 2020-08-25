@@ -137,6 +137,7 @@ import Timer from './timer';
     timer: false,
     secs: 0,
     cancel_timer: 0,
+    id_run: null,
   };
 
   
@@ -167,7 +168,7 @@ if(this.state.cancel_timer === 1){
     this.setState({ secs: this.state.secs+1});
 
 
-    console.log("Cont "+ this.state.secs)
+   // console.log("Cont "+ this.state.secs)
    }, 1000);
 
  }
@@ -263,7 +264,9 @@ coordinate: {
 
 timer = async () =>{
 
-  this.create_run();
+  this.verify_run_status();
+
+  //this.create_run();
 
 
 this.setState({ timer: true,
@@ -277,33 +280,148 @@ this.state.interval = setInterval(() => {
     this.setState({ timer: false, cancel_timer: 0 });
   }
   
-  
+  if(this.state.id_run != null){
+this.verify_run_status();
+  }
 
       this.setState({ secs: this.state.secs-1});
 
-      console.log("Cont "+ this.state.secs)
+     
      }, 1000);
 
+
+}
+
+cancel_run = async () =>{
+  const token = this.props.token;
+
+  console.log("Corrida: "+this.state.id_run);
+
+  const url = "https://sigadev.aparecida.go.gov.br";
+
+  const response = await fetch(url+'/runs/'+this.state.id_run+'.json',
+ {
+  credentials: "same-origin",
+  method: 'POST',
+  body: { "cancel_explanation": "teste cancelamento!"},
+  headers: {
+    'Accept': 'application/json', // This is set on request
+  'Content-Type': 'application/json',
+    'Cookie': token
+  }
+ }
+  ).then(response => { return response.json();})
+  .then(responseData => { this.setState({ timer: false, cancel_timer: 1 }); return responseData;})
+        .catch(
+          function (error) {
+            
+            console.log("Deu ruim:"+error);
+            
+    
+          } 
+        ) 
+
+}
+
+verify_run_status = async () =>{
+
+
+  const token = this.props.token;
+
+  const url = "https://sigadev.aparecida.go.gov.br";
+
+
+  //console.log(" -> "+this.state.id_run);
+  
+
+  const response = await fetch(url+'/runs/1550.json',
+
+
+
+ {
+  credentials: "same-origin",
+  method: 'POST',
+  headers: { 
+    'Accept': 'application/json', // This is set on request
+  'Content-Type': 'application/json',
+    'Cookie': token
+  }
+ }
+  ).then(response => { return response.json();})
+  .then((responseData) => {
+   
+    const myObjStr = JSON.stringify(responseData);
+  
+    
+    console.log("-> "+myObjStr);
+
+  
+  }
+
+  ) .catch(
+          function (error) {
+            
+            console.log("Deu ruim:"+error);
+            
+    
+          } 
+        )
 
 }
 
 
 create_run = async () =>{
 
- let token = ""+this.props.token;
+  const token = this.props.token;
+
+  const url = "https://sigadev.aparecida.go.gov.br";
+
+  const response = await fetch(url+'/runs/user_create.json?run[origin_lat]='+this.state.origin.latitude+'&run[origin_lng]='+this.state.origin.longitude+'&run[origin_address]='+this.state.origem+'&run[run_type]=run&run[request_reason_id]=3&run[destination_lat]='+this.state.destination.latitude+'&run[destination_lng]='+this.state.destination.longitude+'&run[destination_address]='+this.state.destino,
+ {
+  credentials: "same-origin",
+  method: 'POST',
+  headers: {
+    'Accept': 'application/json', // This is set on request
+  'Content-Type': 'application/json',
+    'Cookie': token
+  }
+ }
+  ).then(response => { return response.json();})
+  .then(responseData => {
+    this.setState({ id_run: responseData.id});
+     
+    this.verify_run_status(); 
+
+     return responseData; 
+    
+  }
+  ) .catch(
+          function (error) {
+            
+            console.log("Deu ruim:"+error);
+            
+    
+          } 
+        )
+
+
+
+
+  /*
  var config = {
-  headers: {'Set-Cookie': token}
+  headers: {
+    'Accept': 'application/json', // This is set on request
+    'Content-Type': 'application/json',
+			'Cookie': token
+
+  }
 };
 
   console.log("Passou aqui...  "+token);
 
 
-  const response = await api2.post('/runs/user_create.json?run[origin_lat]=-16.7179881&run[origin_lng]=-49.2650003&run[origin_address]=Teste&run[run_type]=run&run[request_reason_id]=3&run[destination_lat]=-16.7053716&run[destination_lng]=-49.2568214&run[destination_address]=DEstination',
-  { headers: {  'Content-Type': 'application/json',
-  'Set-Cookie': ""+token,
-  Cookie: {'_Siga_session': ""+token.substring(14,token.length),}
-
-} }
+  const response = await api2.post('/runs/user_create.json?run[origin_lat]=-16.7179881&run[origin_lng]=-49.2650003&run[origin_address]=Teste&run[run_type]=run&run[request_reason_id]=3&run[destination_lat]=-16.7053716&run[destination_lng]=-49.2568214&run[destination_address]=DEstination'
+  
   
   
   ) 
@@ -318,7 +436,7 @@ console.log("Resposta: "+response.data);
         
 
       }
-    );
+    );*/
 
 }
 
@@ -565,6 +683,9 @@ details = () =>{
       destination: {
         latitude,
         longitude,
+        latitudeDelta: 0.0491,
+        longitudeDelta: 0.0375,
+
         title: data.structured_formatting.main_text
       },
 
@@ -577,6 +698,9 @@ details = () =>{
       
       
     }); 
+
+
+    this.mapView.animateToRegion(this.state.destination, 1000);
     
     
     
@@ -606,7 +730,9 @@ details = () =>{
  this.setState({
       origin: {
         latitude,
-        longitude
+        longitude,
+        latitudeDelta: 0.0491,
+        longitudeDelta: 0.0375,
         
       },
       origem: data.structured_formatting.secondary_text,
@@ -623,7 +749,7 @@ details = () =>{
     
     
 
-    this.mapView.animateToRegion(this.state.region, 1000);
+    this.mapView.animateToRegion(this.state.origin, 1000);
 
 console.log(" Aqui "+data.structured_formatting.main_text);
 
@@ -1037,7 +1163,7 @@ visible={this.state.search_adress}
 
 <Text style={styles.timerText}>{this.state.secs} segundos</Text>
 
-<Button style={{ top: 120 }} onPress={() => { this.setState({ timer: false, cancel_timer: 1 })}}>
+<Button style={{ top: 120 }} onPress={() => {  this.cancel_run();}}>
           <ButtonText >CANCELAR</ButtonText>
         </Button>
 

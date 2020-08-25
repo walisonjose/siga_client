@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "485941880852",
+    "firebase_url": "https://siga-app-client.firebaseio.com",
+    "project_id": "siga-app-client",
+    "storage_bucket": "siga-app-client.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:485941880852:android:55fd9b54e4ddad31161f01",
+        "android_client_info": {
+          "package_name": "siga.cliente"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "485941880852-a12s3kfov3n6rup2rc3sg65c3dbp1ieb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "siga.cliente",
+            "certificate_hash": "dff0014da41eec8316dffe3a59139e5590084b5c"
+          }
+        },
+        {
+          "client_id": "485941880852-02uctcmnkbio349obcosljh2qvjf06gs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBN4l2Jo7OD7CVPtqjbb7FCyE5tTuoscTY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "485941880852-02uctcmnkbio349obcosljh2qvjf06gs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
