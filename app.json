@@ -25,7 +25,17 @@
     },
     
     "ios": {
-      "supportsTablet": true
+      "bundleIdentifier": "siga.cliente",
+      "supportsTablet": true,
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "location",
+          "fetch"
+        ],
+        "NSLocationAlwaysUsageDescription": "Localizacao necessaria para rastreio das bolsas de sangue",
+        "NSLocationWhenInUseUsageDescription": "Localizacao necessaria para rastreio das bolsas de sangue",
+        "UNUserNotificationCenter": "Notificações de atividades da conta"
+      }
     }
   }
 }

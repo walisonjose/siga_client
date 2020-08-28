@@ -5,19 +5,49 @@ import { connect } from "react-redux";
 
 import { StatusBar, ImageBackground, ToastAndroid } from 'react-native';
 
-import Toast from 'react-native-simple-toast';
+import Toast from 'react-native-tiny-toast';
 
 import * as WebBrowser from "expo-web-browser";
 import { StackActions, NavigationActions } from 'react-navigation';
 import { savePropsAuthentication, saveToken } from '../actions/AuthenticationActions';
 
-//import CookieManager from 'react-native-cookies'; 
+const toastError = msg => Toast.show(msg,{
+  position: Toast.position.center,
+  containerStyle:{
+   backgroundColor: '#f00',
+   borderRadius: 15,
+  },
+  textStyle:{
+   color:'#fff',
+  },
+  imgStyle:{},
+  mask:false,
+  maskStyle:{},
+  duration: 2000,
+  animation: true,
+ });
+
+ const toastSucess = msg => Toast.show(msg,{
+  position: Toast.position.center,
+  containerStyle:{
+   backgroundColor: '#f00',
+   borderRadius: 15,
+  },
+  textStyle:{
+   color:'#fff',
+  },
+  imgStyle:{},
+  mask:false,
+  maskStyle:{},
+  duration: 2000,
+  animation: true,
+ });
 
 const RCTNetworking = require('react-native/Libraries/Network/RCTNetworking.android')
  
 import api2 from '../../services/api2';
-
-import axios from 'axios';
+  
+import axios from 'axios'; 
 
 import {
   Container,
@@ -46,6 +76,9 @@ const resetPasswordURL = 'https://sigadev.aparecida.go.gov.br/pt-BR/users/passwo
     }).isRequired,
      
   };
+
+   
+
 
   state = {
     email: "walison.deus@aparecida.go.gov.br",
@@ -117,20 +150,15 @@ _openSafariWebView = async _URL => {
       avatar: response.data.profile_picture[0],
     token: response.headers["set-cookie"],
     });
-  //   saveToken(response.headers["set-cookie"]);
-      
+  
+
+
+
+
+
      
-//this.createRun();
-
-
-
-
-
-
-
-     // console.log("passou aqui!!"+respon);
    this.props.navigation.navigate('Map', {
-  //   itemId: this.state.itemId,
+  
       
     });
 
@@ -146,76 +174,14 @@ _openSafariWebView = async _URL => {
   }
 
 
-  createRun = async () => {
-
-    const token = this.props.token;
-/*
-
-const api = axios.create({
-  baseURL: 'https://sigadev.aparecida.go.gov.br',
-  credentials: "same-origin",
-    method: 'POST',
-    headers: {
-      'Accept': 'application/json', // This is set on request
-    'Content-Type': 'application/json',
-    'Cookie': token
-}
-});
-
-
-
-
-  const response = await api.post('/runs/user_create.json?run[origin_lat]=-16.7179881&run[origin_lng]=-49.2650003&run[origin_address]=Teste&run[run_type]=run&run[request_reason_id]=3&run[destination_lat]=-16.7053716&run[destination_lng]=-49.2568214&run[destination_address]=DEstination',
- ) .then(response =>{
-
-console.log("Resposta: "+response.data.id);
-
-    }).catch(
-      function (error) {
-        
-        console.log(error);
-        
-
-      }
-    ); */
-
-    const url = "https://sigadev.aparecida.go.gov.br";
-
-    const response = await fetch(url+'/runs/user_create.json?run[origin_lat]=-16.7179881&run[origin_lng]=-49.2650003&run[origin_address]=Teste&run[run_type]=run&run[request_reason_id]=3&run[destination_lat]=-16.7053716&run[destination_lng]=-49.2568214&run[destination_address]=DEstination',
-   {
-    credentials: "same-origin",
-    method: 'POST',
-    headers: {
-      'Accept': 'application/json', // This is set on request
-    'Content-Type': 'application/json',
-			'Cookie': token
-		}
-   }
-    ).then(response => { return response.json();})
-    .then(responseData => {console.log(responseData.id); return responseData;})
-          .catch(
-            function (error) {
-              
-              console.log("Deu ruim:"+error);
-              
-      
-            } 
-          )
-
-
-  };
-
-
   handleSignInPress = async () => {
 
 var statusLogin = 0;
     
 
     if (this.state.email.length === 0 || this.state.password.length === 0) {
-     
-     /* Toast.show('Preencha usuário e senha para continuar.', Toast.SHORT, [
-        'UIAlertController',
-      ]);*/
+      toastError('Preencha usuário e senha para continuar.');
+    
 
       statusLogin++;
     } else {
@@ -241,11 +207,9 @@ if(this.state.email.indexOf("@") === -1){
   }
 
 if(element != "aparecida.go.gov.br"){
- /* ToastAndroid.show("Apenas e-mails institucionais são permitidos!(@aparecida.go.gov.br)", ToastAndroid.LONG);*/
 
-  /*Toast.show('Apenas e-mails institucionais são permitidos!(@aparecida.go.gov.br)', Toast.SHORT, [
-    'UIAlertController',
-  ]);*/
+  toastError("Apenas e-mails institucionais são permitidos!(@aparecida.go.gov.br)");
+ 
   statusLogin++;
 }
 
@@ -254,50 +218,6 @@ if(element != "aparecida.go.gov.br"){
 }
 
 
-
-//if(this.state.email === "walison.jose" || this.state.email === "walison.deus" ){
-  
-  /*if(this.state.email === "walison.jose"){
-    this.state.itemId = 0;
-  }else{
-    this.state.itemId = 1;
-  }
- 
-  console.log("ID: "+this.state.itemId);*/
-
-  //this.props.navigation.navigate('Map', {
-   // itemId: this.state.itemId,
-    
-  //});
-
-/*}else{
-  this.state.itemId = 1;
-  console.log("ID: "+this.state.itemId);
-
-  this.props.navigation.navigate('UserDelivery', {
-    itemId: this.state.itemId,
-    
-  });
-//}
-
-
-
-       /* const response = await api.post('/sessions', {
-          email: this.state.email,
-          password: this.state.password,
-        });
-
-        const resetAction = StackActions.reset({
-          index: 0,
-          actions: [
-            NavigationActions.navigate({ routeName: 'Main', params: { token: response.data.token, email: 'byla' } }),
-          ],
-        });
-        this.props.navigation.dispatch(resetAction);*/
-     //   this.props.navigation.navigate('Main', {
-       //   itemId: this.state.itemId,
-          
-      //  });
 
      
     }

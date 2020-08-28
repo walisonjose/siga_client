@@ -189,28 +189,6 @@ if(this.state.cancel_timer === 1){
   });
 
 
-  
-
-{/*     
-if(button === 0){
-  this.props.navigation.navigate('Search', {
-    type: 0,
-    onLocationOriginSelected: this.handleLocationOrigSelected,
-    
-  }); 
-}else{
-  this.props.navigation.navigate('Search', {
-    type: 1,
-    onLocationSelected: this.handleLocationSelected
-    
-  }); 
-}
-
-  
-  */}
-  
-     
-      
     }
 
     
@@ -347,13 +325,10 @@ verify_run_status = async () =>{
     'Cookie': token
   }
  }
-  ).then(response => { return response.json();})
+  ).then(response => { console.log(response); return response.json();})
   .then((responseData) => {
    
-    const myObjStr = JSON.stringify(responseData);
-  
-    
-    console.log("-> "+myObjStr);
+    console.log(responseData.json())
 
   
   }
@@ -406,37 +381,6 @@ create_run = async () =>{
 
 
 
-
-  /*
- var config = {
-  headers: {
-    'Accept': 'application/json', // This is set on request
-    'Content-Type': 'application/json',
-			'Cookie': token
-
-  }
-};
-
-  console.log("Passou aqui...  "+token);
-
-
-  const response = await api2.post('/runs/user_create.json?run[origin_lat]=-16.7179881&run[origin_lng]=-49.2650003&run[origin_address]=Teste&run[run_type]=run&run[request_reason_id]=3&run[destination_lat]=-16.7053716&run[destination_lng]=-49.2568214&run[destination_address]=DEstination'
-  
-  
-  
-  ) 
-    .then(response =>{
-
-console.log("Resposta: "+response.data);
-
-    }).catch(
-      function (error) {
-        
-        console.log("deu algo de errado!! "+error);
-        
-
-      }
-    );*/
 
 }
 
@@ -550,10 +494,6 @@ details = () =>{
 
 
   
-  
-
-
-<Text style={{ color: '#808080', bottom: 15, borderWidth: 0.2, bottom: 30 }}   >______________________________________________________</Text>
   
 
   
