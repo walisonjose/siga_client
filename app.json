@@ -19,7 +19,12 @@
         "ACCESS_FINE_LOCATION",
         "ACCESS_BACKGROUND_LOCATION",
         "ACCESS_COARSE_LOCATION" 
-      ]
+      ],
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyC6q-4aqXh6R6216PTRsk55k38Mvv1wOEQ"
+        }
+      }
 
 
     },

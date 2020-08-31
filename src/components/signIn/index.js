@@ -87,13 +87,13 @@ const resetPasswordURL = 'https://sigadev.aparecida.go.gov.br/pt-BR/users/passwo
     error: '',
   };
 
+/*
+
   _openBeposForgotPassword = async () => {
     this._openSafariWebView(resetPasswordURL);
-};
+}; */
 
-_openSafariWebView = async _URL => {
-  await WebBrowser.openBrowserAsync(_URL);
-};
+
 
   handleEmailChange = (email) => {
     email = email.trim();
@@ -244,10 +244,10 @@ statusLogin = 0;
 <Container>
 
   { RCTNetworking.clearCookies(() => { })}
-      <ImageBackground  style={{width: '105%', height: '105%' }} source={require('../../images/backgroundaparecida.png')}  resizeMode="contain" >
+      <ImageBackground  style={{ width: '100%',   justifyContent: 'center', flex: 1}} source={require('../../images/backgroundaparecida.png')}  resizeMode="cover" >
       
         <StatusBar hidden />
-        <Logo style={{width: 200,height:200, top: 40, alignSelf: 'center'}} source={require('../../images/icon_lock.png')} resizeMode="contain" />
+        <Logo style={{width: 200,height:200,  top:  60, alignSelf: 'center'}} source={require('../../images/icon_lock.png')} resizeMode="contain" />
         <Logo style={{width: 40,height:40, top: 87, left: 10}} source={require('../../images/icon_user.png')} resizeMode="contain" />
          <Input
           placeholder="Usuário"
@@ -269,7 +269,7 @@ statusLogin = 0;
           autoCorrect={false}
           secureTextEntry
         />
-         <SignUpLink  style={{ top: -100 }} onPress={() => { this._openBeposForgotPassword()}}>
+         <SignUpLink  style={{ top: -100 }} onPress={() => { console.log("Recuperar senha!")}}>
           <SignUpLinkText style={{textDecorationLine: 'underline'}} >Esqueceu sua senha?</SignUpLinkText>
         </SignUpLink>
 

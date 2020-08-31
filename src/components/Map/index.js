@@ -7,11 +7,14 @@ import { Avatar, IconButton,  Colors } from 'react-native-paper';
 
 import Geocoder from "react-native-geocoding";
 
+//import Geolocation from 'react-native-geolocation-service';
+
+
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const GOOGLE_MAPS_APIKEY = 'AIzaSyD157FiAI8dfBRzoH4qvzjFi3iKSPzA860'; 
 
-import Geolocation from 'react-native-geolocation-service';
+
 
 import { getPixelSize } from "../../utils";
 
@@ -325,10 +328,10 @@ verify_run_status = async () =>{
     'Cookie': token
   }
  }
-  ).then(response => { console.log(response); return response.json();})
+  ).then(response => {return response.json();})
   .then((responseData) => {
    
-    console.log(responseData.json())
+    console.log(responseData);
 
   
   }
@@ -373,12 +376,12 @@ create_run = async () =>{
   ) .catch(
           function (error) {
             
-            console.log("Deu ruim:"+error);
+            console.log("Deu ruim:"+error.json());
             
     
           } 
         )
-
+  
 
 
 
@@ -556,9 +559,8 @@ details = () =>{
 
   async componentDidMount() {
 
-
     
-  /*  Geolocation.getCurrentPosition(
+    /*Geolocation.getCurrentPosition(
       (position) => {
           let newOrigin = {
               latitude: position.coords.latitude,
@@ -581,7 +583,9 @@ details = () =>{
           console.log(error.code, error.message);
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-  ); */
+  ); 
+
+  */
 
 
     navigator.geolocation.getCurrentPosition(
@@ -610,7 +614,6 @@ details = () =>{
     ); 
 
    
-
   }
 
   handleLocationSelected = (data, { geometry }) => {
@@ -707,23 +710,12 @@ console.log(" Aqui "+data.structured_formatting.main_text);
 
   addMarker(coordinates) {
 
-    console.log("-> "+ coordinates.latitude+ " "+coordinates.longitude);
+ 
 
-    coordinates.latitudeDelta = 0;
-    coordinates.longitudeDelta = 0.0375;
+    //coordinates.latitudeDelta = 0.0375;
+    //coordinates.longitudeDelta = 0.0375;
 
-
-
-{/* ...this.state.markers,*/}
-
-{/*
-    this.setState({
-     
-      region: {latitude: coordinates.latitude, longitude: coordinates.longitude, latitudeDelta: 0,
-        longitudeDelta: 0.0375 }
-    });
- */}
-    
+   
 
     
 
@@ -765,9 +757,10 @@ console.log(" Aqui "+data.structured_formatting.main_text);
         <MapView 
         
           style={styles.map}
-          region={region}
+          
+          initialRegion={region}
           showsUserLocation={false}
-          loadingEnabled
+          loadingEnabled={true}
           zoomEnabled={true}
           scrollEnabled={true}
           showsScale={true}
@@ -1066,7 +1059,7 @@ visible={true}
     color="#3CB371"
     animated={true}
     size={40}
-    style={{ top: -545, left: 5, backgroundColor: "#FFF"}}
+    style={{ top: -560, left: 5, backgroundColor: "#FFF"}}
     onPress={() =>  this.props.navigation.dispatch(DrawerActions.openDrawer())}
   />
    

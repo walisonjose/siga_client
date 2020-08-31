@@ -4,5 +4,5 @@
   "dev": true,
   "minify": false,
   "urlRandomness": "4m-wx9",
-  "https": true
+  "https": false
 }
