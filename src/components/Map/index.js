@@ -1,5 +1,5 @@
 import React, { Component, Fragment,  useState, useEffect  } from "react";
-import { View,  AsyncStorage, Animated, Modal, Image, Text, Menu, ImageBackground, Dimensions, StyleSheet, TouchableOpacity, TouchableHighlight, ScrollView, TextInput } from "react-native";
+import { View,  AsyncStorage, Animated, Platform, Modal, Image, Text, Menu, ImageBackground, Dimensions, StyleSheet, TouchableOpacity, TouchableHighlight, ScrollView, TextInput } from "react-native";
 import MapView, { Marker, Callout } from "react-native-maps";
 
 import { Avatar, IconButton,  Colors } from 'react-native-paper';
@@ -710,10 +710,10 @@ console.log(" Aqui "+data.structured_formatting.main_text);
 
   addMarker(coordinates) {
 
- 
+    
 
-    //coordinates.latitudeDelta = 0.0375;
-    //coordinates.longitudeDelta = 0.0375;
+    coordinates.latitudeDelta = 0.0491;
+    coordinates.longitudeDelta = 0.0375;
 
    
 
@@ -1059,7 +1059,7 @@ visible={true}
     color="#3CB371"
     animated={true}
     size={40}
-    style={{ top: -560, left: 5, backgroundColor: "#FFF"}}
+    style={{top: Platform.OS === 'ios' ? -670 : -500, left: 10, backgroundColor: "#FFF"}} 
     onPress={() =>  this.props.navigation.dispatch(DrawerActions.openDrawer())}
   />
    
@@ -1087,9 +1087,9 @@ visible={this.state.search_adress}
  animationType="slide"
  transparent={true}
  visible={this.state.timer}
->
+> 
 <View style={styles.containertimer}>
-<Image source={require('../../assets/logoaparecida.png')}  style={{width: 220, height: 75, borderWidth: 10, top: -100 }} />
+<Image source={require('../../assets/logoaparecida.png')}  style={{width: Platform.OS === 'ios' ? 220 : 220, height: Platform.OS === 'ios' ? 75:75, borderWidth: 10, top: -100 }} />
 <Text style={styles.timerText1}>SUA SOLICITAÇÃO FOI REALIZADA.</Text>
 
 <Text style={{ color: "#FFF", fontSize: 18, top: -50}}> Aguarde a confirmação do motorista.</Text>
@@ -1263,7 +1263,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
     alignItems: 'center',
     justifyContent: 'center',
-  opacity: .7
+  opacity: .8
     
   },
 

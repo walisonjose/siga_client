@@ -57,7 +57,7 @@ export default class Search extends Component {
         styles={{
           container: {
             position: "absolute",
-            top: Platform.select( type === 0 ? { ios: 60, android: 15 } : { ios: 90, android: 15 } ),
+            top: Platform.select( type === 0 ? { ios: 70, android: 15 } : { ios: 70, android: 15 } ),
             width: "110%",
            
             right: -10, 
@@ -119,7 +119,7 @@ export default class Search extends Component {
         }}
       />
       
- <IconClose name="close-box" size={45} color="#3CB371" style={{ top: 15, left: 310}} onPress={ icon} />
+ <IconClose name="close-box" size={45} color="#3CB371" style={{ top: Platform.OS === 'ios' ? 70 : 15, left: Platform.OS === 'ios' ? 320 : 310}} onPress={ icon} />
        
      
 

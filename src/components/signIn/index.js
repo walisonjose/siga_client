@@ -62,7 +62,7 @@ import {
   
 } from './styles';
 
-const resetPasswordURL = 'https://sigadev.aparecida.go.gov.br/pt-BR/users/password/new'
+//const resetPasswordURL = 'https://sigadev.aparecida.go.gov.br/pt-BR/users/password/new';
 
  class SignIn extends Component {
   static navigationOptions = {
@@ -82,7 +82,7 @@ const resetPasswordURL = 'https://sigadev.aparecida.go.gov.br/pt-BR/users/passwo
 
   state = {
     email: "walison.deus@aparecida.go.gov.br",
-    itemId: null,
+   
     password: "javajade",
     error: '',
   };
@@ -91,8 +91,8 @@ const resetPasswordURL = 'https://sigadev.aparecida.go.gov.br/pt-BR/users/passwo
 
   _openBeposForgotPassword = async () => {
     this._openSafariWebView(resetPasswordURL);
-}; */
-
+}; 
+*/
 
 
   handleEmailChange = (email) => {
@@ -108,11 +108,7 @@ const resetPasswordURL = 'https://sigadev.aparecida.go.gov.br/pt-BR/users/passwo
   };
 
   
-
-  handleCreateAccountPress = () => {
-    this.props.navigation.navigate('SignUp');
-  };
-
+/*
 
 
   loginUserSiga = async () => {
@@ -135,11 +131,8 @@ const resetPasswordURL = 'https://sigadev.aparecida.go.gov.br/pt-BR/users/passwo
    // console.log(this.state.email);
 
 
-    const response = await api2.post('/users/sign_in.json?user[login]='+this.state.email+'&user[password]='+this.state.password)
+    const response = await api2.post('/users/sign_in.json?user[login]='+this.state.email+'&user[password]='+this.state.password+'')
     .then(response =>{
-
-
-      console.log(" data: "+response.headers["set-cookie"]);
 
       
       this.props.savePropsAuthentication({
@@ -157,10 +150,7 @@ const resetPasswordURL = 'https://sigadev.aparecida.go.gov.br/pt-BR/users/passwo
 
 
      
-   this.props.navigation.navigate('Map', {
-  
-      
-    });
+   this.props.navigation.navigate('Map');
 
     }).catch(
       function (error) {
@@ -171,7 +161,7 @@ const resetPasswordURL = 'https://sigadev.aparecida.go.gov.br/pt-BR/users/passwo
       }
     );
 
-  }
+  } */
 
 
   handleSignInPress = async () => {
@@ -237,6 +227,8 @@ statusLogin = 0;
 
   };
 
+  
+
   render() {
     return (
 
@@ -274,7 +266,7 @@ statusLogin = 0;
         </SignUpLink>
 
         {/*this.state.error.length !== 0 && <ErrorMessage>{this.state.error}</ErrorMessage> */}
-        <Button style={{ top: -120 }} onPress={this.handleSignInPress}>
+        <Button style={{ top: -120 }} onPress={() => { console.log("Teste!!")}}>
           <ButtonText >ENVIAR</ButtonText>
         </Button>
        
