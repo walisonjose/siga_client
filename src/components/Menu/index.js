@@ -5,7 +5,7 @@ import {NavigationActions} from 'react-navigation';
 import {ScrollView, Text, View, Image, ImageBackground, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { TouchableHighlight } from 'react-native-gesture-handler';
+
 
 import {connect} from "react-redux";
 

@@ -115,6 +115,12 @@ import Timer from './timer';
       latitudeDelta: 0.0491,
       longitudeDelta: 0.0375,
     },
+    coordinate: {
+      latitude: 0,
+      longitude: 0,
+      latitudeDelta: 0.0491,
+      longitudeDelta: 0.0375,
+    },
     place:'',
 
     buttonAddress: 0,
@@ -197,14 +203,13 @@ if(this.state.cancel_timer === 1){
     
 
 getAddress = async (coordinate) => {
+
+
+
+
   const response = await api.post('/geocode/json?latlng='+coordinate.latitude+','+coordinate.longitude+'&key=AIzaSyD157FiAI8dfBRzoH4qvzjFi3iKSPzA860')
   .then(response =>{
 
-console.log("-> "+response.data.results[0].formatted_address);
-
-coordinate: {
-
-}
 
 
    if(this.state.buttonAddress === 0){
@@ -711,17 +716,16 @@ console.log(" Aqui "+data.structured_formatting.main_text);
   addMarker(coordinates) {
 
     
+const coord = {
+latitude: coordinates.latitude,
+longitude: coordinates.longitude,
+latitudeDelta: 0.0491,
+longitudeDelta: 0.0375,
+};
+   // coordinates.latitudeDelta = 0.0491;
+   // coordinates.longitudeDelta = 0.0375;
 
-    coordinates.latitudeDelta = 0.0491;
-    coordinates.longitudeDelta = 0.0375;
-
-   
-
-    
-
-
-
-    this.getAddress(coordinates);
+    this.getAddress(coord);
 
 
     

@@ -65,9 +65,7 @@ import {
 //const resetPasswordURL = 'https://sigadev.aparecida.go.gov.br/pt-BR/users/password/new';
 
  class SignIn extends Component {
-  static navigationOptions = {
-    header: null,
-  };
+  
 
   static propTypes = {
     navigation: PropTypes.shape({
@@ -108,7 +106,7 @@ import {
   };
 
   
-
+/*
 
 
   loginUserSiga = async () => {
@@ -161,7 +159,7 @@ import {
       }
     );
 
-  } 
+  } */
 
 
   handleSignInPress = async () => {
@@ -236,9 +234,9 @@ statusLogin = 0;
 <Container>
 
   { RCTNetworking.clearCookies(() => { })}
-      <ImageBackground  style={{ width: '100%',   justifyContent: 'center', flex: 1}} source={require('../../images/backgroundaparecida.png')}  resizeMode="cover" >
+     <ImageBackground  style={{ width: '100%',   justifyContent: 'center', flex: 1}} source={require('../../images/backgroundaparecida.png')}  resizeMode="cover" >
       
-        <StatusBar hidden />
+     <StatusBar hidden />
         <Logo style={{width: 200,height:200,  top:  60, alignSelf: 'center'}} source={require('../../images/icon_lock.png')} resizeMode="contain" />
         <Logo style={{width: 40,height:40, top: 87, left: 10}} source={require('../../images/icon_user.png')} resizeMode="contain" />
          <Input
@@ -266,7 +264,7 @@ statusLogin = 0;
         </SignUpLink>
 
         {/*this.state.error.length !== 0 && <ErrorMessage>{this.state.error}</ErrorMessage> */}
-        <Button style={{ top: -120 }} onPress={this.handleSignInPress}>
+        <Button style={{ top: -120 }} onPress={() => { console.log("Teste!!")}}>
           <ButtonText >ENVIAR</ButtonText>
         </Button>
        

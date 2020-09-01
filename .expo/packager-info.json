@@ -1,10 +1,10 @@
 {
   "packagerPort": 19001,
-  "packagerPid": 801,
+  "packagerPid": 5727,
   "expoServerPort": 19000,
   "expoServerNgrokUrl": "https://4m-wx9.anonymous.siga-client.exp.direct",
   "packagerNgrokUrl": "https://packager.4m-wx9.anonymous.siga-client.exp.direct",
-  "ngrokPid": 1187,
+  "ngrokPid": 5747,
   "webpackServerPort": null,
   "devToolsPort": 19002
 }

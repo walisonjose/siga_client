@@ -3,12 +3,12 @@ import * as React from 'react';
 import { Button, View, Text, TextInput, Dimensions } from 'react-native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { NavigationContainer, DrawerActions } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
 
 import { createStackNavigator} from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
 
-import Icon from 'react-native-vector-icons/MaterialIcons';
+
 
 /*Telas */
 import formLogin from './components/signIn/index';
@@ -17,11 +17,9 @@ import Map from './components/Map/index';
 import Timer from './components/Map/timer';
 import Search from './components/Search/index';
 import Menu from './components/Menu/index';
-import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 
 
 
-{/*const Tab = createBottomTabNavigator(); */}
 
 const Tab = createStackNavigator();
 
@@ -151,26 +149,6 @@ function Root() {
   );
 }
 
-
-
-{/* options={{headerShown: true,   title:   , headerTransparent: false, headerStyle: {
-              backgroundColor: '#008B8B'
-           } }} */}
-
-function googleSearch() {
-
-  return (
-    <>
-    <Text> asdasdasd</Text>
-    </>
-  
-  );
-
-}
-
-{/* options={{headerShown: true,    headerTransparent: false, title:"", headerStyle: {
-              backgroundColor: '#008B8B'
-           } }} */}
 
 
 export default function App() {
