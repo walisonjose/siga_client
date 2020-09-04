@@ -67,6 +67,7 @@
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
     "rn-bottom-drawer": "^1.4.3",
+    "set-interval-async": "1.0.33",
     "styled-components": "^4.3.2",
     "yarn": "^1.22.4"
   },
