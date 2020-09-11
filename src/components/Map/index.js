@@ -184,6 +184,7 @@ class Map extends Component {
     top_origin: -30,
     top_destino: 25,
     marker: null,
+    marker_motora: null,
     timer: false,
     secs: 0,
     cancel_timer: 0,
@@ -197,7 +198,7 @@ class Map extends Component {
     modal_run_started_cont: 0,
 
     /*estado aguardando check-in*/
-    run_wait_checkin: false,
+    run_wait_checkin: 0,
     /*estado corrida iniciada*/
     run_started: false,
     /*estado corrida finalizada*/
@@ -274,6 +275,9 @@ class Map extends Component {
               response.data.results[0].address_components[1].short_name,
           });
           this.mapView.animateToRegion(this.state.destination, 1000);
+
+
+          this.marker.showCallout();
         }
       })
       .catch(function (error) {
@@ -341,7 +345,7 @@ class Map extends Component {
   cancel_run = async () => {
     const token = this.props.token;
 
-    console.log("Corrida: " + this.state.id_run);
+   
 
     const url = "https://sigadev.aparecida.go.gov.br";
 
@@ -386,6 +390,8 @@ class Map extends Component {
 
     const timer = setIntervalAsync(() => {
       const url = "https://sigadev.aparecida.go.gov.br";
+      
+
 
       const response = fetch(
         url + "/runs/" + this.state.id_run + ".json",
@@ -404,17 +410,27 @@ class Map extends Component {
           return response.json();
         })
         .then((responseData) => {
-          const { driver } = responseData;
 
-          console.log("Motorista-> " + driver.name);
-          this.setState({driver: driver} );
 
-          this.getDriverLocation();
 
-          if (responseData.started_at != null) {
+          if (responseData.accepted_at != null && responseData.started_at === null ) {
+
+            const { driver } = responseData;
+
+            console.log("Motorista-> " + driver.name);
+            this.setState({driver: driver, run_wait_checkin: 1    } );
+
+            this.marker.hideCallout();
+  
+            this.getDriverLocation();
+          }
+
+          
+
+          if (responseData.started_at != null && responseData.finished_at === null && responseData.canceled_at === null) {
             console.log("Corrida iniciada!");
             if (this.state.modal_run_started_cont == 0) {
-              this.setState({ run_started: true, modal_run_started: true });
+              this.setState({ run_started: true, modal_run_started: true, run_wait_checkin: 0 });
             }
             this.setState({
               run_started: true,
@@ -437,7 +453,7 @@ class Map extends Component {
             // toastSucess("Corrida finalizada!");
 
             this.setState({
-              run_finished: true,
+              run_finished: true, run_started: false
             });
 
             console.log("Corrida finalizada!");
@@ -453,7 +469,18 @@ class Map extends Component {
               "Corrida cancelada!\n\n Motivo: " +
                 responseData.cancel_explanation
             );
+
+
+            this.setState({ run_wait_checkin: 0 });
+            
+           
+
             clearIntervalAsync(timer);
+
+
+          
+
+
           }
         })
         .catch(function (error) {
@@ -530,12 +557,18 @@ class Map extends Component {
         return response.json();
       })
       .then((responseData) => {
+
+   console.log("pegou as coordenadas");
+
         const { lat, lng } = responseData;
 
         const  driver_location = {
-          latitude: lat,
-          longitude: lng,
+          latitude: parseFloat(lat),
+          longitude: parseFloat(lng),
         }
+
+       
+
 
         this.setState({ driver_location: driver_location });
 
@@ -573,6 +606,8 @@ class Map extends Component {
         if (responseData.accepted_at != null) {
           console.log("Corrida aceita!! Seguindo para checkin");
           this.setState({ timer: false, cancel_timer: 1 });
+          
+          
 
           this.status_check_run();
         }
@@ -676,9 +711,7 @@ class Map extends Component {
           />
         </Back>
 
-        {/*        <TypeTitle>Siga</TypeTitle>
-    
-   <TypeImage source={uberx} /> */}
+      
         <LocationBoxRun>
           <LocationTimeBoxRun>
             <LocationTimeTextRun>ORIGEM</LocationTimeTextRun>
@@ -696,11 +729,7 @@ class Map extends Component {
             </LocationTimeTextSmallRun>
           </LocationTimeBoxRun>
         </LocationBoxRun>
-        {/*  <TypeTitle>Origem</TypeTitle>
-        <TypeDescription>{this.state.origem} </TypeDescription> 
-
-            <TypeTitle>Destino</TypeTitle> 
-        <TypeDescription>{this.state.destino}</TypeDescription>  */}
+        
 
         <RequestButton onPress={() => console.log("Teste")}>
           <RequestButtonText>SOLICITAR MOTORISTA</RequestButtonText>
@@ -821,26 +850,7 @@ class Map extends Component {
               selection={{ start: 0, end: 0 }}
             />
           </ImageBackground>
-          {/*    
- <TextInput  onTouchStart={()=> this.onPress() }  style={{ right: -160,    height: 50, paddingLeft: 10, borderColor: '#3CB371', borderWidth: 2, borderRadius: 15, width: 330, bottom: 50}} placeholder="De onde?"   />
-           
- <TextInput  onTouchStart={()=> this.onPress() }  style={{  left: -168, height: 50, paddingLeft: 10,  borderColor: '#3CB371', borderWidth: 2, borderRadius: 15, width: 330, bottom: -5, }} placeholder="Para onde?"   />
- 
-      onTouchStart={()=> this.onPress() } */}
-
-          {/*  
-        <Image
-        style={{ height: 75, width: 75, right: 90 }}
-        source={require('../../images/ic_assent_origin.png')}
-      /> 
-
-<Image
-        style={{ height: 75, width: 75, right: 0 }}
-        source={require('../../images/ic_assent_destiny.png')}
-      /> 
-   
-
-*/}
+        
         </View>
       </View>
     );
@@ -951,24 +961,44 @@ class Map extends Component {
       latitudeDelta: 0.0491,
       longitudeDelta: 0.0375,
     };
-    // coordinates.latitudeDelta = 0.0491;
-    // coordinates.longitudeDelta = 0.0375;
+    
 
     this.getAddress(coord);
   }
 
   onRegionChangeComplete = () => {
-    if (
+   /* if (
       this.marker &&
       marker.current &&
-      this.state.marker.current.showCallout
-    ) {
-      this.state.marker.current.showCallout();
+      this.state.marker.current.showCallout 
+   ) {
+
+     
+        this.state.marker.current.hideCallout();
+      
+      
+    }*/
+
+    if(this.state.run_wait_checkin === 1){
+      this.marker_motora.showCallout(); 
     }
+
+  
+
+    
   };
 
   componentDidUpdate() {
-    this.marker.showCallout();
+   // if(this.marker ){
+   //   this.marker.hideCallout();
+      
+  //  }
+
+    if(this.state.run_wait_checkin === 1 ){
+      this.marker_motora.showCallout();
+      
+    }
+    
   }
 
   render() {
@@ -986,10 +1016,16 @@ class Map extends Component {
           showsScale={true}
           ref={(el) => (this.mapView = el)}
           onPress={(event) => {
-            this.addMarker(event.nativeEvent.coordinate);
+
+         if(this.state.run_wait_checkin === 0 && this.state.run_started === false){
+          this.addMarker(event.nativeEvent.coordinate);
+         }
+              
+            
+            
           }}
         >
-          <Marker coordinate={region}>
+          <Marker coordinate={this.state.region}>
             <Image
               style={{
                 height: 40,
@@ -1001,69 +1037,15 @@ class Map extends Component {
             />
           </Marker>
 
-          {/*
-
-<MapView.Overlay
-        
-          bounds={[[0.01, -0.01], [-0.01, 0.01]]}
-        />
-
-       
-        this.state.markers.map(marker =>
-          (<MapView.Marker
-            key={marker.index}
-            coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
-          >
-          { (this.state.buttonAddress === 0 ? ( <Image source={require('../../images/pin_origem.png')}  style={{height: 60, width: 45 }} />) :
-           ( <Image source={require('../../images/pin_destino.png')}  style={{height: 60, width: 45 }} />)) }
-         
-          </MapView.Marker>
-          )
-          ) */}
+          
 
 
-{ this.state.driver != null ? (
+{this.state.run_wait_checkin === 1    ? ( 
 
-<Marker coordinate={this.state.driver_location}>
-            <Image
-              style={{
-                height: 40,
-                width: 40,
-                borderColor: "#000",
-                borderRadius: 40,
-              }}
-              source={{ uri: 'https://sigadev.aparecida.go.gov.br/paperclip/drivers/profile_pictures/6360c9194603fc778d3f8b2dee130aa98d2eb31c/thumb.png?1599229147' }}
-            />
-          </Marker>
-
-) : (
- null
- 
-)}
-
-
-          {this.state.origin != null ? (
-            <MapView.Marker
-              coordinate={{
-                latitude: this.state.origin.latitude,
-                longitude: this.state.origin.longitude,
-              }}
-              image={markerImage}
-            >
-              <Image
-                source={require("../../images/pin_origem.png")}
-                style={{ height: 60, width: 45 }}
-              />
-            </MapView.Marker>
-          ) : (
-            ""
-          )}
-
-          {this.state.destination != null ? (
-            <Fragment>
+<Fragment>
               <Directions
-                origin={origin}
-                destination={destination}
+                origin={this.state.driver_location}
+                destination={origin}
                 onReady={(result) => {
                   this.setState({ duration: Math.floor(result.duration) });
 
@@ -1080,19 +1062,37 @@ class Map extends Component {
                 }}
               />
 
-              <MapView.Marker
-                coordinate={destination}
-                ref={(_marker) => {
-                  this.marker = _marker;
-                }}
-              >
-                <Image
-                  source={require("../../images/pin_destino.png")}
-                  style={{ height: 60, width: 45 }}
-                />
 
-                <Callout
-                  style={{ width: 175, borderRadius: 15 }}
+
+
+<MapView.Marker 
+   coordinate={{
+    latitude: this.state.driver_location.latitude,
+    longitude: this.state.driver_location.longitude,
+  }}
+
+ 
+  ref={(_marker) => {
+    this.marker_motora = _marker;
+    
+
+  }}
+>
+
+            <Image
+              style={{
+                height: 40,
+                width: 40,
+                borderColor: "#000",
+                borderRadius: 40,
+              }}
+             source={{ uri: 'https://sigadev.aparecida.go.gov.br/paperclip/drivers/profile_pictures/6360c9194603fc778d3f8b2dee130aa98d2eb31c/thumb.png?1599229147' }}
+            />
+
+
+ 
+<Callout
+                  style={{ width: 175, borderRadius: 15 }} 
                   tooltip={true}
                   onPress={() => {
                     this.timer();
@@ -1108,25 +1108,147 @@ class Map extends Component {
                     <LocationTextRun>CHAMAR CARRO</LocationTextRun>
                   </LocationBoxRun>
                 </Callout>
+             
+
+ 
+          </MapView.Marker>
+
+
+
+          <MapView.Marker
+              coordinate={{
+                latitude: this.state.origin.latitude,
+                longitude: this.state.origin.longitude,
+              }}
+              image={markerImage}
+            >
+              <Image
+                source={require("../../images/pin_origem.png")}
+                style={{ height: 60, width: 45 }}
+              />
+
+
+            </MapView.Marker>
+
+
+           
+
+
+          </Fragment>
+) : (
+ 
+null
+)  }
+
+
+          {this.state.origin != null ? (
+            <MapView.Marker
+              coordinate={{
+                latitude: this.state.origin.latitude,
+                longitude: this.state.origin.longitude,
+              }}
+              image={markerImage}
+
+              ref={(_marker) => {
+                this.marker = _marker;
+              }}
+            >
+              <Image
+                source={require("../../images/pin_origem.png")}
+                style={{ height: 60, width: 45 }}
+              />
+            </MapView.Marker>
+          ) : (
+            ""
+          )}
+
+
+          {this.state.destination &&  this.state.run_wait_checkin === 0  ? ( 
+            <Fragment>
+              <Directions
+                origin={origin}
+                destination={destination}
+                onReady={(result) => {
+                  this.setState({ duration: Math.floor(result.duration) });
+
+                  
+
+                  this.mapView.fitToCoordinates(result.coordinates, {
+                    edgePadding: {
+                      right: getPixelSize(50),
+                      left: getPixelSize(50),
+                      top: getPixelSize(50),
+                      bottom: getPixelSize(350),
+                    },
+                  });
+                }}
+              />
+
+<MapView.Marker
+              coordinate={{
+                latitude: this.state.origin.latitude,
+                longitude: this.state.origin.longitude,
+              }}
+              image={markerImage}
+              
+            >
+              <Image
+                source={require("../../images/pin_origem.png")}
+                style={{ height: 60, width: 45 }}
+              />
+            </MapView.Marker>
+
+              <MapView.Marker
+                coordinate={destination}
+ref={(_marker) => {
+                  this.marker = _marker;
+                  
+              
+                }}
+
+                title={""}
+              >
+                <Image
+                  source={require("../../images/pin_destino.png")}
+                  style={{ height: 60, width: 45 }}
+                />
+
+
+  <Callout
+                  style={{ width: 175, borderRadius: 15 }} 
+                  tooltip={true}
+                  onPress={() => {
+                    this.timer();
+                  }}
+                >
+                  <LocationBoxRun>
+                    <LocationTimeBoxRun>
+                      <LocationTimeTextRun>
+                        {this.state.duration}
+                      </LocationTimeTextRun>
+                      <LocationTimeTextSmallRun>MIN</LocationTimeTextSmallRun>
+                    </LocationTimeBoxRun>
+                    <LocationTextRun>CHAMAR CARRO</LocationTextRun>
+                  </LocationBoxRun>
+               </Callout> 
+        
+
+
+
+
+
+
+                
               </MapView.Marker>
             </Fragment>
           ) : (
-            {
-              /*   <MapView.Marker
            
-            coordinate={{ latitude: this.state.origin.latitude, longitude: this.state.origin.longitude }}
-          >
-         <Image source={require('../../images/pin_origem.png')}  style={{height: 60, width: 45 }} />
-         
-         
+null
 
-         
-          </MapView.Marker>
-*/
-            }
-          )}
+          ) }
 
-          {destination && (
+
+          {destination &&  this.state.run_wait_checkin === 0 && (
             <Fragment>
               <Directions
                 origin={origin}
@@ -1176,61 +1298,11 @@ class Map extends Component {
              
                 
               </Marker>   */}
-            </Fragment>
-          )}
+            </Fragment> 
+          )} 
         </MapView>
 
-        {this.state.duration > 0 ? (
-          <Fragment>
-            {/*
-           
-             <Details duration={duration} /> 
-            {this.details()}
-
-
-           
-           
-
-<Modal
-animationType="fade"
-transparent={true}
-visible={true}
-
-> 
-
-
-
-
-{this.details()}
-
-</Modal> */}
-          </Fragment>
-        ) : (
-          <>
-            {/*   
-         <Search onLocationOriginSelected={this.handleLocationOrigSelected} placeholder={"Origem?"} type={0} /> 
-           
-             <Search  onLocationSelected={this.handleLocationSelected} placeholder={"Destino?"} type={1} /> 
-         
-
-             <Icon name="menu" size={50} color="#3CB371" style={{ top: -450, left: 10}}  />
-        
-            */}
-          </>
-        )}
-        {/* 
-<View style={{ backgroundColor: "#FFF",  height: 50, width:50, top: -520, left: 10}}>
-<Icon name="menu" size={40} color="#3CB371"  style={{ top: -520, left: 10}}  onPress={ () =>  this.props.navigation.dispatch(DrawerActions.openDrawer())} />
- 
-</View>
-
-
-<TouchableHighlight 
-        onPress={() =>  this.props.navigation.dispatch(DrawerActions.openDrawer())}
-      >
-<Avatar.Icon size={50} icon="menu" color="#3CB371"   style={{ top: -545, left: 15, backgroundColor: "#FFF",}}  />
-
-</TouchableHighlight> */}
+       
 
         <IconButton
           icon="menu"
@@ -1320,10 +1392,7 @@ visible={true}
 
 const mapStateToProps = (state) => {
   return {
-    //  user: state.AuthenticationReducer.user,
-    //  hospitalPrincipal: 1,
-    //  hospitalPrincipal: state.AuthenticationReducer.hospitalPrincipal,
-    // login: state.AuthenticationReducer.login,
+    
     name: state.AuthenticationReducer.name,
     avatar: state.AuthenticationReducer.avatar,
     token: state.AuthenticationReducer.token,
