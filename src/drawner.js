@@ -17,6 +17,7 @@ import Map from './components/Map/index';
 import Timer from './components/Map/timer';
 import Search from './components/Search/index';
 import Menu from './components/Menu/index';
+import driverDetails from './components/Map/driverDetails';
 
 
 
@@ -136,13 +137,16 @@ const Drawer = createDrawerNavigator(
 );
 
 
-function Root() {
+function Root() { 
   return (
-    <Stack.Navigator initialRouteName='Login'  >
+    <Stack.Navigator initialRouteName='driverDetails'  >
       <Stack.Screen name="Map" component={Map}  options={{headerShown: false}} />
       <Stack.Screen name="Timer" component={Timer}  options={{headerShown: false}} />
       <Stack.Screen name="Login" component={formLogin} options={{headerShown: false}} />
       <Stack.Screen name="Search" component={Search} options={{headerShown: false,   title: ''  , headerTransparent: true, headerStyle: {
+              backgroundColor: '#008B8B', top: -10
+           } }}  />
+            <Stack.Screen name="driverDetails" component={driverDetails} options={{headerShown: false,   title: ''  , headerTransparent: true, headerStyle: {
               backgroundColor: '#008B8B', top: -10
            } }}  />
     </Stack.Navigator>

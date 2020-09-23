@@ -1,7 +1,6 @@
 import React, { Component, Fragment, useState, useEffect } from "react";
 import {
   View,
-  AsyncStorage,
   Animated,
   Platform,
   Modal,
@@ -16,7 +15,7 @@ import {
   ScrollView,
   TextInput,
 } from "react-native";
-import MapView, { Marker, Callout } from "react-native-maps";
+import MapView, { Marker, Callout, AnimatedRegion } from "react-native-maps";
 
 import { Avatar, IconButton, Colors } from "react-native-paper";
 
@@ -31,6 +30,7 @@ const GOOGLE_MAPS_APIKEY = "AIzaSyD157FiAI8dfBRzoH4qvzjFi3iKSPzA860";
 import { getPixelSize } from "../../utils";
 
 import Search from "../Search";
+import DriverDetails from "./driverDetails";
 import Origin from "../Search/origin";
 
 import SideMenu from "react-native-side-menu";
@@ -95,8 +95,6 @@ import {
 
 const screen = Dimensions.get("window");
 
-Geocoder.init("AIzaSyD157FiAI8dfBRzoH4qvzjFi3iKSPzA860");
-
 console.disableYellowBox = true;
 
 import Toast from "react-native-tiny-toast";
@@ -104,6 +102,12 @@ import Toast from "react-native-tiny-toast";
 import googlemaps from "../../services/api";
 
 import Timer from "./timer";
+
+import AsyncStorage from "@react-native-community/async-storage";
+
+import RNGooglePlaces from "react-native-google-places";
+import { CAMERA } from "expo-permissions";
+import driverDetails from "./driverDetails";
 
 const {
   setIntervalAsync,
@@ -158,12 +162,20 @@ class Map extends Component {
       latitudeDelta: 0.0491,
       longitudeDelta: 0.0375,
     },
-    coordinate: {
+
+    point: {
+      latitude: -16.8173241,
+      longitude: -49.2537338,
+      latitudeDelta: 0.0491,
+      longitudeDelta: 0.0375,
+    },
+
+    coordinate: new AnimatedRegion({
       latitude: 0,
       longitude: 0,
       latitudeDelta: 0.0491,
       longitudeDelta: 0.0375,
-    },
+    }),
     place: "",
 
     buttonAddress: 0,
@@ -174,7 +186,7 @@ class Map extends Component {
     origin: { latitude: 0, longitude: 0 },
     duration: null,
     location: null,
-    origem: null,
+    origem: "",
     short_origin: null,
     destino: "",
     short_destination: null,
@@ -197,6 +209,12 @@ class Map extends Component {
     modal_run_started: false,
     modal_run_started_cont: 0,
 
+    modal_run_cancel: false,
+    modal_run_cancel_cont: 0,
+
+    modal_run_finsih: false,
+    modal_run_finsih_cont: 0,
+
     /*estado aguardando check-in*/
     run_wait_checkin: 0,
     /*estado corrida iniciada*/
@@ -214,8 +232,54 @@ class Map extends Component {
     driver_lat: null,
     driver_lng: null,
 
+    hasLocationPermissions: false,
+    locationResult: null,
 
+    /*estados que configuram o BootomDrawner*/
 
+    full_dim: 350,
+    openBottomDrawer: false,
+    show_welcome_msg: true,
+    welcome_msg: null,
+    welcome_msg_top: 35,
+
+    /*Configs para origem e destino definidos 
+
+    top_origin_label: 35,
+    top_origin_textinput:75,
+    top_origin_icon:40,
+
+    top_destination_label: 60,
+    top_destination_textinput:80,
+    top_destination_icon:35 */
+
+    top_origin_label: 75,
+    top_origin_textinput: 95,
+    top_origin_icon: 60,
+    button_alter_address_origin: 25,
+
+    top_destination_label: 40,
+    top_destination_textinput: 65,
+    top_destination_icon: 20,
+    button_alter_address_destination: -15,
+
+    msg_duration: null,
+  };
+
+  getDurationMsgs = (index) => {
+    var msg = null;
+    if (index === 0) {
+      msg =
+        "O destino fica a " + this.state.duration + " minutos de distância.";
+    }
+    if (index === 1) {
+      msg =
+        "O motorista está a " + this.state.duration + " minutos de distância.";
+    }
+    if (index === 3) {
+      msg = "O destino fica a " + this.state.duration + "minutos de distância.";
+    }
+    return msg;
   };
 
   /*TESTES TIMER */
@@ -236,6 +300,78 @@ class Map extends Component {
 
       // console.log("Cont "+ this.state.secs)
     }, 1000);
+  };
+
+  /*Métodos que salvas as coordenadas já definidas em um corrida em andamento.*/
+
+  storeDataRun = async (value) => {
+    try {
+      const run = {
+        run: {
+          id: "1",
+          origem: {
+            lat: "-16.8173241",
+            long: "-49.2537338",
+            latitudeDelta: 0.0491,
+            longitudeDelta: 0.0375,
+          },
+          destination: {
+            lat: "-16.8232248",
+            long: "-49.2536351",
+            latitudeDelta: 0.0491,
+            longitudeDelta: 0.0375,
+          },
+        },
+      };
+
+      const jsonValue = JSON.stringify(run);
+      await AsyncStorage.setItem("@rundata", jsonValue);
+    } catch (e) {
+      // saving error
+    }
+  };
+
+  getDataSync = async () => {
+    try {
+      const jsonValue = await AsyncStorage.getItem("@rundata");
+
+      //return JSON.parse(jsonValue);
+
+      const { run } = JSON.parse(jsonValue);
+
+      this.setState({ buttonAddress: 0 });
+
+      this.setState({
+        origin: {
+          latitude: parseFloat(run.origem.lat),
+          longitude: parseFloat(run.origem.long),
+          latitudeDelta: 0.0491,
+          longitudeDelta: 0.0375,
+        },
+      });
+      this.getAddress(this.state.origin);
+
+      this.setState({ buttonAddress: 1 });
+
+      this.setState({
+        destination: {
+          latitude: parseFloat(run.destination.lat),
+          longitude: parseFloat(run.destination.long),
+          latitudeDelta: 0.0491,
+          longitudeDelta: 0.0375,
+        },
+      });
+
+      this.getAddress(this.state.destination);
+      this.setState({ buttonAddress: 0 });
+
+      return "Dados carregados";
+
+      // return jsonValue != null ? console.log(JSON.parse(jsonValue)) : null;
+    } catch (e) {
+      // error reading value
+      console.log("Deu algo de errado-> " + e);
+    }
   };
 
   googleSearch(button) {
@@ -262,20 +398,47 @@ class Map extends Component {
           this.setState({
             origem: response.data.results[0].formatted_address,
             origin: coordinate,
+            point: coordinate,
             short_origin:
               response.data.results[0].address_components[1].short_name,
           });
 
-          this.mapView.animateToRegion(this.state.origin, 1000);
+          //this.mapView.animateToRegion(this.state.origin, 1000);
+
+          this.mapView.animateCamera({
+            center: {
+              latitude: this.state.origin.latitude,
+              longitude: this.state.origin.longitude,
+            },
+          });
         } else {
           this.setState({
             destino: response.data.results[0].formatted_address,
             destination: coordinate,
+            point: coordinate,
             short_destination:
               response.data.results[0].address_components[1].short_name,
-          });
-          this.mapView.animateToRegion(this.state.destination, 1000);
 
+            /*Ajustando o Bootom Drawner
+
+              top_origin_label: 25,
+              top_origin_textinput:65,
+              top_origin_icon:45,
+              button_alter_address_origin: 30,
+          
+              top_destination_label: 30,
+              top_destination_textinput:70,
+              top_destination_icon: 40,
+              button_alter_address_destination:  25 */
+          });
+          //this.mapView.animateToRegion(this.state.destination, 1000);
+
+          this.mapView.animateCamera({
+            center: {
+              latitude: this.state.destination.latitude,
+              longitude: this.state.destination.longitude,
+            },
+          });
 
           this.marker.showCallout();
         }
@@ -284,6 +447,12 @@ class Map extends Component {
         console.log("Ops! Login ou senha inválidos!");
       });
   };
+
+
+showDriverData = () => {
+  this.props.navigation.navigate("driverDetails");
+}
+
 
   timer = async () => {
     //this.getDataRun();
@@ -345,8 +514,6 @@ class Map extends Component {
   cancel_run = async () => {
     const token = this.props.token;
 
-   
-
     const url = "https://sigadev.aparecida.go.gov.br";
 
     const response = await fetch(
@@ -390,8 +557,6 @@ class Map extends Component {
 
     const timer = setIntervalAsync(() => {
       const url = "https://sigadev.aparecida.go.gov.br";
-      
-
 
       const response = fetch(
         url + "/runs/" + this.state.id_run + ".json",
@@ -410,27 +575,30 @@ class Map extends Component {
           return response.json();
         })
         .then((responseData) => {
-
-
-
-          if (responseData.accepted_at != null && responseData.started_at === null ) {
-
+          if (
+            responseData.accepted_at != null &&
+            responseData.started_at === null
+          ) {
             const { driver } = responseData;
 
             console.log("Motorista-> " + driver.name);
-            this.setState({driver: driver, run_wait_checkin: 1    } );
+            this.setState({ driver: driver, run_wait_checkin: 1 });
 
-            this.marker.hideCallout();
-  
             this.getDriverLocation();
           }
 
-          
-
-          if (responseData.started_at != null && responseData.finished_at === null && responseData.canceled_at === null) {
+          if (
+            responseData.started_at != null &&
+            responseData.finished_at === null &&
+            responseData.canceled_at === null
+          ) {
             console.log("Corrida iniciada!");
             if (this.state.modal_run_started_cont == 0) {
-              this.setState({ run_started: true, modal_run_started: true, run_wait_checkin: 0 });
+              this.setState({
+                run_started: true,
+                modal_run_started: true,
+                run_wait_checkin: 0,
+              });
             }
             this.setState({
               run_started: true,
@@ -438,11 +606,11 @@ class Map extends Component {
             });
 
             //deverá ser retirado...
-            if (this.state.modal_run_started != false) {
-              toastSucess("Corrida iniciada!");
-            }
+            // if (this.state.modal_run_started != false) {
+            //   toastSucess("Corrida iniciada!");
+            //  }
 
-            if (this.state.modal_run_started_cont > 3) {
+            if (this.state.modal_run_started_cont > 5) {
               this.setState({
                 run_started: true,
                 modal_run_started: false,
@@ -450,14 +618,38 @@ class Map extends Component {
             }
           }
           if (responseData.finished_at != null) {
+            // clearIntervalAsync(timer);
             // toastSucess("Corrida finalizada!");
 
+            // this.setState({
+            //   run_finished: true, run_started: false, destination: null, origem: null
+            // });
             this.setState({
-              run_finished: true, run_started: false
+              // run_finished: true,
+              modal_run_finsih: true,
+              modal_run_finsih_cont: this.state.modal_run_finsih_cont + 1,
             });
+            console.log(
+              "Corrida finalizada!" + this.state.modal_run_finsih_cont
+            );
 
-            console.log("Corrida finalizada!");
-            clearIntervalAsync(timer);
+            if (this.state.modal_run_finish_cont > 5) {
+              this.setState({
+                modal_run_finsih: false,
+                run_finished: true,
+              });
+              //  clearIntervalAsync(timer);
+            }
+
+            if (!this.state.run_finished) {
+              clearIntervalAsync(timer); 
+              this.setState({
+                modal_run_finsih: false,
+               
+                
+              });
+
+            }
           }
 
           if (responseData.canceled_at != null) {
@@ -470,17 +662,9 @@ class Map extends Component {
                 responseData.cancel_explanation
             );
 
-
             this.setState({ run_wait_checkin: 0 });
-            
-           
 
             clearIntervalAsync(timer);
-
-
-          
-
-
           }
         })
         .catch(function (error) {
@@ -557,22 +741,19 @@ class Map extends Component {
         return response.json();
       })
       .then((responseData) => {
-
-   console.log("pegou as coordenadas");
+        console.log("pegou as coordenadas");
 
         const { lat, lng } = responseData;
 
-        const  driver_location = {
+        const driver_location = {
           latitude: parseFloat(lat),
           longitude: parseFloat(lng),
-        }
+        };
 
-       
-
-
-        this.setState({ driver_location: driver_location });
-
-        
+        this.setState({
+          driver_location: driver_location,
+          point: driver_location,
+        });
       })
       .catch(function (error) {
         console.log("Deu ruim:" + error);
@@ -606,8 +787,6 @@ class Map extends Component {
         if (responseData.accepted_at != null) {
           console.log("Corrida aceita!! Seguindo para checkin");
           this.setState({ timer: false, cancel_timer: 1 });
-          
-          
 
           this.status_check_run();
         }
@@ -693,6 +872,12 @@ class Map extends Component {
     //console.log("-> "+name.indexOf(' '));
   };
 
+  getFirstNameDriver = () => {
+    var name = this.state.driver.name;
+    return name.substring(0, name.indexOf(" "));
+    //console.log("-> "+name.indexOf(' '));
+  };
+
   details = () => {
     return (
       <Container>
@@ -711,7 +896,6 @@ class Map extends Component {
           />
         </Back>
 
-      
         <LocationBoxRun>
           <LocationTimeBoxRun>
             <LocationTimeTextRun>ORIGEM</LocationTimeTextRun>
@@ -729,7 +913,6 @@ class Map extends Component {
             </LocationTimeTextSmallRun>
           </LocationTimeBoxRun>
         </LocationBoxRun>
-        
 
         <RequestButton onPress={() => console.log("Teste")}>
           <RequestButtonText>SOLICITAR MOTORISTA</RequestButtonText>
@@ -738,42 +921,278 @@ class Map extends Component {
     );
   };
 
+  /* Método responsável pelas mensagens de boas vindas*/
+
+  welcome_msgs = () => {
+    if (this.state.duration > 0) {
+      this.setState({
+        welcome_msg: "Tudo certo! Pode Puxe aqui para chamar um motorista!",
+      });
+    }
+    if (this.state.duration < 0 && this.state.destination.latitude != 0) {
+      this.setState({ welcome_msg: "Tudo certo! Agora defina o seu destino!" });
+    }
+
+    if (this.state.duration === 0) {
+      this.setState({
+        welcome_msg: "Olá " + this.getFirstName() + "! Onde precisa ir?",
+      });
+    }
+  };
+
   renderContent = () => {
     return (
       <View style={styles.contentContainer}>
         <Icon
-          name="swap-vert"
+          name={
+            !this.state.openBottomDrawer
+              ? "keyboard-arrow-up"
+              : "keyboard-arrow-down"
+          }
           size={40}
-          color="#3CB371"
-          style={{ top: -5, left: 145 }}
+          color="#FFF"
+          style={{ top: 10, left: -5 }}
         />
-
-        {this.verifica_date() === 0 ? (
+        {this.state.show_welcome_msg ? (
           <Text
             style={{
-              color: "#3CB371",
+              color: "#FFF",
+              fontSize: 18,
+              fontWeight: "bold",
+              marginTop: -30,
+              top: this.state.welcome_msg_top,
+              textAlign: "center",
+            }}
+          >
+            {this.state.welcome_msg}
+          </Text>
+        ) : (
+          <Text
+            style={{
+              color: "#dcd074",
+              fontSize: 18,
+              fontWeight: "bold",
+              top: this.state.top_origin_label,
+              left: -10,
+            }}
+          >
+            Origem
+          </Text>
+        )}
+
+        {/*     <Text
+            style={{
+              color: "#dcd074",
+              fontSize: 18,
+              fontWeight: "bold",
+              top: 35,
+              left: -10
+              
+            }}
+          >
+            Origem
+          </Text> */}
+        <TextInput
+          value={"" + this.state.origem}
+          onTouchStart={() => this.googleSearch(0)}
+          placeholderTextColor="#307597"
+          backgroundColor="#FFF"
+          style={{
+            fontSize: 18,
+            height: 48,
+            color: "#3CB371",
+            paddingLeft: 55,
+            borderRadius: 15,
+            width: "100%",
+            top: this.state.top_origin_textinput,
+            left: 5,
+          }}
+          placeholder="Digite o endereço"
+          selection={{ start: 0, end: 0 }}
+        />
+
+        <Image
+          source={require("../../images/pin_origem02.png")}
+          style={{
+            resizeMode: "cover",
+
+            height: 45,
+
+            width: 40,
+            top: this.state.top_origin_icon,
+            left: -145,
+          }}
+        />
+
+        <Button
+          style={{
+            marginTop: this.state.button_alter_address_origin,
+            borderRadius: 0,
+            width: "25%",
+            height: "15%",
+            marginLeft: 265,
+          }}
+        >
+          <ButtonText
+            style={{ color: "#307597", textAlign: "center", bottom: 5 }}
+          >
+            Alterar
+          </ButtonText>
+        </Button>
+
+        <Text
+          style={{
+            color: "#dcd074",
+            fontSize: 18,
+            fontWeight: "bold",
+            top: this.state.top_destination_label,
+            left: -10,
+          }}
+        >
+          Destino
+        </Text>
+
+        <TextInput
+          value={"" + this.state.destino}
+          onTouchStart={() => this.googleSearch(1)}
+          placeholderTextColor="#307597"
+          backgroundColor="#FFF"
+          style={{
+            fontSize: 18,
+            height: 50,
+            color: "#3CB371",
+            paddingLeft: 55,
+            borderRadius: 15,
+            width: "100%",
+            bottom: 10,
+            top: this.state.top_destination_textinput,
+            left: 5,
+          }}
+          placeholder="Digite o endereço"
+          selection={{ start: 0, end: 0 }}
+        />
+        <Image
+          source={require("../../images/pin_destino02.png")}
+          style={{
+            resizeMode: "cover",
+            height: 45,
+            width: 40,
+            marginTop: 10,
+            top: this.state.top_destination_icon,
+            left: -145,
+          }}
+        />
+
+        <Button
+          style={{
+            marginTop: this.state.button_alter_address_destination,
+            borderRadius: 0,
+            width: "25%",
+            height: "15%",
+            marginLeft: 265,
+          }}
+        >
+          <ButtonText
+            style={{ color: "#307597", textAlign: "center", bottom: 5 }}
+          >
+            Alterar
+          </ButtonText>
+        </Button>
+
+        <Text
+          style={{
+            color: "#FFF",
+            fontSize: 16,
+            fontWeight: "bold",
+            top: 25,
+            left: -10,
+          }}
+        >
+          {this.state.run_wait_checkin === 0
+            ? this.getDurationMsgs(0)
+            : this.getDurationMsgs(1)}
+
+          {this.state.msg_duration}
+        </Text>
+        {this.state.duration > 0 ? (
+          <Button
+            style={{
+              marginTop: 80,
+              borderRadius: 0,
+              width: "100%",
+              marginLeft: -5,
+            }}
+          >
+            {this.state.run_wait_checkin === 0  ? (
+              <ButtonText
+                onPress={() => {
+                  this.timer();
+                }}
+                style={{ color: "#307597", fontSize: 18 }}
+              >
+                CHAMAR CARRO
+              </ButtonText>
+            ) : (
+              <ButtonText
+                onPress={ () => {
+this.showDriverData();
+                } }
+                style={{ color: "#307597", fontSize: 18 }}
+              >
+                INFO
+              </ButtonText>
+            )}
+          </Button>
+        ) : null}
+
+        {/* 
+        <View style={styles.buttonContainerOrigem}>
+          
+        <Text
+            style={{
+              color: "#dcd074",
+              fontSize: 18,
+              fontWeight: "bold",
+              top: -285,
+              
+            }}
+          >
+            Destino
+          </Text>
+          <Search
+              onLocationOriginSelected={this.handleLocationOrigSelected}
+              placeholder={"De onde?"}
+              type={1}
+              icon={this.closeSearchGoogle}
+            />
+        
+        </View> */}
+        {/*this.verifica_date() === 0 ? (
+          <Text
+            style={{
+              color: " #dcd074",
               fontSize: 18,
               fontWeight: "bold",
               bottom: 20,
             }}
           >
-            Bom dia, {this.getFirstName()}
+            Bom dia, {this.getFirstName()} {this.state.duration}
           </Text>
         ) : this.verifica_date() === 1 ? (
           <Text
             style={{
-              color: "#3CB371",
+              color: "#dcd074",
               fontSize: 18,
               fontWeight: "bold",
               bottom: 20,
             }}
           >
-            Boa tarde, {this.getFirstName()}
+            Boa tarde, {this.getFirstName()}  {this.state.duration}
           </Text>
         ) : this.verifica_date() === 2 ? (
           <Text
             style={{
-              color: "#3CB371",
+              color: "#dcd074",
               fontSize: 18,
               fontWeight: "bold",
               bottom: 20,
@@ -784,7 +1203,7 @@ class Map extends Component {
         ) : (
           <Text
             style={{
-              color: "#3CB371",
+              color: " #dcd074",
               fontSize: 18,
               fontWeight: "bold",
               bottom: 20,
@@ -792,8 +1211,9 @@ class Map extends Component {
           >
             {" "}
           </Text>
-        )}
+          )*/}
 
+        {/* 
         <View style={styles.buttonContainerOrigem}>
           <ImageBackground
             source={require("../../images/botao_origem.png")}
@@ -805,7 +1225,7 @@ class Map extends Component {
               width: 330,
             }}
           >
-            {/** onTouchStart={()=> this.onPress() } */}
+          
 
             <TextInput
               value={"" + this.state.origem}
@@ -851,12 +1271,27 @@ class Map extends Component {
             />
           </ImageBackground>
         
-        </View>
+        </View>*/}
       </View>
     );
   };
 
   async componentDidMount() {
+    
+
+    const welcome_msg = "Olá " + this.getFirstName() + "! Onde precisa ir?";
+    this.setState({ welcome_msg: welcome_msg });
+
+    this.cancel_run();
+
+    //this.storeDataRun();
+    //this.getDataSync();
+
+    //const {id}   = this.getDataSync();
+
+    //this._getLocationAsync();
+
+    /*
     navigator.geolocation.getCurrentPosition(
       async ({ coords: { latitude, longitude } }) => {
         const response = await Geocoder.from({ latitude, longitude });
@@ -880,7 +1315,64 @@ class Map extends Component {
         enableHighAccuracy: true,
         maximumAge: 1000,
       }
+    );*/
+
+    this.watchID = navigator.geolocation.watchPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+
+        this.setState({
+          region: {
+            latitude,
+            longitude,
+            latitudeDelta: 0.0143,
+            longitudeDelta: 0.0134,
+          },
+        });
+        // this.getAddress(this.state.region);
+
+        console.log(" Coordenadas: " + position.coords.latitude);
+        /*
+        const { routeCoordinates, distanceTravelled } = this.state;
+        const { latitude, longitude } = position.coords;
+
+        const newCoordinate = {
+          latitude,
+          longitude
+        };
+
+        if (Platform.OS === "android") {
+          if (this.marker) {
+            this.marker._component.animateMarkerToCoordinate(
+              newCoordinate,
+              500
+            );
+          }
+        } else {
+          coordinate.timing(newCoordinate).start();
+        }
+
+        this.setState({
+          latitude,
+          longitude,
+          routeCoordinates: routeCoordinates.concat([newCoordinate]),
+          distanceTravelled:
+            distanceTravelled + this.calcDistance(newCoordinate),
+          prevLatLng: newCoordinate
+        }); */
+      },
+      (error) => console.log(error),
+      {
+        enableHighAccuracy: true,
+        timeout: 20000,
+        maximumAge: 1000,
+        distanceFilter: 10,
+      }
     );
+  }
+
+  componentWillUnmount() {
+    navigator.geolocation.clearWatch(this.watchID);
   }
 
   handleLocationSelected = (data, { geometry }) => {
@@ -902,12 +1394,12 @@ class Map extends Component {
       short_destination: data.structured_formatting.main_text,
       search_adress: false,
 
-      region: {
+      /* region: {
         latitude: latitude,
         longitude: longitude,
         latitudeDelta: 0.0491,
         longitudeDelta: 0.0375,
-      },
+      },*/
     });
 
     this.mapView.animateToRegion(this.state.destination, 1000);
@@ -937,12 +1429,12 @@ class Map extends Component {
       short_origin: data.structured_formatting.main_text,
       search_adress: false,
 
-      region: {
+      /*region: {
         latitude: latitude,
         longitude: longitude,
         latitudeDelta: 0.0491,
         longitudeDelta: 0.0375,
-      },
+      },*/
     });
 
     this.mapView.animateToRegion(this.state.origin, 1000);
@@ -961,44 +1453,33 @@ class Map extends Component {
       latitudeDelta: 0.0491,
       longitudeDelta: 0.0375,
     };
-    
 
     this.getAddress(coord);
   }
 
   onRegionChangeComplete = () => {
-   /* if (
+    if (
       this.marker &&
       marker.current &&
-      this.state.marker.current.showCallout 
-   ) {
-
-     
-        this.state.marker.current.hideCallout();
-      
-      
-    }*/
-
-    if(this.state.run_wait_checkin === 1){
-      this.marker_motora.showCallout(); 
+      this.state.marker.current.showCallout
+    ) {
+      this.state.marker.current.showCallout();
     }
 
-  
-
-    
+    // if(this.state.run_wait_checkin === 1){
+    //  this.marker_motora.showCallout();
+    // }
   };
 
   componentDidUpdate() {
-   // if(this.marker ){
-   //   this.marker.hideCallout();
-      
-  //  }
-
-    if(this.state.run_wait_checkin === 1 ){
-      this.marker_motora.showCallout();
-      
+    if (this.marker) {
+      this.marker.showCallout();
     }
-    
+
+    //if(this.state.run_wait_checkin === 1 ){
+    //   this.marker_motora.showCallout();
+
+    // }
   }
 
   render() {
@@ -1008,44 +1489,38 @@ class Map extends Component {
       <View style={{ flex: 1 }}>
         <MapView
           style={styles.map}
-          initialRegion={region}
-          showsUserLocation={false}
+          region={this.state.point}
+          showsUserLocation={true}
           loadingEnabled={true}
           zoomEnabled={true}
           scrollEnabled={true}
           showsScale={true}
           ref={(el) => (this.mapView = el)}
           onPress={(event) => {
-
-         if(this.state.run_wait_checkin === 0 && this.state.run_started === false){
-          this.addMarker(event.nativeEvent.coordinate);
-         }
-              
-            
-            
+            if (
+              this.state.run_wait_checkin === 0 &&
+              this.state.run_started === false
+            ) {
+              this.addMarker(event.nativeEvent.coordinate);
+            }
           }}
         >
           <Marker coordinate={this.state.region}>
             <Image
               style={{
-                height: 40,
-                width: 40,
+                height: 80,
+                width: 80,
                 borderColor: "#000",
-                borderRadius: 40,
               }}
-              source={{ uri: this.props.avatar }}
+              source={require("../../images/user_marker.png")}
             />
           </Marker>
 
-          
-
-
-{this.state.run_wait_checkin === 1    ? ( 
-
-<Fragment>
+          {this.state.run_wait_checkin === 1 ? (
+            <Fragment>
               <Directions
                 origin={this.state.driver_location}
-                destination={origin}
+                destination={this.state.origin}
                 onReady={(result) => {
                   this.setState({ duration: Math.floor(result.duration) });
 
@@ -1062,37 +1537,30 @@ class Map extends Component {
                 }}
               />
 
+              <MapView.Marker
+                coordinate={{
+                  latitude: this.state.driver_location.latitude,
+                  longitude: this.state.driver_location.longitude,
+                }}
+                ref={(_marker) => {
+                  this.marker = _marker;
+                }}
+              >
+                <Image
+                  style={{
+                    height: 40,
+                    width: 40,
+                    borderColor: "#000",
+                    borderRadius: 40,
+                  }}
+                  source={{
+                    uri:
+                      "https://sigadev.aparecida.go.gov.br/paperclip/drivers/profile_pictures/6360c9194603fc778d3f8b2dee130aa98d2eb31c/thumb.png?1599229147",
+                  }}
+                />
 
-
-
-<MapView.Marker 
-   coordinate={{
-    latitude: this.state.driver_location.latitude,
-    longitude: this.state.driver_location.longitude,
-  }}
-
- 
-  ref={(_marker) => {
-    this.marker_motora = _marker;
-    
-
-  }}
->
-
-            <Image
-              style={{
-                height: 40,
-                width: 40,
-                borderColor: "#000",
-                borderRadius: 40,
-              }}
-             source={{ uri: 'https://sigadev.aparecida.go.gov.br/paperclip/drivers/profile_pictures/6360c9194603fc778d3f8b2dee130aa98d2eb31c/thumb.png?1599229147' }}
-            />
-
-
- 
-<Callout
-                  style={{ width: 175, borderRadius: 15 }} 
+                <Callout
+                  style={{ width: 175, borderRadius: 15 }}
                   tooltip={true}
                   onPress={() => {
                     this.timer();
@@ -1100,46 +1568,39 @@ class Map extends Component {
                 >
                   <LocationBoxRun>
                     <LocationTimeBoxRun>
-                      <LocationTimeTextRun>
-                        {this.state.duration}
-                      </LocationTimeTextRun>
-                      <LocationTimeTextSmallRun>MIN</LocationTimeTextSmallRun>
+                      <LocationTextRun>
+                        {this.state.driver.vehicle.model} |{" "}
+                        {this.getFirstNameDriver()}
+                      </LocationTextRun>
+
+                      <LocationTimeTextSmallRun></LocationTimeTextSmallRun>
                     </LocationTimeBoxRun>
-                    <LocationTextRun>CHAMAR CARRO</LocationTextRun>
+                    <LocationTextRun></LocationTextRun>
                   </LocationBoxRun>
                 </Callout>
-             
+              </MapView.Marker>
 
- 
-          </MapView.Marker>
+              <MapView.Marker
+                coordinate={{
+                  latitude: this.state.origin.latitude,
+                  longitude: this.state.origin.longitude,
+                }}
+                image={markerImage}
+              >
+                <Image
+                  source={require("../../images/pin_origem.png")}
+                  style={{ height: 60, width: 45 }}
+                />
+              </MapView.Marker>
 
-
-
-          <MapView.Marker
-              coordinate={{
-                latitude: this.state.origin.latitude,
-                longitude: this.state.origin.longitude,
-              }}
-              image={markerImage}
-            >
-              <Image
-                source={require("../../images/pin_origem.png")}
-                style={{ height: 60, width: 45 }}
-              />
-
-
-            </MapView.Marker>
-
-
-           
-
-
-          </Fragment>
-) : (
- 
-null
-)  }
-
+              <Marker coordinate={destination} anchor={{ x: 0, y: 0 }}>
+                <Image
+                  source={require("../../images/pin_destino.png")}
+                  style={{ height: 60, width: 45 }}
+                />
+              </Marker>
+            </Fragment>
+          ) : null}
 
           {this.state.origin != null ? (
             <MapView.Marker
@@ -1148,7 +1609,6 @@ null
                 longitude: this.state.origin.longitude,
               }}
               image={markerImage}
-
               ref={(_marker) => {
                 this.marker = _marker;
               }}
@@ -1162,16 +1622,13 @@ null
             ""
           )}
 
-
-          {this.state.destination &&  this.state.run_wait_checkin === 0  ? ( 
+          {this.state.destination && this.state.run_wait_checkin === 0 ? (
             <Fragment>
               <Directions
                 origin={origin}
                 destination={destination}
                 onReady={(result) => {
                   this.setState({ duration: Math.floor(result.duration) });
-
-                  
 
                   this.mapView.fitToCoordinates(result.coordinates, {
                     edgePadding: {
@@ -1184,28 +1641,24 @@ null
                 }}
               />
 
-<MapView.Marker
-              coordinate={{
-                latitude: this.state.origin.latitude,
-                longitude: this.state.origin.longitude,
-              }}
-              image={markerImage}
-              
-            >
-              <Image
-                source={require("../../images/pin_origem.png")}
-                style={{ height: 60, width: 45 }}
-              />
-            </MapView.Marker>
+              <MapView.Marker
+                coordinate={{
+                  latitude: this.state.origin.latitude,
+                  longitude: this.state.origin.longitude,
+                }}
+                image={markerImage}
+              >
+                <Image
+                  source={require("../../images/pin_origem.png")}
+                  style={{ height: 60, width: 45 }}
+                />
+              </MapView.Marker>
 
               <MapView.Marker
                 coordinate={destination}
-ref={(_marker) => {
+                ref={(_marker) => {
                   this.marker = _marker;
-                  
-              
                 }}
-
                 title={""}
               >
                 <Image
@@ -1213,7 +1666,7 @@ ref={(_marker) => {
                   style={{ height: 60, width: 45 }}
                 />
 
-
+                {/* 
   <Callout
                   style={{ width: 175, borderRadius: 15 }} 
                   tooltip={true}
@@ -1231,27 +1684,15 @@ ref={(_marker) => {
                     <LocationTextRun>CHAMAR CARRO</LocationTextRun>
                   </LocationBoxRun>
                </Callout> 
-        
-
-
-
-
-
-
-                
+        */}
               </MapView.Marker>
             </Fragment>
-          ) : (
-           
-null
+          ) : null}
 
-          ) }
-
-
-          {destination &&  this.state.run_wait_checkin === 0 && (
+          {destination && this.state.run_wait_checkin === 0 && (
             <Fragment>
               <Directions
-                origin={origin}
+                origin={this.state.origin}
                 destination={destination}
                 onReady={(result) => {
                   this.setState({ duration: Math.floor(result.duration) });
@@ -1298,26 +1739,141 @@ null
              
                 
               </Marker>   */}
-            </Fragment> 
-          )} 
+            </Fragment>
+          )}
         </MapView>
 
-       
-
+        {/*Alterar as cores dos ícones para #B2BF86 quando for publicar o app */}
         <IconButton
           icon="menu"
-          color="#3CB371"
+          color="#307597"
           animated={true}
           size={40}
           style={{
             top: Platform.OS === "ios" ? -670 : -500,
             left: 10,
-            backgroundColor: "#FFF",
+            backgroundColor: "#B2BF86",
           }}
           onPress={() =>
             this.props.navigation.dispatch(DrawerActions.openDrawer())
           }
         />
+
+        <IconButton
+          icon="crosshairs-gps"
+          color="#307597"
+          animated={true}
+          size={40}
+          style={{
+            top: Platform.OS === "ios" ? -670 : -560,
+            left: 280,
+            backgroundColor: "#B2BF86",
+          }}
+          onPress={() => this.setState({ point: region })}
+        />
+
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={this.state.modal_run_started}
+        >
+          <ImageBackground
+            source={require("../../images/image_fundo.png")}
+            style={{
+              alignContent: "center",
+              alignItems: "center",
+              flex: 1,
+              resizeMode: "cover",
+              justifyContent: "center",
+            }}
+          >
+            <Text style={{ color: "#FFF", fontSize: 30, marginBottom: 10 }}>
+              CORRIDA INICIADA
+            </Text>
+
+            <Image
+              source={require("../../images/icon_ok.png")}
+              style={{ width: 150, height: 125, marginTop: 70 }}
+            />
+          </ImageBackground>
+        </Modal>
+
+
+
+
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={this.state.modal_run_started}
+        >
+          <ImageBackground
+            source={require("../../images/image_fundo.png")}
+            style={{
+              alignContent: "center",
+              alignItems: "center",
+              flex: 1,
+              resizeMode: "cover",
+              justifyContent: "center",
+            }}
+          >
+            <Text style={{ color: "#FFF", fontSize: 30, marginBottom: 10 }}>
+              CORRIDA INICIADA
+            </Text>
+
+            <Image
+              source={require("../../images/icon_ok.png")}
+              style={{ width: 150, height: 125, marginTop: 70 }}
+            />
+          </ImageBackground>
+        </Modal>
+
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={this.state.modal_run_finsih}
+        >
+          <ImageBackground
+            source={require("../../images/image_fundo.png")}
+            style={{
+              alignContent: "center",
+              alignItems: "center",
+              flex: 1,
+              resizeMode: "cover",
+              justifyContent: "center",
+            }}
+          >
+            <Text style={{ color: "#FFF", fontSize: 30, marginBottom: 30 }}>
+              CORRIDA FINALIZADA
+            </Text>
+
+            <Image
+              source={require("../../images/icon_ok.png")}
+              style={{ width: 150, height: 125, marginTop: 70 }}
+            />
+          </ImageBackground>
+        </Modal>
+
+        <Modal animationType="slide" transparent={true} visible={false}>
+          <ImageBackground
+            source={require("../../images/image_fundo.png")}
+            style={{
+              alignContent: "center",
+              alignItems: "center",
+              flex: 1,
+              resizeMode: "cover",
+              justifyContent: "center",
+            }}
+          >
+            <Text style={{ color: "#FFF", fontSize: 30, marginBottom: 30 }}>
+              CORRIDA CANCELADA
+            </Text>
+
+            <Image
+              source={require("../../images/icon_cancel.png")}
+              style={{ width: 120, height: 120, marginTop: 70 }}
+            />
+          </ImageBackground>
+        </Modal>
 
         <Modal
           animationType="slide"
@@ -1327,14 +1883,14 @@ null
           {this.state.buttonAddress === 0 ? (
             <Search
               onLocationOriginSelected={this.handleLocationOrigSelected}
-              placeholder={"De onde?"}
+              placeholder={"Digite o endereço"}
               type={0}
               icon={this.closeSearchGoogle}
             />
           ) : (
             <Search
               onLocationSelected={this.handleLocationSelected}
-              placeholder={"Para onde?"}
+              placeholder={"Digite o endereço"}
               type={1}
               icon={this.closeSearchGoogle}
             />
@@ -1379,20 +1935,76 @@ null
         </Modal>
 
         <BottomDrawer
-          containerHeight={this.state.dim}
-          startUp={this.state.startUp}
-          offset={0}
+          containerHeight={this.state.full_dim}
+          onExpanded={this.openBottomDrawer}
+          onCollapsed={this.closeBottomDrawer}
+          downDisplay={240}
+          startUp={false}
         >
           {this.renderContent()}
         </BottomDrawer>
       </View>
     );
   }
+
+  openBottomDrawer = () => {
+    console.log("Abriu!!");
+
+    this.setState({
+      show_welcome_msg: false,
+      openBottomDrawer: true,
+      full_dim: 325,
+    });
+
+    if (
+      this.state.origin.latitude != 0 &&
+      this.state.destination.latitude === 0
+    ) {
+      this.setState({ welcome_msg: "Ok! Agora basta definir o seu destino!" });
+    }
+
+    if (
+      this.state.origin.latitude != 0 &&
+      this.state.destination.latitude != 0
+    ) {
+      this.setState({
+        top_origin_label: 25,
+        top_origin_textinput: 65,
+        top_origin_icon: 45,
+        button_alter_address_origin: 30,
+
+        top_destination_label: 30,
+        top_destination_textinput: 70,
+        top_destination_icon: 40,
+        button_alter_address_destination: 25,
+      });
+    }
+  };
+  closeBottomDrawer = () => {
+    console.log("Fechou!!");
+
+    this.setState({
+      show_welcome_msg: true,
+      openBottomDrawer: false,
+      welcome_msg_top: 75,
+    });
+
+    if (this.state.destination.latitude != 0) {
+      this.setState({
+        welcome_msg: "Tudo certo! Puxe aqui para solicitar a corrida",
+
+        top_origin_textinput: 195,
+        top_origin_icon: 190,
+        button_alter_address_origin: 125,
+      });
+    }
+  };
+
+  
 }
 
 const mapStateToProps = (state) => {
   return {
-    
     name: state.AuthenticationReducer.name,
     avatar: state.AuthenticationReducer.avatar,
     token: state.AuthenticationReducer.token,
@@ -1449,8 +2061,9 @@ const styles = StyleSheet.create({
   },
 
   contentContainer: {
+    backgroundColor: "#307597",
     flex: 1,
-    borderRadius: 25,
+
     alignItems: "center",
     justifyContent: "space-around",
   },

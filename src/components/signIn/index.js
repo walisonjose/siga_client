@@ -267,7 +267,7 @@ statusLogin = 0;
 
         {/*this.state.error.length !== 0 && <ErrorMessage>{this.state.error}</ErrorMessage> */}
         <Button style={{ top: -120 }} onPress={this.handleSignInPress}>
-          <ButtonText >ENVIAR</ButtonText>
+          <ButtonText >ENTRAR</ButtonText>
         </Button>
        
       

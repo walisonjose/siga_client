@@ -79,7 +79,7 @@ export default class Search extends Component {
             borderRadius: 0,
             paddingTop: 0,
             paddingBottom: 0,
-            paddingLeft: 20,
+            paddingLeft: 25,
             paddingRight: 20,
             marginTop: 0,
             marginLeft: 0,
@@ -119,7 +119,7 @@ export default class Search extends Component {
         }}
       />
       
- <IconClose name="close-box" size={45} color="#3CB371" style={{ top: Platform.OS === 'ios' ? 70 : 15, left: Platform.OS === 'ios' ? 320 : 310}} onPress={ icon} />
+ <IconClose name="close-box" size={45} color="#3CB371" style={{ top: Platform.OS === 'ios' ? 70 : 15, left: Platform.OS === 'ios' ? 320 : 310 }} onPress={ icon} />
        
      
 

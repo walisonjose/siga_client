@@ -15,6 +15,8 @@ import Map from './components/Map/index';
 import Search from './components/Search/index';
 import Menu from './components/Menu/index';
 
+import driverDetails from './components/Map/driverDetails';
+
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 ///import MapMotora from './pages/map_motora';
@@ -69,6 +71,7 @@ const AppNavigator = createStackNavigator(
   {
      //Main: Main,
      formLogin: formLogin,
+     driverDetails: driverDetails,
      Menu: {
       screen: Menu,  
       navigationOptions: {
