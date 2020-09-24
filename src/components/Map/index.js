@@ -416,8 +416,8 @@ class Map extends Component {
             destino: response.data.results[0].formatted_address,
             destination: coordinate,
             point: coordinate,
-            short_destination:
-              response.data.results[0].address_components[1].short_name,
+            short_destination:  response.data.results[0].address_components[1].short_name,
+            run_status: 1,
 
             /*Ajustando o Bootom Drawner
 
@@ -448,11 +448,12 @@ class Map extends Component {
       });
   };
 
-
-showDriverData = () => {
-  this.props.navigation.navigate("driverDetails");
-}
-
+  showDriverData = () => {
+    this.props.navigation.navigate("driverDetails", {
+      driver: this.state.driver,
+      duration: this.state.duration,
+    });
+  };
 
   timer = async () => {
     //this.getDataRun();
@@ -618,38 +619,63 @@ showDriverData = () => {
             }
           }
           if (responseData.finished_at != null) {
-            // clearIntervalAsync(timer);
-            // toastSucess("Corrida finalizada!");
 
-            // this.setState({
-            //   run_finished: true, run_started: false, destination: null, origem: null
-            // });
             this.setState({
-              // run_finished: true,
+             origin: this.state.region,
+             destination: { latitude : 0, longitude: 0},
+             
+
+             
+             run_started: false,
+
+
+             top_origin_label: 75,
+             top_origin_textinput: 95,
+             top_origin_icon: 60,
+             button_alter_address_origin: 25,
+         
+             top_destination_label: 40, 
+             top_destination_textinput: 65,
+             top_destination_icon: 20,
+             button_alter_address_destination: -15,
+
+            });
+
+            
+            
+            clearIntervalAsync(timer);
+
+          {/* 
+            this.setState({
+             
               modal_run_finsih: true,
               modal_run_finsih_cont: this.state.modal_run_finsih_cont + 1,
             });
+
             console.log(
               "Corrida finalizada!" + this.state.modal_run_finsih_cont
             );
 
             if (this.state.modal_run_finish_cont > 5) {
+
+
               this.setState({
                 modal_run_finsih: false,
                 run_finished: true,
               });
-              //  clearIntervalAsync(timer);
+            
             }
 
             if (!this.state.run_finished) {
-              clearIntervalAsync(timer); 
+              clearIntervalAsync(timer);
               this.setState({
                 modal_run_finsih: false,
-               
-                
+                run_started: false,
               });
-
             }
+
+            */}
+
           }
 
           if (responseData.canceled_at != null) {
@@ -786,7 +812,7 @@ showDriverData = () => {
 
         if (responseData.accepted_at != null) {
           console.log("Corrida aceita!! Seguindo para checkin");
-          this.setState({ timer: false, cancel_timer: 1 });
+          this.setState({ timer: false, cancel_timer: 1, run_status: 2 });
 
           this.status_check_run();
         }
@@ -1123,7 +1149,8 @@ showDriverData = () => {
               marginLeft: -5,
             }}
           >
-            {this.state.run_wait_checkin === 0  ? (
+            {this.state.run_wait_checkin === 0 &&
+            this.state.run_started === false ? (
               <ButtonText
                 onPress={() => {
                   this.timer();
@@ -1134,9 +1161,9 @@ showDriverData = () => {
               </ButtonText>
             ) : (
               <ButtonText
-                onPress={ () => {
-this.showDriverData();
-                } }
+                onPress={() => {
+                  this.showDriverData();
+                }}
                 style={{ color: "#307597", fontSize: 18 }}
               >
                 INFO
@@ -1277,8 +1304,6 @@ this.showDriverData();
   };
 
   async componentDidMount() {
-    
-
     const welcome_msg = "Olá " + this.getFirstName() + "! Onde precisa ir?";
     this.setState({ welcome_msg: welcome_msg });
 
@@ -1498,8 +1523,7 @@ this.showDriverData();
           ref={(el) => (this.mapView = el)}
           onPress={(event) => {
             if (
-              this.state.run_wait_checkin === 0 &&
-              this.state.run_started === false
+              this.state.run_wait_checkin === 0 
             ) {
               this.addMarker(event.nativeEvent.coordinate);
             }
@@ -1619,10 +1643,56 @@ this.showDriverData();
               />
             </MapView.Marker>
           ) : (
-            ""
+            null
           )}
 
-          {this.state.destination && this.state.run_wait_checkin === 0 ? (
+          {this.state.destination != null ? (
+            <MapView.Marker
+              coordinate={{
+                latitude: this.state.destination.latitude,
+                longitude: this.state.destination.longitude,
+              }}
+              image={markerImage}
+              ref={(_marker) => {
+                this.marker = _marker;
+              }}
+            >
+              <Image
+                source={require("../../images/pin_destino.png")}
+                style={{ height: 60, width: 45 }}
+              />
+            </MapView.Marker>
+          ) : (
+            null
+          )}
+
+
+{this.state.run_status === 2 ? (
+            <Fragment>
+              <Directions
+                origin={region}
+                destination={destination}
+                onReady={(result) => {
+                  this.setState({ duration: Math.floor(result.duration) });
+
+                  this.mapView.fitToCoordinates(result.coordinates, {
+                    edgePadding: {
+                      right: getPixelSize(50),
+                      left: getPixelSize(50),
+                      top: getPixelSize(50),
+                      bottom: getPixelSize(350),
+                    },
+                  });
+                }}
+              />
+
+</Fragment>
+              ):
+              (null)}
+
+
+          {/*this.state.destination && this.state.run_wait_checkin === 0  */}
+          {this.state.run_status === 1 ? (
             <Fragment>
               <Directions
                 origin={origin}
@@ -1665,31 +1735,20 @@ this.showDriverData();
                   source={require("../../images/pin_destino.png")}
                   style={{ height: 60, width: 45 }}
                 />
-
-                {/* 
-  <Callout
-                  style={{ width: 175, borderRadius: 15 }} 
-                  tooltip={true}
-                  onPress={() => {
-                    this.timer();
-                  }}
-                >
-                  <LocationBoxRun>
-                    <LocationTimeBoxRun>
-                      <LocationTimeTextRun>
-                        {this.state.duration}
-                      </LocationTimeTextRun>
-                      <LocationTimeTextSmallRun>MIN</LocationTimeTextSmallRun>
-                    </LocationTimeBoxRun>
-                    <LocationTextRun>CHAMAR CARRO</LocationTextRun>
-                  </LocationBoxRun>
-               </Callout> 
-        */}
               </MapView.Marker>
             </Fragment>
-          ) : null}
+          ) : 
+          (
+null
+          )}
+          
+          
+          
+          
 
-          {destination && this.state.run_wait_checkin === 0 && (
+          {/* && this.state.run_wait_checkin === 0 
+
+          {destination && this.state.run_started != false ? (
             <Fragment>
               <Directions
                 origin={this.state.origin}
@@ -1707,40 +1766,31 @@ this.showDriverData();
                   });
                 }}
               />
-              {/*
-              <Marker
-                coordinate={origin}
-                anchor={{ x: 0, y: 0 }}
-                image={markerImage}
-              >
-                <LocationBox>
-                  <LocationText>{this.state.short_origin}</LocationText>
-                </LocationBox>
-              </Marker>
-
              
-
-              <Marker coordinate={destination} anchor={{ x: 0, y: 0 }}  
-             
-              >
-                
-                <Image source={require('../../images/pin_destino.png')}  style={{height: 60, width: 45 }} />
-
-                <LocationBoxRun>
-                
-                <LocationTimeBoxRun>
-                  <LocationTimeTextRun>{this.state.duration}</LocationTimeTextRun>
-                  <LocationTimeTextSmallRun>MIN</LocationTimeTextSmallRun>
-                </LocationTimeBoxRun>
-                  <LocationTextRun>CHAMAR CARRO</LocationTextRun> 
-              
-              </LocationBoxRun>
-             
-             
-                
-              </Marker>   */}
             </Fragment>
-          )}
+          ):(
+
+            <Fragment>
+            <Directions
+              origin={this.state.region}
+              destination={destination}
+              onReady={(result) => {
+                this.setState({ duration: Math.floor(result.duration) });
+
+                this.mapView.fitToCoordinates(result.coordinates, {
+                  edgePadding: {
+                    right: getPixelSize(50),
+                    left: getPixelSize(50),
+                    top: getPixelSize(50),
+                    bottom: getPixelSize(350),
+                  },
+                });
+              }}
+            />
+           
+          </Fragment>
+
+          )} */}
         </MapView>
 
         {/*Alterar as cores dos ícones para #B2BF86 quando for publicar o app */}
@@ -1797,9 +1847,6 @@ this.showDriverData();
             />
           </ImageBackground>
         </Modal>
-
-
-
 
         <Modal
           animationType="slide"
@@ -1999,8 +2046,6 @@ this.showDriverData();
       });
     }
   };
-
-  
 }
 
 const mapStateToProps = (state) => {

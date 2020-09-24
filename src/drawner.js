@@ -139,7 +139,7 @@ const Drawer = createDrawerNavigator(
 
 function Root() { 
   return (
-    <Stack.Navigator initialRouteName='driverDetails'  >
+    <Stack.Navigator initialRouteName='Login'  >  
       <Stack.Screen name="Map" component={Map}  options={{headerShown: false}} />
       <Stack.Screen name="Timer" component={Timer}  options={{headerShown: false}} />
       <Stack.Screen name="Login" component={formLogin} options={{headerShown: false}} />

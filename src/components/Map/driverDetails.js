@@ -14,12 +14,39 @@ import {
   TouchableHighlight,
   ScrollView,
   TextInput,
+  Linking,
 } from "react-native";
 
 import { Avatar, IconButton, Colors, Divider } from "react-native-paper";
 
 export default class driverDetails extends Component {
+
+    static navigationOptions = {
+        headerShown: false,
+      };
+
+
+      state = {
+          driver: this.props.route.params.driver,
+          duration: this.props.route.params.duration,
+      }
+
+
+  formatPhoneNumber = (phoneNumberInitial) => {
+    const phoneNumber = phoneNumberInitial;
+
+    const dd = phoneNumber.substring(1, 3);
+    const number = phoneNumber.substring(5, phoneNumber.length);
+
+    const numberFinal = "+55" + dd + number;
+
+    return numberFinal;
+  };
+
   render() {
+   // const { driver } = this.props.route.params.driver;
+
+    console.log("Parms: "+this.props.route.params.name);
     return (
       <>
         <ImageBackground
@@ -29,7 +56,6 @@ export default class driverDetails extends Component {
             alignItems: "center",
             height: "65%",
             resizeMode: "cover",
-            
           }}
         >
           <IconButton
@@ -37,13 +63,13 @@ export default class driverDetails extends Component {
             color={Colors.white}
             size={60}
             style={{ left: -140, marginTop: 10 }}
-            onPress={() => console.log("Pressed")}
+            onPress={() => this.props.navigation.goBack()}
           />
           <Avatar.Image
             size={84}
             source={{
               uri:
-                "https://sigadev.aparecida.go.gov.br/paperclip/drivers/profile_pictures/6360c9194603fc778d3f8b2dee130aa98d2eb31c/thumb.png?1599229147",
+              this.state.driver.profile_picture.thumb
             }}
             style={{ marginTop: -35 }}
           />
@@ -56,82 +82,125 @@ export default class driverDetails extends Component {
               marginTop: 10,
             }}
           >
-            Walison José de Deus
+          {this.state.driver.name}
           </Text>
- 
-          
         </ImageBackground>
-        
-        <View style={{ flexDirection: "row", width: "100%"}}>
-            
-        <Image
-                  style={{
-                    height: 80,
-                    width: 130,
-                    marginTop: -150,
-                       
-                  }}
-                  source={require('../../images/asset_relogio.png')}
-                /> 
-                <Text style={{ color: Colors.blue100, fontWeight: "bold", top: -120, left: 30}}>Chega em 15 minutos</Text>
-                </View> 
-                <Divider style={{ borderColor: Colors.blue100, borderWidth: 1, top: -90}}/>
 
-                <View style={{ flexDirection: "row", width: "100%", marginTop: 60}}>
-            
-            <Image
-                      style={{
-                        height: 80,
-                        width: 130,
-                        marginTop: -150,
-                           
-                      }}
-                      source={require('../../images/asset_placa_motorista.png')}
-                    /> 
-                    <Text style={{ color: Colors.blue100, fontWeight: "bold", top: -120, left: 30}}>Chega em 15 minutos</Text>
-                    </View> 
-                    <Divider style={{ borderColor: Colors.blue100, borderWidth: 1, top: -90}}/>
-    
+        <View style={{ flexDirection: "row", width: "100%" }}>
+          <Image
+            style={{
+              height: 80,
+              width: 130,
+              marginTop: -150,
+            }}
+            source={require("../../images/asset_relogio.png")}
+          />
+          <Text
+            style={{
+              color: Colors.blue100,
+              fontWeight: "bold",
+              top: -120,
+              left: 30,
+              alignContent: "center",
+              alignItems: "center",
+            }}
+          >
+            Chega em {this.state.duration} minutos
+          </Text>
+        </View>
+        <Divider
+          style={{ borderColor: Colors.blue100, borderWidth: 1, top: -90 }}
+        />
 
-                    <View style={{ flexDirection: "row", width: "100%", marginTop: 60}}>
-            
-            <Image
-                      style={{
-                        height: 80,
-                        width: 130,
-                        marginTop: -150,
-                           
-                      }}
-                      source={require('../../images/asset_celu_user.png')}
-                    /> 
-                    <Text style={{ color: Colors.blue100, fontWeight: "bold", top: -120, left: 30}}>Chega em 15 minutos</Text>
-                    </View> 
-                    <Divider style={{ borderColor: Colors.blue100, borderWidth: 1, top: -90}}/>
-                    <View style={{ flexDirection: "row", width: "100%", marginTop: 60}}>
-            
-            <Image
-                      style={{
-                        height: 80,
-                        width: 130,
-                        marginTop: -150,
-                           
-                      }}
-                      source={require('../../images/asset_pontuacao_motorista2.png')}
-                    /> 
-                    <Text style={{ color: Colors.blue100, fontWeight: "bold", top: -120, left: 30}}>Chega em 15 minutos</Text>
-                    </View> 
-                    <Divider style={{ borderColor: Colors.blue100, borderWidth: 1, top: -90}}/>
+        <View style={{ flexDirection: "row", width: "100%", marginTop: 60 }}>
+          <Image
+            style={{
+              height: 80,
+              width: 130,
+              marginTop: -150,
+            }}
+            source={require("../../images/asset_placa_motorista.png")}
+          />
+          <Text
+            style={{
+              color: Colors.blue100,
+              fontWeight: "bold",
+              top: -120,
+              left: 30,
+              alignContent: "center",
+              alignItems: "center",
+            }}
+          >
+            {this.state.driver.vehicle.license_plate}
+          </Text>
+        </View>
+        <Divider
+          style={{ borderColor: Colors.blue100, borderWidth: 1, top: -90 }}
+        />
 
+        <View style={{ flexDirection: "row", width: "100%", marginTop: 60 }}>
+          <Image
+            style={{
+              height: 80,
+              width: 130,
+              marginTop: -150,
+            }}
+            source={require("../../images/asset_celu_user.png")}
+          />
+          <Text
+            style={{
+              color: Colors.blue100,
+              fontWeight: "bold",
+              top: -120,
+              left: 30,
+              alignContent: "center",
+              alignItems: "center",
+            }}
+          >
+            {this.formatPhoneNumber(""+this.state.driver.phone)}
+          </Text>
+          <IconButton
+            icon="phone"
+            color={Colors.green100}
+            size={50}
+            style={{ left: 35, marginTop: -150 }}
+            onPress={() =>
+              Linking.openURL(
+                `tel: ` + this.formatPhoneNumber("(62) 98173 1717")
+              )
+            }
+          />
+        </View>
+        <Divider
+          style={{ borderColor: Colors.blue100, borderWidth: 1, top: -90 }}
+        />
+        <View style={{ flexDirection: "row", width: "100%", marginTop: 60 }}>
+          <Image
+            style={{
+              height: 80,
+              width: 130,
+              marginTop: -150,
+            }}
+            source={require("../../images/asset_pontuacao_motorista2.png")}
+          />
+          <Text
+            style={{
+              color: Colors.blue100,
+              fontWeight: "bold",
+              top: -120,
+              left: 30,
+              alignContent: "center",
+              alignItems: "center",
+            }}
+          >
+           {this.state.driver.vehicle.model}
+          </Text>
+        </View>
+        <Divider
+          style={{ borderColor: Colors.blue100, borderWidth: 1, top: -90 }}
+        />
 
-
-
-
-
-
-
-
-
-              {/*     <Image
+        {/*     <Image
                   style={{
                     height: 80,
                     width: 130,
@@ -163,12 +232,7 @@ export default class driverDetails extends Component {
                 />
                  <Divider style={{ borderColor: Colors.blue100, borderWidth: 1}}/>
                  
-      //  </View> */} 
-
-
-       
-
-
+      //  </View> */}
       </>
     );
   }
