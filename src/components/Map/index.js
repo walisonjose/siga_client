@@ -308,16 +308,16 @@ class Map extends Component {
     try {
       const run = {
         run: {
-          id: "1",
+          id: this.state.id_run,
           origem: {
-            lat: "-16.8173241",
-            long: "-49.2537338",
+            lat: this.state.origin.latitude,
+            long: this.state.origin.longitude,
             latitudeDelta: 0.0491,
             longitudeDelta: 0.0375,
           },
           destination: {
-            lat: "-16.8232248",
-            long: "-49.2536351",
+            lat: this.state.destination.latitude,
+            long: this.state.destination.longitude,
             latitudeDelta: 0.0491,
             longitudeDelta: 0.0375,
           },
@@ -339,8 +339,8 @@ class Map extends Component {
 
       const { run } = JSON.parse(jsonValue);
 
-      this.setState({ buttonAddress: 0 });
-
+     // this.setState({ buttonAddress: 0 });
+ 
       this.setState({
         origin: {
           latitude: parseFloat(run.origem.lat),
@@ -351,7 +351,7 @@ class Map extends Component {
       });
       this.getAddress(this.state.origin);
 
-      this.setState({ buttonAddress: 1 });
+     // this.setState({ buttonAddress: 1 });
 
       this.setState({
         destination: {
@@ -363,7 +363,9 @@ class Map extends Component {
       });
 
       this.getAddress(this.state.destination);
-      this.setState({ buttonAddress: 0 });
+    //  this.setState({ buttonAddress: 0 });
+
+      console.log("Dados -> "+run.id);
 
       return "Dados carregados";
 
@@ -620,19 +622,33 @@ class Map extends Component {
           }
           if (responseData.finished_at != null) {
 
-            this.setState({
-             origin: this.state.region,
-             destination: { latitude : 0, longitude: 0},
-             
+              console.log("-> "+this.state.modal_run_finsih_cont);
 
-             
-             run_started: false,
+           toastSucess("Corrida finalizada com sucesso!");
+
+            this.setState({
+
+              destination: { latitude: 0, longitude: 0 },
+              origin: { latitude: 0, longitude: 0 },
+              duration: null,
+              location: null,
+              origem: "",
+              short_origin: null,
+              destino: "",
+              short_destination: null,
+              search_adress: false,
+              run_wait_checkin: 0,
+              buttonAddress: 0,
+              run_status: 0,
+              run_started: false,
+              
 
 
              top_origin_label: 75,
              top_origin_textinput: 95,
              top_origin_icon: 60,
              button_alter_address_origin: 25,
+             duration: 0,
          
              top_destination_label: 40, 
              top_destination_textinput: 65,
@@ -643,8 +659,13 @@ class Map extends Component {
 
             
             
+           
+          
+
+          
             clearIntervalAsync(timer);
 
+           
           {/* 
             this.setState({
              
@@ -813,6 +834,11 @@ class Map extends Component {
         if (responseData.accepted_at != null) {
           console.log("Corrida aceita!! Seguindo para checkin");
           this.setState({ timer: false, cancel_timer: 1, run_status: 2 });
+
+
+//salva os dados
+this.storeDataRun();
+
 
           this.status_check_run();
         }
@@ -1307,10 +1333,10 @@ class Map extends Component {
     const welcome_msg = "Olá " + this.getFirstName() + "! Onde precisa ir?";
     this.setState({ welcome_msg: welcome_msg });
 
-    this.cancel_run();
+   // this.cancel_run();
 
-    //this.storeDataRun();
-    //this.getDataSync();
+   // this.storeDataRun();
+   // this.getDataSync();
 
     //const {id}   = this.getDataSync();
 
@@ -1617,12 +1643,12 @@ class Map extends Component {
                 />
               </MapView.Marker>
 
-              <Marker coordinate={destination} anchor={{ x: 0, y: 0 }}>
+             {/* <Marker coordinate={destination} anchor={{ x: 0, y: 0 }}>
                 <Image
                   source={require("../../images/pin_destino.png")}
                   style={{ height: 60, width: 45 }}
                 />
-              </Marker>
+              </Marker> */} 
             </Fragment>
           ) : null}
 
