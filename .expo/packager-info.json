@@ -1,10 +1,10 @@
 {
   "packagerPort": 19001,
-  "packagerPid": 4884,
+  "packagerPid": 13300,
   "expoServerPort": 19000,
   "expoServerNgrokUrl": "https://xq-7bb.ingohsys.siga-client.exp.direct",
   "packagerNgrokUrl": "https://packager.xq-7bb.ingohsys.siga-client.exp.direct",
-  "ngrokPid": 8380,
+  "ngrokPid": 5700,
   "webpackServerPort": null,
   "devToolsPort": 19002
 }

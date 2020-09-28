@@ -1537,7 +1537,7 @@ this.storeDataRun();
     const { region, destination, location, duration, origin } = this.state;
 
     return (
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1 }}> 
         <MapView
           style={styles.map}
           region={this.state.point}
@@ -1605,8 +1605,8 @@ this.storeDataRun();
                   }}
                   source={{
                     uri:
-                      "https://sigadev.aparecida.go.gov.br/paperclip/drivers/profile_pictures/6360c9194603fc778d3f8b2dee130aa98d2eb31c/thumb.png?1599229147",
-                  }}
+                    this.state.driver.profile_picture.thumb
+                       }}
                 />
 
                 <Callout
@@ -2012,6 +2012,7 @@ null
           onExpanded={this.openBottomDrawer}
           onCollapsed={this.closeBottomDrawer}
           downDisplay={240}
+         
           startUp={false}
         >
           {this.renderContent()}
