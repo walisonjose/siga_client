@@ -14,6 +14,7 @@ import {
   TouchableHighlight,
   ScrollView,
   TextInput,
+  PermissionsAndroid
 } from "react-native";
 import MapView, { Marker, Callout, AnimatedRegion } from "react-native-maps";
 
