@@ -14,7 +14,8 @@ import {
   TouchableHighlight,
   ScrollView,
   TextInput,
-  PermissionsAndroid
+  PermissionsAndroid,
+  Alert
 } from "react-native";
 import MapView, { Marker, Callout, AnimatedRegion } from "react-native-maps";
 
@@ -72,6 +73,7 @@ import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplet
 import { connect } from "react-redux";
 
 import {
+  
   Back,
   LocationBox,
   LocationText,
@@ -110,6 +112,8 @@ import RNGooglePlaces from "react-native-google-places";
 import { CAMERA } from "expo-permissions";
 import driverDetails from "./driverDetails";
 
+import * as Location from "expo-location";
+
 const {
   setIntervalAsync,
   clearIntervalAsync,
@@ -121,7 +125,7 @@ const toastError = (msg) =>
   Toast.show(msg, {
     position: Toast.position.center,
     containerStyle: {
-      backgroundColor: "#3CB371",
+      backgroundColor: "#cc0000", 
       borderRadius: 15,
     },
     textStyle: {
@@ -340,8 +344,8 @@ class Map extends Component {
 
       const { run } = JSON.parse(jsonValue);
 
-     // this.setState({ buttonAddress: 0 });
- 
+      // this.setState({ buttonAddress: 0 });
+
       this.setState({
         origin: {
           latitude: parseFloat(run.origem.lat),
@@ -352,7 +356,7 @@ class Map extends Component {
       });
       this.getAddress(this.state.origin);
 
-     // this.setState({ buttonAddress: 1 });
+      // this.setState({ buttonAddress: 1 });
 
       this.setState({
         destination: {
@@ -364,9 +368,9 @@ class Map extends Component {
       });
 
       this.getAddress(this.state.destination);
-    //  this.setState({ buttonAddress: 0 });
+      //  this.setState({ buttonAddress: 0 });
 
-      console.log("Dados -> "+run.id);
+      console.log("Dados -> " + run.id);
 
       return "Dados carregados";
 
@@ -419,7 +423,8 @@ class Map extends Component {
             destino: response.data.results[0].formatted_address,
             destination: coordinate,
             point: coordinate,
-            short_destination:  response.data.results[0].address_components[1].short_name,
+            short_destination:
+              response.data.results[0].address_components[1].short_name,
             run_status: 1,
 
             /*Ajustando o Bootom Drawner
@@ -622,13 +627,11 @@ class Map extends Component {
             }
           }
           if (responseData.finished_at != null) {
+            console.log("-> " + this.state.modal_run_finsih_cont);
 
-              console.log("-> "+this.state.modal_run_finsih_cont);
-
-           toastSucess("Corrida finalizada com sucesso!");
+            toastSucess("Corrida finalizada com sucesso!");
 
             this.setState({
-
               destination: { latitude: 0, longitude: 0 },
               origin: { latitude: 0, longitude: 0 },
               duration: null,
@@ -642,32 +645,23 @@ class Map extends Component {
               buttonAddress: 0,
               run_status: 0,
               run_started: false,
-              
 
+              top_origin_label: 75,
+              top_origin_textinput: 95,
+              top_origin_icon: 60,
+              button_alter_address_origin: 25,
+              duration: 0,
 
-             top_origin_label: 75,
-             top_origin_textinput: 95,
-             top_origin_icon: 60,
-             button_alter_address_origin: 25,
-             duration: 0,
-         
-             top_destination_label: 40, 
-             top_destination_textinput: 65,
-             top_destination_icon: 20,
-             button_alter_address_destination: -15,
-
+              top_destination_label: 40,
+              top_destination_textinput: 65,
+              top_destination_icon: 20,
+              button_alter_address_destination: -15,
             });
 
-            
-            
-           
-          
-
-          
             clearIntervalAsync(timer);
 
-           
-          {/* 
+            {
+              /* 
             this.setState({
              
               modal_run_finsih: true,
@@ -696,8 +690,8 @@ class Map extends Component {
               });
             }
 
-            */}
-
+            */
+            }
           }
 
           if (responseData.canceled_at != null) {
@@ -836,10 +830,8 @@ class Map extends Component {
           console.log("Corrida aceita!! Seguindo para checkin");
           this.setState({ timer: false, cancel_timer: 1, run_status: 2 });
 
-
-//salva os dados
-this.storeDataRun();
-
+          //salva os dados
+          this.storeDataRun();
 
           this.status_check_run();
         }
@@ -1334,10 +1326,10 @@ this.storeDataRun();
     const welcome_msg = "Olá " + this.getFirstName() + "! Onde precisa ir?";
     this.setState({ welcome_msg: welcome_msg });
 
-   // this.cancel_run();
+    // this.cancel_run();
 
-   // this.storeDataRun();
-   // this.getDataSync();
+    // this.storeDataRun();
+    // this.getDataSync();
 
     //const {id}   = this.getDataSync();
 
@@ -1368,23 +1360,24 @@ this.storeDataRun();
         maximumAge: 1000,
       }
     );*/
+    const { status } = await Location.requestPermissionsAsync();
+    if (status === "granted") {
+      this.watchID = navigator.geolocation.watchPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
 
-    this.watchID = navigator.geolocation.watchPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
+          this.setState({
+            region: {
+              latitude,
+              longitude,
+              latitudeDelta: 0.0143,
+              longitudeDelta: 0.0134,
+            },
+          });
+          // this.getAddress(this.state.region);
 
-        this.setState({
-          region: {
-            latitude,
-            longitude,
-            latitudeDelta: 0.0143,
-            longitudeDelta: 0.0134,
-          },
-        });
-        // this.getAddress(this.state.region);
-
-        console.log(" Coordenadas: " + position.coords.latitude);
-        /*
+          console.log(" Coordenadas: " + position.coords.latitude);
+          /*
         const { routeCoordinates, distanceTravelled } = this.state;
         const { latitude, longitude } = position.coords;
 
@@ -1412,15 +1405,27 @@ this.storeDataRun();
             distanceTravelled + this.calcDistance(newCoordinate),
           prevLatLng: newCoordinate
         }); */
-      },
-      (error) => console.log(error),
-      {
-        enableHighAccuracy: true,
-        timeout: 20000,
-        maximumAge: 1000,
-        distanceFilter: 10,
-      }
-    );
+        },
+        (error) => {console.log(error); 
+          toastError(
+            "A permissão da localização deve ser concedida."
+        
+          );
+              
+        },
+        
+        {
+          enableHighAccuracy: true,
+          timeout: 20000,
+          maximumAge: 1000,
+          distanceFilter: 10,
+        }
+      );
+    } else {
+      toastError(
+        "A permissão da localização deve ser concedida."
+      );
+    }
   }
 
   componentWillUnmount() {
@@ -1538,7 +1543,7 @@ this.storeDataRun();
     const { region, destination, location, duration, origin } = this.state;
 
     return (
-      <View style={{ flex: 1 }}> 
+      <View style={{ flex: 1 }}>
         <MapView
           style={styles.map}
           region={this.state.point}
@@ -1549,9 +1554,7 @@ this.storeDataRun();
           showsScale={true}
           ref={(el) => (this.mapView = el)}
           onPress={(event) => {
-            if (
-              this.state.run_wait_checkin === 0 
-            ) {
+            if (this.state.run_wait_checkin === 0) {
               this.addMarker(event.nativeEvent.coordinate);
             }
           }}
@@ -1605,9 +1608,8 @@ this.storeDataRun();
                     borderRadius: 40,
                   }}
                   source={{
-                    uri:
-                    this.state.driver.profile_picture.thumb
-                       }}
+                    uri: this.state.driver.profile_picture.thumb,
+                  }}
                 />
 
                 <Callout
@@ -1644,12 +1646,12 @@ this.storeDataRun();
                 />
               </MapView.Marker>
 
-             {/* <Marker coordinate={destination} anchor={{ x: 0, y: 0 }}>
+              {/* <Marker coordinate={destination} anchor={{ x: 0, y: 0 }}>
                 <Image
                   source={require("../../images/pin_destino.png")}
                   style={{ height: 60, width: 45 }}
                 />
-              </Marker> */} 
+              </Marker> */}
             </Fragment>
           ) : null}
 
@@ -1669,9 +1671,7 @@ this.storeDataRun();
                 style={{ height: 60, width: 45 }}
               />
             </MapView.Marker>
-          ) : (
-            null
-          )}
+          ) : null}
 
           {this.state.destination != null ? (
             <MapView.Marker
@@ -1689,12 +1689,9 @@ this.storeDataRun();
                 style={{ height: 60, width: 45 }}
               />
             </MapView.Marker>
-          ) : (
-            null
-          )}
+          ) : null}
 
-
-{this.state.run_status === 2 ? (
+          {this.state.run_status === 2 ? (
             <Fragment>
               <Directions
                 origin={region}
@@ -1712,11 +1709,8 @@ this.storeDataRun();
                   });
                 }}
               />
-
-</Fragment>
-              ):
-              (null)}
-
+            </Fragment>
+          ) : null}
 
           {/*this.state.destination && this.state.run_wait_checkin === 0  */}
           {this.state.run_status === 1 ? (
@@ -1764,14 +1758,7 @@ this.storeDataRun();
                 />
               </MapView.Marker>
             </Fragment>
-          ) : 
-          (
-null
-          )}
-          
-          
-          
-          
+          ) : null}
 
           {/* && this.state.run_wait_checkin === 0 
 
@@ -2013,7 +2000,6 @@ null
           onExpanded={this.openBottomDrawer}
           onCollapsed={this.closeBottomDrawer}
           downDisplay={240}
-         
           startUp={false}
         >
           {this.renderContent()}
