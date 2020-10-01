@@ -15,7 +15,7 @@ import {
   ScrollView,
   TextInput,
   PermissionsAndroid,
-  Alert
+  Alert, SafeAreaView,
 } from "react-native";
 import MapView, { Marker, Callout, AnimatedRegion } from "react-native-maps";
 
@@ -109,10 +109,13 @@ import Timer from "./timer";
 import AsyncStorage from "@react-native-community/async-storage";
 
 import RNGooglePlaces from "react-native-google-places";
-import { CAMERA } from "expo-permissions";
+import * as Permissions from "expo-permissions";
+import {PERMISSIONS} from 'react-native-permissions';
+
 import driverDetails from "./driverDetails";
 
 import * as Location from "expo-location";
+
 
 const {
   setIntervalAsync,
@@ -162,8 +165,8 @@ class Map extends Component {
 
   state = {
     region: {
-      latitude: 0,
-      longitude: 0,
+      latitude: -16.8173241,
+      longitude: -49.2537338,
       latitudeDelta: 0.0491,
       longitudeDelta: 0.0375,
     },
@@ -991,9 +994,12 @@ class Map extends Component {
         <Icon
           name={
             !this.state.openBottomDrawer
-              ? "keyboard-arrow-up"
+              ? "keyboard-arrow-up" 
               : "keyboard-arrow-down"
           }
+          //onPress={() =>{ !this.state.openBottomDrawer
+         //   ? this.setState({full_dim: 550})
+         //   : this.setState({full_dim: 150})}}
           size={40}
           color="#FFF"
           style={{ top: 10, left: -5 }}
@@ -1065,7 +1071,7 @@ class Map extends Component {
 
             width: 40,
             top: this.state.top_origin_icon,
-            left: -145,
+            left: Platform.OS === `ios` ? -175 : -155,
           }}
         />
 
@@ -1074,12 +1080,14 @@ class Map extends Component {
             marginTop: this.state.button_alter_address_origin,
             borderRadius: 0,
             width: "25%",
+
+//, bottom:   Platform.OS ===  'android' ? 5 : -10
             height: "15%",
-            marginLeft: 265,
+           marginLeft: Platform.OS === `ios` ? 305 : 275,
           }}
         >
           <ButtonText
-            style={{ color: "#307597", textAlign: "center", bottom: 5 }}
+            style={{ color: "#307597", textAlign: "center", marginBottom: -25  }}
           >
             Alterar
           </ButtonText>
@@ -1124,7 +1132,7 @@ class Map extends Component {
             width: 40,
             marginTop: 10,
             top: this.state.top_destination_icon,
-            left: -145,
+            left: Platform.OS === `ios` ? -175 : -155,
           }}
         />
 
@@ -1134,11 +1142,11 @@ class Map extends Component {
             borderRadius: 0,
             width: "25%",
             height: "15%",
-            marginLeft: 265,
+            marginLeft: Platform.OS === `ios` ? 305 : 275,
           }}
         >
           <ButtonText
-            style={{ color: "#307597", textAlign: "center", bottom: 5 }}
+            style={{ color: "#307597", textAlign: "center", marginBottom: -20  }}
           >
             Alterar
           </ButtonText>
@@ -1326,6 +1334,8 @@ class Map extends Component {
     const welcome_msg = "Olá " + this.getFirstName() + "! Onde precisa ir?";
     this.setState({ welcome_msg: welcome_msg });
 
+    console.log("OS -> "+Platform.OS+" Version: "+Platform.Version+ " Dimensions: "+Dimensions.get("window").width+ " height: "+Dimensions.get("window").height);
+
     // this.cancel_run();
 
     // this.storeDataRun();
@@ -1360,7 +1370,9 @@ class Map extends Component {
         maximumAge: 1000,
       }
     );*/
-    const { status } = await Location.requestPermissionsAsync();
+
+    
+    const { status } =  Platform.OS === 'ios' ? await Permissions.getAsync(Permissions.LOCATION) :  await Location.requestPermissionsAsync();
     if (status === "granted") {
       this.watchID = navigator.geolocation.watchPosition(
         (position) => {
@@ -1543,7 +1555,8 @@ class Map extends Component {
     const { region, destination, location, duration, origin } = this.state;
 
     return (
-      <View style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex:1}}>
+     <View style={{ flex: 1, justifyContent: 'space-around' }}>
         <MapView
           style={styles.map}
           region={this.state.point}
@@ -1673,7 +1686,7 @@ class Map extends Component {
             </MapView.Marker>
           ) : null}
 
-          {this.state.destination != null ? (
+          {/* this.state.destination != null ? (
             <MapView.Marker
               coordinate={{
                 latitude: this.state.destination.latitude,
@@ -1689,7 +1702,7 @@ class Map extends Component {
                 style={{ height: 60, width: 45 }}
               />
             </MapView.Marker>
-          ) : null}
+            ) : null  */}
 
           {this.state.run_status === 2 ? (
             <Fragment>
@@ -1750,7 +1763,7 @@ class Map extends Component {
                 ref={(_marker) => {
                   this.marker = _marker;
                 }}
-                title={""}
+               // title={""}
               >
                 <Image
                   source={require("../../images/pin_destino.png")}
@@ -1812,10 +1825,12 @@ class Map extends Component {
           icon="menu"
           color="#307597"
           animated={true}
-          size={40}
-          style={{
-            top: Platform.OS === "ios" ? -670 : -500,
+          size={40} 
+          style={{ 
+            top: Platform.OS === "ios" ?  ((Dimensions.get('window').height - 100) * -1) : ((Dimensions.get('window').height - 100) * -1),
             left: 10,
+        
+        
             backgroundColor: "#B2BF86",
           }}
           onPress={() =>
@@ -1829,8 +1844,8 @@ class Map extends Component {
           animated={true}
           size={40}
           style={{
-            top: Platform.OS === "ios" ? -670 : -560,
-            left: 280,
+            top: Platform.OS === "ios" ? ((Dimensions.get('window').height - 90) * -1)  : ((Dimensions.get('window').height - 70) * -1),
+            left: 290,
             backgroundColor: "#B2BF86",
           }}
           onPress={() => this.setState({ point: region })}
@@ -2005,6 +2020,8 @@ class Map extends Component {
           {this.renderContent()}
         </BottomDrawer>
       </View>
+
+      </SafeAreaView>
     );
   }
 
@@ -2074,9 +2091,9 @@ export default connect(mapStateToProps)(Map);
 
 const styles = StyleSheet.create({
   map: {
-    height: "100%",
-    width: "100%",
-    flex: 1,
+    
+    height: Dimensions.get('window').height,
+    width: Dimensions.get('window').width,
   },
   logo: {
     marginTop: -730,

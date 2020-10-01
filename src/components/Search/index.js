@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Platform, Image, Text, ImageBackground } from "react-native";
+import { Platform, Image, Text, ImageBackground, Dimensions } from "react-native";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 
 import { View } from "native-base";
@@ -119,7 +119,7 @@ export default class Search extends Component {
         }}
       />
       
- <IconClose name="close-box" size={45} color="#3CB371" style={{ top: Platform.OS === 'ios' ? 70 : 15, left: Platform.OS === 'ios' ? 320 : 310 }} onPress={ icon} />
+ <IconClose name="close-box" size={45} color="#3CB371" style={{ top: Platform.OS === 'ios' ? 70 : 15, left: Platform.OS === 'ios' ? (Dimensions.get('window').width - 50) : 310 }} onPress={ icon} />
        
      
 

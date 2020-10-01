@@ -37,9 +37,12 @@
           "location",
           "fetch"
         ],
+       
         "NSLocationAlwaysUsageDescription": "Localizacao necessaria para rastreio das bolsas de sangue",
         "NSLocationWhenInUseUsageDescription": "Localizacao necessaria para rastreio das bolsas de sangue",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Localizacao necessaria para rastreio das bolsas de sangue",
         "UNUserNotificationCenter": "Notificações de atividades da conta"
+        
       }
     }
   }
