@@ -17,6 +17,7 @@ const Container = styled.View`
 const Logo = styled.Image`
   height: 30%;
   marginBottom: 40px;
+  
 `;
 
 const Input = styled.TextInput`

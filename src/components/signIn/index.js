@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-
-import { connect } from "react-redux";
 
 import { StatusBar, ImageBackground, ToastAndroid } from 'react-native';
+import { connect } from "react-redux";
+
+
 
 import Toast from 'react-native-tiny-toast';
 
-import * as WebBrowser from "expo-web-browser";
-import { StackActions, NavigationActions } from 'react-navigation';
+
 import { savePropsAuthentication, saveToken } from '../actions/AuthenticationActions';
 
 const toastError = msg => Toast.show(msg,{
@@ -20,9 +19,7 @@ const toastError = msg => Toast.show(msg,{
   textStyle:{
    color:'#fff',
   },
-  imgStyle:{},
-  mask:false,
-  maskStyle:{},
+  
   duration: 2000,
   animation: true,
  });
@@ -36,9 +33,8 @@ const toastError = msg => Toast.show(msg,{
   textStyle:{
    color:'#fff',
   },
-  imgStyle:{},
-  mask:false,
-  maskStyle:{},
+  
+  
   duration: 2000,
   animation: true,
  });
@@ -62,20 +58,10 @@ import {
   
 } from './styles';
 
-//const resetPasswordURL = 'https://sigadev.aparecida.go.gov.br/pt-BR/users/password/new';
+
 
  class SignIn extends Component {
-  static navigationOptions = {
-    header: null,
-  };
-
-  static propTypes = {
-    navigation: PropTypes.shape({
-      navigate: PropTypes.func,
-      dispatch: PropTypes.func,
-    }).isRequired,
-     
-  };
+  
 
    
 
@@ -84,15 +70,9 @@ import {
     email: "walison.deus@aparecida.go.gov.br",
    
     password: "javajade",
-    error: '',
+    
   };
 
-/*
-
-  _openBeposForgotPassword = async () => {
-    this._openSafariWebView(resetPasswordURL);
-}; 
-*/
 
 
   handleEmailChange = (email) => {
@@ -116,7 +96,7 @@ import {
 
     
 
-    var email = null;
+    var email = "";
     if(this.state.email.indexOf("@") === -1){
      
 
@@ -128,8 +108,6 @@ import {
      email = this.state.email;
    }
 
-   // console.log(this.state.email);
-
 
     const response = await api2.post('/users/sign_in.json?user[login]='+this.state.email+'&user[password]='+this.state.password+'')
     .then(response =>{
@@ -138,7 +116,7 @@ import {
       this.props.savePropsAuthentication({
         
      
-       email: this.state.email,
+       email: response.data.email,
        name: response.data.name,
       avatar: response.data.profile_picture[0],
     token: response.headers["set-cookie"],
@@ -215,9 +193,8 @@ if(element != "aparecida.go.gov.br"){
 
 
 
-console.log("-> "+statusLogin);
 
-    //Se o email estiver OK o fluxo continua
+  
 if(statusLogin === 0){
 
 this.loginUserSiga();
@@ -233,14 +210,16 @@ statusLogin = 0;
     return (
 
     
-<Container>
+<Container> 
 
   { RCTNetworking.clearCookies(() => { })}
+
+    
       <ImageBackground  style={{ width: '100%',   justifyContent: 'center', flex: 1}} source={require('../../images/backgroundaparecida.png')}  resizeMode="cover" >
       
         <StatusBar hidden />
-        <Logo style={{width: 200,height:200,  top:  60, alignSelf: 'center'}} source={require('../../images/icon_lock.png')} resizeMode="contain" />
-        <Logo style={{width: 40,height:40, top: 87, left: 10}} source={require('../../images/icon_user.png')} resizeMode="contain" />
+      <Logo style={{width: 200,height:200,  top:  60, alignSelf: 'center'}} source={require('../../images/icon_lock.png')} resizeMode="contain" />
+        <Logo style={{width: 40,height:40, top: 87, left: 10}} source={require('../../images/icon_user.png')} resizeMode="contain" /> 
          <Input
           placeholder="Usuário"
           value={this.state.email}
@@ -265,13 +244,16 @@ statusLogin = 0;
           <SignUpLinkText style={{textDecorationLine: 'underline'}} >Esqueceu sua senha?</SignUpLinkText>
         </SignUpLink>
 
-        {/*this.state.error.length !== 0 && <ErrorMessage>{this.state.error}</ErrorMessage> */}
+        
         <Button style={{ top: -120 }} onPress={this.handleSignInPress}>
           <ButtonText >ENTRAR</ButtonText>
         </Button>
-       
+        
       
-      </ImageBackground>
+      </ImageBackground> 
+
+
+
       </Container>
     );
   }

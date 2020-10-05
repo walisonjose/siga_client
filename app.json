@@ -6,7 +6,8 @@
     "orientation": "portrait",
     "icon": "./assets/siga_icon.png",
     "splash": {
-      "image": "./assets/apa.png",
+    
+      "image": "./assets/apa.png", 
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
