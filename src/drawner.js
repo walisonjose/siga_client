@@ -13,7 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 /*Telas */
 import formLogin from './components/signIn/index';
 
-import Map from './components/Map/index';
+import Map from './components/Map';
 import Timer from './components/Map/timer';
 import Search from './components/Search/index';
 import Menu from './components/Menu/index';

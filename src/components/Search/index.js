@@ -41,6 +41,7 @@ export default class Search extends Component {
           key: "AIzaSyD157FiAI8dfBRzoH4qvzjFi3iKSPzA860",
           language: "pt"
         }}
+        autoFocus={true} 
         textInputProps={{
           onFocus: () => {
             this.setState({ searchFocused: true });

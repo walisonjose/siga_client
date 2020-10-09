@@ -1,8 +1,8 @@
 import React, { Component, Fragment, useState, useEffect } from "react";
 import {
   View,
-  Animated,
-  Platform,
+ 
+  Platform, 
   Modal,
   Image,
   Text,
@@ -15,7 +15,7 @@ import {
   ScrollView,
   TextInput,
   PermissionsAndroid,
-  Alert, SafeAreaView,
+  Alert
 } from "react-native";
 import MapView, { Marker, Callout, AnimatedRegion } from "react-native-maps";
 
@@ -59,6 +59,9 @@ import backImage from "../../assets/back.png";
 
 import DrawnerMenu from "../../drawner.js";
 
+import Animated from 'react-native-reanimated';
+import BottomSheet from 'reanimated-bottom-sheet';
+
 import { NavigationContainer, DrawerActions } from "@react-navigation/native";
 import {
   createDrawerNavigator,
@@ -96,7 +99,7 @@ import {
   ButtonText,
 } from "./styles";
 
-const screen = Dimensions.get("window");
+
 
 console.disableYellowBox = true;
 
@@ -109,18 +112,18 @@ import Timer from "./timer";
 import AsyncStorage from "@react-native-community/async-storage";
 
 import RNGooglePlaces from "react-native-google-places";
-import * as Permissions from "expo-permissions";
-import {PERMISSIONS} from 'react-native-permissions';
-
+import { CAMERA } from "expo-permissions";
 import driverDetails from "./driverDetails";
 
 import * as Location from "expo-location";
-
 
 const {
   setIntervalAsync,
   clearIntervalAsync,
 } = require("set-interval-async/dynamic");
+
+
+const AnimatedView = Animated.View
 
 /* Configuração do Toast*/
 
@@ -165,8 +168,8 @@ class Map extends Component {
 
   state = {
     region: {
-      latitude: -16.8173241,
-      longitude: -49.2537338,
+      latitude: 0,
+      longitude: 0,
       latitudeDelta: 0.0491,
       longitudeDelta: 0.0375,
     },
@@ -312,6 +315,16 @@ class Map extends Component {
 
   /*Métodos que salvas as coordenadas já definidas em um corrida em andamento.*/
 
+
+  deleteDataRun = async () => { 
+    try {
+      await AsyncStorage.removeItem("@rundata")
+    } catch (err) {
+      console.log(`The error is: ${err}`)
+    }
+  }
+
+
   storeDataRun = async (value) => {
     try {
       const run = {
@@ -343,37 +356,51 @@ class Map extends Component {
     try {
       const jsonValue = await AsyncStorage.getItem("@rundata");
 
-      //return JSON.parse(jsonValue);
+      if(jsonValue){
+console.log("Button "+this.state.buttonAddress);
+     
+       const { run } = JSON.parse(jsonValue);
 
-      const { run } = JSON.parse(jsonValue);
+       console.log("Dados -> " + run.id);
 
-      // this.setState({ buttonAddress: 0 });
-
-      this.setState({
+        this.setState({
         origin: {
           latitude: parseFloat(run.origem.lat),
           longitude: parseFloat(run.origem.long),
           latitudeDelta: 0.0491,
           longitudeDelta: 0.0375,
         },
+      
       });
-      this.getAddress(this.state.origin);
-
-      // this.setState({ buttonAddress: 1 });
-
+      //if(this.state.short_origin === null){
+        this.getAddress(this.state.origin);
+     
+     // this.getAddress(this.state.origin);
+      console.log("Button "+this.state.buttonAddress);
       this.setState({
         destination: {
           latitude: parseFloat(run.destination.lat),
           longitude: parseFloat(run.destination.long),
           latitudeDelta: 0.0491,
           longitudeDelta: 0.0375,
+          buttonAddress: 0,
         },
       });
+     // if(this.state.short_destination === null){
+        this.getAddress(this.state.destination);
+    //  }
 
-      this.getAddress(this.state.destination);
+      //this.getAddress(this.state.destination);
       //  this.setState({ buttonAddress: 0 });
+      
+
+      this.setState({ id_run: run.id });
 
       console.log("Dados -> " + run.id);
+
+      this.getDataRun();
+      
+    }
 
       return "Dados carregados";
 
@@ -411,6 +438,7 @@ class Map extends Component {
             point: coordinate,
             short_origin:
               response.data.results[0].address_components[1].short_name,
+              buttonAddress: 1,
           });
 
           //this.mapView.animateToRegion(this.state.origin, 1000);
@@ -429,6 +457,7 @@ class Map extends Component {
             short_destination:
               response.data.results[0].address_components[1].short_name,
             run_status: 1,
+            buttonAddress: 0,
 
             /*Ajustando o Bootom Drawner
 
@@ -594,7 +623,7 @@ class Map extends Component {
             const { driver } = responseData;
 
             console.log("Motorista-> " + driver.name);
-            this.setState({ driver: driver, run_wait_checkin: 1 });
+            this.setState({ driver: driver, run_wait_checkin: 1, run_status: 1 });
 
             this.getDriverLocation();
           }
@@ -604,6 +633,12 @@ class Map extends Component {
             responseData.finished_at === null &&
             responseData.canceled_at === null
           ) {
+
+            this.setState({
+              run_status: 2, 
+              
+            });
+
             console.log("Corrida iniciada!");
             if (this.state.modal_run_started_cont == 0) {
               this.setState({
@@ -632,6 +667,8 @@ class Map extends Component {
           if (responseData.finished_at != null) {
             console.log("-> " + this.state.modal_run_finsih_cont);
 
+   this.deleteDataRun();
+
             toastSucess("Corrida finalizada com sucesso!");
 
             this.setState({
@@ -646,7 +683,7 @@ class Map extends Component {
               search_adress: false,
               run_wait_checkin: 0,
               buttonAddress: 0,
-              run_status: 0,
+              run_status: 3,
               run_started: false,
 
               top_origin_label: 75,
@@ -707,7 +744,37 @@ class Map extends Component {
                 responseData.cancel_explanation
             );
 
-            this.setState({ run_wait_checkin: 0 });
+            this.deleteDataRun();
+
+
+            this.setState({ run_wait_checkin: 0, run_status: 4 });
+
+            this.setState({
+              destination: { latitude: 0, longitude: 0 },
+              origin: { latitude: 0, longitude: 0 },
+              duration: null,
+              location: null,
+              origem: "",
+              short_origin: null,
+              destino: "",
+              short_destination: null,
+              search_adress: false,
+              run_wait_checkin: 0,
+              buttonAddress: 0,
+              run_status: 3,
+              run_started: false,
+
+              top_origin_label: 75,
+              top_origin_textinput: 95,
+              top_origin_icon: 60,
+              button_alter_address_origin: 25,
+              duration: 0,
+
+              top_destination_label: 40,
+              top_destination_textinput: 65,
+              top_destination_icon: 20,
+              button_alter_address_destination: -15,
+            }); 
 
             clearIntervalAsync(timer);
           }
@@ -831,6 +898,7 @@ class Map extends Component {
 
         if (responseData.accepted_at != null) {
           console.log("Corrida aceita!! Seguindo para checkin");
+          toastSucess("Corrida aceita!!\n Seguindo para checkin");
           this.setState({ timer: false, cancel_timer: 1, run_status: 2 });
 
           //salva os dados
@@ -843,10 +911,46 @@ class Map extends Component {
           responseData.driver_has_canceled != null ||
           responseData.canceled_at != null
         ) {
-          this.setState({ timer: false, cancel_timer: 1 });
+          this.setState({
+             timer: false, 
+            cancel_timer: 1,
+
+            destination: { latitude: 0, longitude: 0 },
+              origin: { latitude: 0, longitude: 0 },
+              duration: null,
+              location: null,
+              origem: "",
+              short_origin: null,
+              destino: "",
+              short_destination: null,
+              search_adress: false,
+              run_wait_checkin: 0,
+              buttonAddress: 0,
+              run_status: 3,
+              run_started: false,
+
+              top_origin_label: 75,
+              top_origin_textinput: 95,
+              top_origin_icon: 60,
+              button_alter_address_origin: 25,
+              duration: 0,
+
+              top_destination_label: 40,
+              top_destination_textinput: 65,
+              top_destination_icon: 20,
+              button_alter_address_destination: -15,
+          
+          });
+
+          toastError( "Corrida cancelada.\n Motivo: " + responseData.cancel_explanation);
+          
           console.log(
             "Corrida cancelada. Motivo: " + responseData.cancel_explanation
           );
+
+
+
+          
         }
       })
       .catch(function (error) {
@@ -988,20 +1092,44 @@ class Map extends Component {
     }
   };
 
+
+   
+
+  renderContent2 = () => {
+    return (
+      <View
+      style={{
+        backgroundColor: 'white',
+        padding: 16,
+        height: 450,
+      }} 
+    >
+      <Text>Swipe down to close</Text>
+
+
+     
+     
+
+    </View>
+    );
+  }
+   
+  
+
+
+
   renderContent = () => {
     return (
       <View style={styles.contentContainer}>
         <Icon
           name={
             !this.state.openBottomDrawer
-              ? "keyboard-arrow-up" 
+              ? "keyboard-arrow-up"
               : "keyboard-arrow-down"
           }
-          //onPress={() =>{ !this.state.openBottomDrawer
-         //   ? this.setState({full_dim: 550})
-         //   : this.setState({full_dim: 150})}}
           size={40}
           color="#FFF"
+          
           style={{ top: 10, left: -5 }}
         />
         {this.state.show_welcome_msg ? (
@@ -1071,7 +1199,7 @@ class Map extends Component {
 
             width: 40,
             top: this.state.top_origin_icon,
-            left: Platform.OS === `ios` ? -175 : -155,
+            left: -145,
           }}
         />
 
@@ -1080,14 +1208,12 @@ class Map extends Component {
             marginTop: this.state.button_alter_address_origin,
             borderRadius: 0,
             width: "25%",
-
-//, bottom:   Platform.OS ===  'android' ? 5 : -10
             height: "15%",
-           marginLeft: Platform.OS === `ios` ? 305 : 275,
+            marginLeft: 265,
           }}
         >
           <ButtonText
-            style={{ color: "#307597", textAlign: "center", marginBottom: -25  }}
+            style={{ color: "#307597", textAlign: "center", bottom: 5 }}
           >
             Alterar
           </ButtonText>
@@ -1132,7 +1258,7 @@ class Map extends Component {
             width: 40,
             marginTop: 10,
             top: this.state.top_destination_icon,
-            left: Platform.OS === `ios` ? -175 : -155,
+            left: -145,
           }}
         />
 
@@ -1142,11 +1268,11 @@ class Map extends Component {
             borderRadius: 0,
             width: "25%",
             height: "15%",
-            marginLeft: Platform.OS === `ios` ? 305 : 275,
+            marginLeft: 265,
           }}
         >
           <ButtonText
-            style={{ color: "#307597", textAlign: "center", marginBottom: -20  }}
+            style={{ color: "#307597", textAlign: "center", bottom: 5 }}
           >
             Alterar
           </ButtonText>
@@ -1334,12 +1460,10 @@ class Map extends Component {
     const welcome_msg = "Olá " + this.getFirstName() + "! Onde precisa ir?";
     this.setState({ welcome_msg: welcome_msg });
 
-    console.log("OS -> "+Platform.OS+" Version: "+Platform.Version+ " Dimensions: "+Dimensions.get("window").width+ " height: "+Dimensions.get("window").height);
-
-    // this.cancel_run();
+    //this.deleteDataRun();
 
     // this.storeDataRun();
-    // this.getDataSync();
+     this.getDataSync();
 
     //const {id}   = this.getDataSync();
 
@@ -1370,9 +1494,7 @@ class Map extends Component {
         maximumAge: 1000,
       }
     );*/
-
-    
-    const { status } =  Platform.OS === 'ios' ? await Permissions.getAsync(Permissions.LOCATION) :  await Location.requestPermissionsAsync();
+    const { status } = await Location.requestPermissionsAsync();
     if (status === "granted") {
       this.watchID = navigator.geolocation.watchPosition(
         (position) => {
@@ -1555,8 +1677,7 @@ class Map extends Component {
     const { region, destination, location, duration, origin } = this.state;
 
     return (
-      <SafeAreaView style={{ flex:1}}>
-     <View style={{ flex: 1, justifyContent: 'space-around' }}>
+       <View style={{ flex: 1 }}>  
         <MapView
           style={styles.map}
           region={this.state.point}
@@ -1611,6 +1732,7 @@ class Map extends Component {
                 }}
                 ref={(_marker) => {
                   this.marker = _marker;
+               
                 }}
               >
                 <Image
@@ -1686,7 +1808,7 @@ class Map extends Component {
             </MapView.Marker>
           ) : null}
 
-          {/* this.state.destination != null ? (
+          {this.state.destination != null ? (
             <MapView.Marker
               coordinate={{
                 latitude: this.state.destination.latitude,
@@ -1702,9 +1824,9 @@ class Map extends Component {
                 style={{ height: 60, width: 45 }}
               />
             </MapView.Marker>
-            ) : null  */}
+          ) : null}
 
-          {this.state.run_status === 2 ? (
+          {this.state.run_status === 2  ? ( 
             <Fragment>
               <Directions
                 origin={region}
@@ -1726,7 +1848,7 @@ class Map extends Component {
           ) : null}
 
           {/*this.state.destination && this.state.run_wait_checkin === 0  */}
-          {this.state.run_status === 1 ? (
+          {this.state.run_wait_checkin === 0 && this.state.run_status === 1  ? (
             <Fragment>
               <Directions
                 origin={origin}
@@ -1763,7 +1885,7 @@ class Map extends Component {
                 ref={(_marker) => {
                   this.marker = _marker;
                 }}
-               // title={""}
+                title={""}
               >
                 <Image
                   source={require("../../images/pin_destino.png")}
@@ -1825,12 +1947,10 @@ class Map extends Component {
           icon="menu"
           color="#307597"
           animated={true}
-          size={40} 
-          style={{ 
-            top: Platform.OS === "ios" ?  ((Dimensions.get('window').height - 100) * -1) : ((Dimensions.get('window').height - 100) * -1),
+          size={40}
+          style={{
+            top: Platform.OS === "ios" ? ((Dimensions.get('window').height -20)* -1) : ((Dimensions.get('window').height -20)* -1),
             left: 10,
-        
-        
             backgroundColor: "#B2BF86",
           }}
           onPress={() =>
@@ -1844,8 +1964,8 @@ class Map extends Component {
           animated={true}
           size={40}
           style={{
-            top: Platform.OS === "ios" ? ((Dimensions.get('window').height - 90) * -1)  : ((Dimensions.get('window').height - 70) * -1),
-            left: 290,
+            top: Platform.OS === "ios" ? ((Dimensions.get('window').height +50)* -1) : ((Dimensions.get('window').height +60)* -1),
+            left: 280,
             backgroundColor: "#B2BF86",
           }}
           onPress={() => this.setState({ point: region })}
@@ -2008,7 +2128,7 @@ class Map extends Component {
               <ButtonText>CANCELAR</ButtonText>
             </Button>
           </View>
-        </Modal>
+        </Modal> 
 
         <BottomDrawer
           containerHeight={this.state.full_dim}
@@ -2019,13 +2139,26 @@ class Map extends Component {
         >
           {this.renderContent()}
         </BottomDrawer>
-      </View>
+      {/*   
+         <BottomSheet
+        ref={(el) => (this.sheetRef = el)}
+        snapPoints={[450, 300, 100]}
+        borderRadius={10} 
+        renderContent={this.renderContent2}
+      />
+*/}
 
-      </SafeAreaView>
+
+        
+      </View>
+      
     );
   }
 
   openBottomDrawer = () => {
+    
+  
+
     console.log("Abriu!!");
 
     this.setState({
@@ -2091,9 +2224,8 @@ export default connect(mapStateToProps)(Map);
 
 const styles = StyleSheet.create({
   map: {
-    
-    height: Dimensions.get('window').height,
     width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height,
   },
   logo: {
     marginTop: -730,

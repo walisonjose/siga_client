@@ -61,6 +61,7 @@ export default class driverDetails extends Component {
           <IconButton
             icon="keyboard-backspace"
             color={Colors.white}
+
             size={60}
             style={{ left: -140, marginTop: 10 }}
             onPress={() => this.props.navigation.goBack()}
@@ -97,7 +98,7 @@ export default class driverDetails extends Component {
           />
           <Text
             style={{
-              color: Colors.blue100,
+              color: "#307597",
               fontWeight: "bold",
               top: -120,
               left: 30,
@@ -123,7 +124,7 @@ export default class driverDetails extends Component {
           />
           <Text
             style={{
-              color: Colors.blue100,
+              color: "#307597",
               fontWeight: "bold",
               top: -120,
               left: 30,
@@ -149,7 +150,7 @@ export default class driverDetails extends Component {
           />
           <Text
             style={{
-              color: Colors.blue100,
+              color: "#307597",
               fontWeight: "bold",
               top: -120,
               left: 30,
@@ -161,12 +162,13 @@ export default class driverDetails extends Component {
           </Text>
           <IconButton
             icon="phone"
-            color={Colors.green100}
+            color="#307597"
+            
             size={50}
             style={{ left: 35, marginTop: -150 }}
             onPress={() =>
               Linking.openURL(
-                `tel: ` + this.formatPhoneNumber("(62) 98173 1717")
+                `tel: ` + this.formatPhoneNumber(""+this.state.driver.phone)
               )
             }
           />
@@ -185,7 +187,7 @@ export default class driverDetails extends Component {
           />
           <Text
             style={{
-              color: Colors.blue100,
+              color: "#307597",
               fontWeight: "bold",
               top: -120,
               left: 30,
