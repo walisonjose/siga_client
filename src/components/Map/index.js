@@ -1460,7 +1460,7 @@ console.log("Button "+this.state.buttonAddress);
     const welcome_msg = "Olá " + this.getFirstName() + "! Onde precisa ir?";
     this.setState({ welcome_msg: welcome_msg });
 
-    //this.deleteDataRun();
+   // this.deleteDataRun();
 
     // this.storeDataRun();
      this.getDataSync();
@@ -1677,6 +1677,8 @@ console.log("Button "+this.state.buttonAddress);
     const { region, destination, location, duration, origin } = this.state;
 
     return (
+
+      
        <View style={{ flex: 1 }}>  
         <MapView
           style={styles.map}
@@ -2073,7 +2075,8 @@ console.log("Button "+this.state.buttonAddress);
 
         <Modal
           animationType="slide"
-          transparent={true}
+          transparent={false}
+        
           visible={this.state.search_adress}
         >
           {this.state.buttonAddress === 0 ? (

@@ -60,14 +60,15 @@ export default class Search extends Component {
             position: "absolute",
             top: Platform.select( type === 0 ? { ios: 70, android: 15 } : { ios: 70, android: 15 } ),
             width: "110%",
-           
+            backgroundColor: "#FFF",
             right: -10, 
             left: -18
             
           },
           textInputContainer: {
             flex: 1,
-            backgroundColor: "transparent",
+            backgroundColor: "#FFF",
+       
             height: 50,
             marginHorizontal: 20,
             borderTopWidth: 0,
