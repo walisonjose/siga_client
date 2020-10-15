@@ -31,7 +31,11 @@ export default class Search extends Component {
 {/* onPress={ type === 0 ? onLocationOriginSelected : onLocationSelected  } */} 
 
     return (
-<>
+
+      <>
+
+     
+
 
   <GooglePlacesAutocomplete
         placeholder={placeholder}
@@ -60,14 +64,14 @@ export default class Search extends Component {
             position: "absolute",
             top: Platform.select( type === 0 ? { ios: 70, android: 15 } : { ios: 70, android: 15 } ),
             width: "110%",
-            backgroundColor: "#FFF",
+            backgroundColor: "#307597",
             right: -10, 
             left: -18
             
           },
           textInputContainer: {
             flex: 1,
-            backgroundColor: "#FFF",
+            backgroundColor: "#307597",
        
             height: 50,
             marginHorizontal: 20,
@@ -124,8 +128,8 @@ export default class Search extends Component {
  <IconClose name="close-box" size={45} color="#3CB371" style={{ top: Platform.OS === 'ios' ? 70 : 15, left: Platform.OS === 'ios' ? (Dimensions.get('window').width - 50) : 310 }} onPress={ icon} />
        
      
-
-   </>
+ </>
+   
       );
     }
   }

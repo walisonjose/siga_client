@@ -223,11 +223,13 @@ class Map extends Component {
     modal_run_cancel: false,
     modal_run_cancel_cont: 0,
 
-    modal_run_finsih: false,
-    modal_run_finsih_cont: 0,
+    modal_run_finish: false, 
+    modal_run_finish_cont: 0,
 
     /*estado aguardando check-in*/
     run_wait_checkin: 0,
+    modal_run_accept: false,
+    modal_run_accept_cont: 0,
     /*estado corrida iniciada*/
     run_started: false,
     /*estado corrida finalizada*/
@@ -626,6 +628,24 @@ console.log("Button "+this.state.buttonAddress);
             this.setState({ driver: driver, run_wait_checkin: 1, run_status: 1 });
 
             this.getDriverLocation();
+
+
+this.setState({
+  modal_run_accept: true,
+  welcome_msg: "Se dirija ao ponto de partida  da corrida.",
+  modal_run_accept_cont: this.state.modal_run_accept_cont + 1,
+});
+
+if(this.state.modal_run_accept_cont > 5){
+  this.setState({
+    modal_run_accept: false,
+    
+  });
+}
+
+
+
+
           }
 
           if (
@@ -636,7 +656,7 @@ console.log("Button "+this.state.buttonAddress);
 
             this.setState({
               run_status: 2, 
-              
+              welcome_msg: "Sua viagem começou!"
             });
 
             console.log("Corrida iniciada!");
@@ -669,7 +689,7 @@ console.log("Button "+this.state.buttonAddress);
 
    this.deleteDataRun();
 
-            toastSucess("Corrida finalizada com sucesso!");
+           // toastSucess("Corrida finalizada com sucesso!");
 
             this.setState({
               destination: { latitude: 0, longitude: 0 },
@@ -698,30 +718,33 @@ console.log("Button "+this.state.buttonAddress);
               button_alter_address_destination: -15,
             });
 
-            clearIntervalAsync(timer);
+          //  clearIntervalAsync(timer);
 
-            {
-              /* 
+            
             this.setState({
              
-              modal_run_finsih: true,
-              modal_run_finsih_cont: this.state.modal_run_finsih_cont + 1,
+              modal_run_finish: true,
+              modal_run_finish_cont: this.state.modal_run_finish_cont + 1,
             });
 
             console.log(
-              "Corrida finalizada!" + this.state.modal_run_finsih_cont
+              "Corrida finalizada!" + this.state.modal_run_finish_cont
             );
 
             if (this.state.modal_run_finish_cont > 5) {
 
 
-              this.setState({
-                modal_run_finsih: false,
+              this.setState({ 
+                modal_run_finish: false,
                 run_finished: true,
+                welcome_msg: "Olá " + this.getFirstName() + "! Onde precisa ir?"
               });
+
+              clearIntervalAsync(timer);
             
             }
 
+            {/* 
             if (!this.state.run_finished) {
               clearIntervalAsync(timer);
               this.setState({
@@ -729,16 +752,16 @@ console.log("Button "+this.state.buttonAddress);
                 run_started: false,
               });
             }
+            */}
 
-            */
-            }
+            
           }
 
           if (responseData.canceled_at != null) {
-            toastError(
-              "Corrida cancelada!\n\n Motivo: " +
-                responseData.cancel_explanation
-            );
+          //  toastError(
+          //    "Corrida cancelada!\n\n Motivo: " +
+          //      responseData.cancel_explanation
+          //  );
             console.log(
               "Corrida cancelada!\n\n Motivo: " +
                 responseData.cancel_explanation
@@ -776,7 +799,35 @@ console.log("Button "+this.state.buttonAddress);
               button_alter_address_destination: -15,
             }); 
 
+           // clearIntervalAsync(timer);
+
+
+
+           this.setState({
+             
+            modal_run_cancel: true,
+            modal_run_cancel_cont: this.state.modal_run_cancel_cont + 1,
+          });
+
+          console.log(
+            "Corrida finalizada!" + this.state.modal_run_cancel_cont
+          );
+
+          if (this.state.modal_run_cancel_cont > 5) {
+
+
+            this.setState({ 
+              modal_run_cancel: false,
+              run_cancel: true,
+              welcome_msg: "Olá " + this.getFirstName() + "! Onde precisa ir?"
+            });
+
             clearIntervalAsync(timer);
+          
+          }
+
+
+
           }
         })
         .catch(function (error) {
@@ -898,7 +949,7 @@ console.log("Button "+this.state.buttonAddress);
 
         if (responseData.accepted_at != null) {
           console.log("Corrida aceita!! Seguindo para checkin");
-          toastSucess("Corrida aceita!!\n Seguindo para checkin");
+        //  toastSucess("Corrida aceita!!\n Seguindo para checkin");
           this.setState({ timer: false, cancel_timer: 1, run_status: 2 });
 
           //salva os dados
@@ -1115,7 +1166,15 @@ console.log("Button "+this.state.buttonAddress);
   }
    
   
-
+  usermsg = () => {
+    if(!this.state.openBottomDrawer){
+      toastSucess("Puxe para cima para expandir!");
+      console.log("Puxe para cima para expandir!");
+          }else{
+            console.log("Puxe para baixo para fechar!");
+            toastSucess("Puxe para baixo para fechar!");
+          }
+  }
 
 
   renderContent = () => {
@@ -1127,6 +1186,7 @@ console.log("Button "+this.state.buttonAddress);
               ? "keyboard-arrow-up"
               : "keyboard-arrow-down"
           }
+          onPress={() => this.usermsg()}
           size={40}
           color="#FFF"
           
@@ -1159,18 +1219,7 @@ console.log("Button "+this.state.buttonAddress);
           </Text>
         )}
 
-        {/*     <Text
-            style={{
-              color: "#dcd074",
-              fontSize: 18,
-              fontWeight: "bold",
-              top: 35,
-              left: -10
-              
-            }}
-          >
-            Origem
-          </Text> */}
+       
         <TextInput
           value={"" + this.state.origem}
           onTouchStart={() => this.googleSearch(0)}
@@ -1298,7 +1347,7 @@ console.log("Button "+this.state.buttonAddress);
             style={{
               marginTop: 80,
               borderRadius: 0,
-              width: "100%",
+              width: "100%", 
               marginLeft: -5,
             }}
           >
@@ -1973,10 +2022,43 @@ console.log("Button "+this.state.buttonAddress);
           onPress={() => this.setState({ point: region })}
         />
 
+
+{/** Modal apresentado quando a corrida é aceita pelo motorista */}
         <Modal
           animationType="slide"
           transparent={true}
-          visible={this.state.modal_run_started}
+          visible={this.state.modal_run_accept}
+        >
+          <ImageBackground
+            source={require("../../images/image_fundo.png")}
+            style={{
+              alignContent: "center",
+              alignItems: "center",
+              flex: 1,
+              resizeMode: "cover",
+              justifyContent: "center",
+            }}
+          >
+            <Text style={{ color: "#FFF", fontSize: 30, marginBottom: 10, alignSelf: "center", fontWeight: "bold", }}>
+              CORRIDA ACEITA 
+              
+            </Text>
+            <Text style={{ color: "#FFF", fontSize: 25, marginBottom: 10, fontWeight: "bold", marginTop:10, marginLeft:10, marginRight: 10, alignSelf: "center" }}>
+              Se dirija ao ponto de origem da corrida.
+              
+            </Text>
+
+            <Image
+              source={require("../../images/icon_ok.png")}
+              style={{ width: 150, height: 125, marginTop: 70 }}
+            />
+          </ImageBackground>
+        </Modal>
+
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={this.state.modal_run_started} 
         >
           <ImageBackground
             source={require("../../images/image_fundo.png")}
@@ -2002,33 +2084,7 @@ console.log("Button "+this.state.buttonAddress);
         <Modal
           animationType="slide"
           transparent={true}
-          visible={this.state.modal_run_started}
-        >
-          <ImageBackground
-            source={require("../../images/image_fundo.png")}
-            style={{
-              alignContent: "center",
-              alignItems: "center",
-              flex: 1,
-              resizeMode: "cover",
-              justifyContent: "center",
-            }}
-          >
-            <Text style={{ color: "#FFF", fontSize: 30, marginBottom: 10 }}>
-              CORRIDA INICIADA
-            </Text>
-
-            <Image
-              source={require("../../images/icon_ok.png")}
-              style={{ width: 150, height: 125, marginTop: 70 }}
-            />
-          </ImageBackground>
-        </Modal>
-
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={this.state.modal_run_finsih}
+          visible={this.state.modal_run_finish}
         >
           <ImageBackground
             source={require("../../images/image_fundo.png")}
@@ -2051,7 +2107,9 @@ console.log("Button "+this.state.buttonAddress);
           </ImageBackground>
         </Modal>
 
-        <Modal animationType="slide" transparent={true} visible={false}>
+        <Modal animationType="slide" 
+        transparent={true}
+         visible={this.state.modal_run_cancel}>
           <ImageBackground
             source={require("../../images/image_fundo.png")}
             style={{
@@ -2079,6 +2137,8 @@ console.log("Button "+this.state.buttonAddress);
         
           visible={this.state.search_adress}
         >
+          <View   style={{ backgroundColor: "#307597", flex: 1}}>
+
           {this.state.buttonAddress === 0 ? (
             <Search
               onLocationOriginSelected={this.handleLocationOrigSelected}
@@ -2094,6 +2154,9 @@ console.log("Button "+this.state.buttonAddress);
               icon={this.closeSearchGoogle}
             />
           )}
+
+</View>
+
         </Modal>
 
         <Modal
@@ -2139,6 +2202,8 @@ console.log("Button "+this.state.buttonAddress);
           onCollapsed={this.closeBottomDrawer}
           downDisplay={240}
           startUp={false}
+          offset={-15}
+          
         >
           {this.renderContent()}
         </BottomDrawer>
@@ -2160,14 +2225,14 @@ console.log("Button "+this.state.buttonAddress);
 
   openBottomDrawer = () => {
     
-  
+    
 
     console.log("Abriu!!");
 
     this.setState({
       show_welcome_msg: false,
       openBottomDrawer: true,
-      full_dim: 325,
+      full_dim: 325
     });
 
     if (
