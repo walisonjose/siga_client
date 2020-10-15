@@ -4,11 +4,11 @@
     "slug": "ubersiga",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/siga_icon.png",
+    "icon": "./assets/ic_siga_client2-web.png",
     "splash": {
     
-      "image": "./assets/apa.png", 
-      "resizeMode": "contain",
+      "image": "./assets/logomarca_rodape.png", 
+      "resizeMode": "contain", 
       "backgroundColor": "#ffffff"
     },
     "android": {
