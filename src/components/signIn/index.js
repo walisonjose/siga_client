@@ -126,7 +126,7 @@ class SignIn extends Component {
         this.props.navigation.navigate("Map");
       }).catch(err => { 
           
-        toastError("Ops! Login ou senha inválidos!");
+        toastError("Login ou senha inválidos!");
 
         this.setState({ loading: false});
           

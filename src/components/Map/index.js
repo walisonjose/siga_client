@@ -486,7 +486,7 @@ console.log("Button "+this.state.buttonAddress);
         }
       })
       .catch(function (error) {
-        console.log("Ops! Login ou senha inválidos!");
+        console.log("Login ou senha inválidos!"); 
       });
   };
 
@@ -1248,7 +1248,7 @@ if(this.state.modal_run_accept_cont > 5){
 
             width: 40,
             top: this.state.top_origin_icon,
-            left: -145,
+            left: Platform.OS === 'ios' ? -175 : -145,
           }}
         />
 
@@ -1258,7 +1258,7 @@ if(this.state.modal_run_accept_cont > 5){
             borderRadius: 0,
             width: "25%",
             height: "15%",
-            marginLeft: 265,
+            marginLeft: Platform.OS === 'ios' ? 305 : 265,
           }}
         >
           <ButtonText
@@ -1307,7 +1307,7 @@ if(this.state.modal_run_accept_cont > 5){
             width: 40,
             marginTop: 10,
             top: this.state.top_destination_icon,
-            left: -145,
+            left: Platform.OS === 'ios' ? -175 : -145,
           }}
         />
 
@@ -1317,11 +1317,11 @@ if(this.state.modal_run_accept_cont > 5){
             borderRadius: 0,
             width: "25%",
             height: "15%",
-            marginLeft: 265,
+            marginLeft: Platform.OS === 'ios' ? 305 : 265,
           }}
         >
           <ButtonText
-            style={{ color: "#307597", textAlign: "center", bottom: 5 }}
+            style={{ color: "#307597", textAlign: "center", bottom: Platform.OS === 'ios' ? 5 : 5 }}
           >
             Alterar
           </ButtonText>
