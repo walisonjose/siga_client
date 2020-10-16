@@ -164,11 +164,11 @@ export const Button = styled.TouchableHighlight`
   padding: 20px;
   borderRadius: 15px;
   backgroundColor: #EEDD82;
-  alignSelf: stretch;
+  alignSelf:    strech
   margin: 15px;
   left: 8px;
   marginHorizontal: 20px;
-  marginTop: 45px
+  marginTop: 35px
 `;
 
 export const ButtonText = styled.Text`

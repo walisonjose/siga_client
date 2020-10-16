@@ -271,13 +271,13 @@ class Map extends Component {
 
     top_origin_label: 75,
     top_origin_textinput: 95,
-    top_origin_icon: 60,
+    top_origin_icon: 55,
     button_alter_address_origin: 25,
 
     top_destination_label: 40,
     top_destination_textinput: 65,
-    top_destination_icon: 20,
-    button_alter_address_destination: -15,
+    top_destination_icon: 25,
+    button_alter_address_destination: -5,
 
     msg_duration: null,
   };
@@ -1250,8 +1250,9 @@ if(this.state.modal_run_accept_cont > 5){
             height: 45,
 
             width: 40,
-            top: this.state.top_origin_icon,
-            left: Platform.OS === 'ios' ? -175 : -145,
+            top: normalize(Platform.OS === 'ios' ? this.state.top_origin_icon : this.state.top_origin_icon+10),
+            left: normalize(Platform.OS === 'ios' ? -165 : -155),
+            position: "relative",
           }}
         />
 
@@ -1261,7 +1262,13 @@ if(this.state.modal_run_accept_cont > 5){
             borderRadius: 0,
             width: "25%",
             height: "15%",
-            marginLeft: Platform.OS === 'ios' ? 305 : 265,
+             
+           
+            //right: 10,
+
+            marginLeft: normalize(275)
+            
+            
           }}
         >
           <ButtonText
@@ -1308,19 +1315,21 @@ if(this.state.modal_run_accept_cont > 5){
             resizeMode: "cover",
             height: 45,
             width: 40,
-            marginTop: 10,
-            top: this.state.top_destination_icon,
-            left: Platform.OS === 'ios' ? -175 : -145,
+            
+            position: "relative",
+            top: normalize(Platform.OS === 'ios' ? this.state.top_destination_icon : this.state.top_destination_icon  +5),
+            left: normalize(Platform.OS === 'ios' ? -160 : -155),
           }}
         />
 
         <Button
           style={{
-            marginTop: this.state.button_alter_address_destination,
+            marginTop: normalize(this.state.button_alter_address_destination),
             borderRadius: 0,
             width: "25%",
-            height: "15%",
-            marginLeft: Platform.OS === 'ios' ? 305 : 265,
+            height: normalize(Platform.OS === 'ios' ? 40 : 55, 'height'),
+            marginLeft: normalize(275),
+
           }}
         >
           <ButtonText
