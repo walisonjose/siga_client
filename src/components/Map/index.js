@@ -123,6 +123,9 @@ const {
 } = require("set-interval-async/dynamic");
 
 
+import normalize from 'react-native-normalize';
+
+
 const AnimatedView = Animated.View
 
 /* Configuração do Toast*/
@@ -1190,7 +1193,7 @@ if(this.state.modal_run_accept_cont > 5){
           size={40}
           color="#FFF"
           
-          style={{ top: 10, left: -5 }}
+          style={{ top: 10, left: -5, bottom: 5, position: "relative" }}
         />
         {this.state.show_welcome_msg ? (
           <Text
@@ -2000,9 +2003,10 @@ if(this.state.modal_run_accept_cont > 5){
           animated={true}
           size={40}
           style={{
-            top: Platform.OS === "ios" ? ((Dimensions.get('window').height -20)* -1) : ((Dimensions.get('window').height -20)* -1),
+            top: 10,
             left: 10,
             backgroundColor: "#B2BF86",
+            position: "absolute"
           }}
           onPress={() =>
             this.props.navigation.dispatch(DrawerActions.openDrawer())
@@ -2015,9 +2019,11 @@ if(this.state.modal_run_accept_cont > 5){
           animated={true}
           size={40}
           style={{
-            top: Platform.OS === "ios" ? ((Dimensions.get('window').height +50)* -1) : ((Dimensions.get('window').height +60)* -1),
-            left: 280,
+            
+            top: 10,
+            right: 10,
             backgroundColor: "#B2BF86",
+            position: "absolute"
           }}
           onPress={() => this.setState({ point: region })}
         />
