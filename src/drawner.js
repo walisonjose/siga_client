@@ -19,7 +19,7 @@ import Search from './components/Search/index';
 import Menu from './components/Menu/index';
 import driverDetails from './components/Map/driverDetails';
 
-
+import Voice from './components/Voice/Voice';
 
 
 const Tab = createStackNavigator();
@@ -139,8 +139,10 @@ const Drawer = createDrawerNavigator(
 
 function Root() { 
   return (
-    <Stack.Navigator initialRouteName='Login'  >  
-      <Stack.Screen name="Map" component={Map}  options={{headerShown: false}} />
+    <Stack.Navigator initialRouteName='Login'  >   
+
+<Stack.Screen name="Voice" component={Voice}  options={{headerShown: false}} />
+  <Stack.Screen name="Map" component={Map}  options={{headerShown: false}} />
       <Stack.Screen name="Timer" component={Timer}  options={{headerShown: false}} />
       <Stack.Screen name="Login" component={formLogin} options={{headerShown: false}} />
       <Stack.Screen name="Search" component={Search} options={{headerShown: false,   title: ''  , headerTransparent: true, headerStyle: {

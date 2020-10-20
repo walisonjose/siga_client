@@ -164,7 +164,7 @@ export const Button = styled.TouchableHighlight`
   padding: 20px;
   borderRadius: 15px;
   backgroundColor: #EEDD82;
-  alignSelf:    strech
+  alignSelf:    stretch
   margin: 15px;
   left: 8px;
   marginHorizontal: 20px;

@@ -1,8 +1,7 @@
 import React, { Component, Fragment, useState, useEffect } from "react";
 import {
   View,
- 
-  Platform, 
+  Platform,
   Modal,
   Image,
   Text,
@@ -15,7 +14,7 @@ import {
   ScrollView,
   TextInput,
   PermissionsAndroid,
-  Alert
+  Alert,
 } from "react-native";
 import MapView, { Marker, Callout, AnimatedRegion } from "react-native-maps";
 
@@ -59,8 +58,8 @@ import backImage from "../../assets/back.png";
 
 import DrawnerMenu from "../../drawner.js";
 
-import Animated from 'react-native-reanimated';
-import BottomSheet from 'reanimated-bottom-sheet';
+import Animated from "react-native-reanimated";
+import BottomSheet from "reanimated-bottom-sheet";
 
 import { NavigationContainer, DrawerActions } from "@react-navigation/native";
 import {
@@ -76,7 +75,6 @@ import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplet
 import { connect } from "react-redux";
 
 import {
-  
   Back,
   LocationBox,
   LocationText,
@@ -99,8 +97,6 @@ import {
   ButtonText,
 } from "./styles";
 
-
-
 console.disableYellowBox = true;
 
 import Toast from "react-native-tiny-toast";
@@ -122,11 +118,7 @@ const {
   clearIntervalAsync,
 } = require("set-interval-async/dynamic");
 
-
-import normalize from 'react-native-normalize';
-
-
-const AnimatedView = Animated.View
+import normalize from "react-native-normalize";
 
 /* Configuração do Toast*/
 
@@ -134,7 +126,7 @@ const toastError = (msg) =>
   Toast.show(msg, {
     position: Toast.position.center,
     containerStyle: {
-      backgroundColor: "#cc0000", 
+      backgroundColor: "#cc0000",
       borderRadius: 15,
     },
     textStyle: {
@@ -165,6 +157,11 @@ const toastSucess = (msg) =>
   });
 
 class Map extends Component {
+  constructor(props) {
+    super(props);
+    this.spinValue = new Animated.Value(0);
+  }
+
   static navigationOptions = {
     headerShown: false,
   };
@@ -219,6 +216,8 @@ class Map extends Component {
     1 - Aceita; 2 - Iniciada; 3 - Finalizada; 4 - Cancelada;
     */,
 
+    show_route_origin_destination: true,
+
     /* modal de início da corrida */
     modal_run_started: false,
     modal_run_started_cont: 0,
@@ -226,7 +225,7 @@ class Map extends Component {
     modal_run_cancel: false,
     modal_run_cancel_cont: 0,
 
-    modal_run_finish: false, 
+    modal_run_finish: false,
     modal_run_finish_cont: 0,
 
     /*estado aguardando check-in*/
@@ -320,15 +319,13 @@ class Map extends Component {
 
   /*Métodos que salvas as coordenadas já definidas em um corrida em andamento.*/
 
-
-  deleteDataRun = async () => { 
+  deleteDataRun = async () => {
     try {
-      await AsyncStorage.removeItem("@rundata")
+      await AsyncStorage.removeItem("@rundata");
     } catch (err) {
-      console.log(`The error is: ${err}`)
+      console.log(`The error is: ${err}`);
     }
-  }
-
+  };
 
   storeDataRun = async (value) => {
     try {
@@ -361,51 +358,48 @@ class Map extends Component {
     try {
       const jsonValue = await AsyncStorage.getItem("@rundata");
 
-      if(jsonValue){
-console.log("Button "+this.state.buttonAddress);
-     
-       const { run } = JSON.parse(jsonValue);
+      if (jsonValue) {
+        console.log("Button " + this.state.buttonAddress);
 
-       console.log("Dados -> " + run.id);
+        const { run } = JSON.parse(jsonValue);
+
+        console.log("Dados -> " + run.id);
 
         this.setState({
-        origin: {
-          latitude: parseFloat(run.origem.lat),
-          longitude: parseFloat(run.origem.long),
-          latitudeDelta: 0.0491,
-          longitudeDelta: 0.0375,
-        },
-      
-      });
-      //if(this.state.short_origin === null){
+          origin: {
+            latitude: parseFloat(run.origem.lat),
+            longitude: parseFloat(run.origem.long),
+            latitudeDelta: 0.0491,
+            longitudeDelta: 0.0375,
+          },
+        });
+        //if(this.state.short_origin === null){
         this.getAddress(this.state.origin);
-     
-     // this.getAddress(this.state.origin);
-      console.log("Button "+this.state.buttonAddress);
-      this.setState({
-        destination: {
-          latitude: parseFloat(run.destination.lat),
-          longitude: parseFloat(run.destination.long),
-          latitudeDelta: 0.0491,
-          longitudeDelta: 0.0375,
-          buttonAddress: 0,
-        },
-      });
-     // if(this.state.short_destination === null){
+
+        // this.getAddress(this.state.origin);
+        console.log("Button " + this.state.buttonAddress);
+        this.setState({
+          destination: {
+            latitude: parseFloat(run.destination.lat),
+            longitude: parseFloat(run.destination.long),
+            latitudeDelta: 0.0491,
+            longitudeDelta: 0.0375,
+            buttonAddress: 0,
+          },
+        });
+        // if(this.state.short_destination === null){
         this.getAddress(this.state.destination);
-    //  }
+        //  }
 
-      //this.getAddress(this.state.destination);
-      //  this.setState({ buttonAddress: 0 });
-      
+        //this.getAddress(this.state.destination);
+        //  this.setState({ buttonAddress: 0 });
 
-      this.setState({ id_run: run.id });
+        this.setState({ id_run: run.id });
 
-      console.log("Dados -> " + run.id);
+        console.log("Dados -> " + run.id);
 
-      this.getDataRun();
-      
-    }
+        this.getDataRun();
+      }
 
       return "Dados carregados";
 
@@ -443,17 +437,21 @@ console.log("Button "+this.state.buttonAddress);
             point: coordinate,
             short_origin:
               response.data.results[0].address_components[1].short_name,
-              buttonAddress: 1,
+            buttonAddress: 1,
           });
 
           //this.mapView.animateToRegion(this.state.origin, 1000);
-
+          {
+            /* 
           this.mapView.animateCamera({
             center: {
               latitude: this.state.origin.latitude,
               longitude: this.state.origin.longitude,
             },
-          });
+          }); */
+          }
+
+          this.mapView.animateToRegion(this.state.region, 200);
         } else {
           this.setState({
             destino: response.data.results[0].formatted_address,
@@ -461,7 +459,7 @@ console.log("Button "+this.state.buttonAddress);
             point: coordinate,
             short_destination:
               response.data.results[0].address_components[1].short_name,
-            run_status: 1,
+            run_status: this.state.origin.latitude != 0 ? 2 : 1,
             buttonAddress: 0,
 
             /*Ajustando o Bootom Drawner
@@ -485,11 +483,11 @@ console.log("Button "+this.state.buttonAddress);
             },
           });
 
-          this.marker.showCallout();
+          // this.marker.showCallout();
         }
       })
       .catch(function (error) {
-        console.log("Login ou senha inválidos!"); 
+        console.log("Login ou senha inválidos!");
       });
   };
 
@@ -628,27 +626,25 @@ console.log("Button "+this.state.buttonAddress);
             const { driver } = responseData;
 
             console.log("Motorista-> " + driver.name);
-            this.setState({ driver: driver, run_wait_checkin: 1, run_status: 1 });
+            this.setState({
+              driver: driver,
+              run_wait_checkin: 1,
+              run_status: 1,
+            });
 
             this.getDriverLocation();
 
+            this.setState({
+              modal_run_accept: true,
+              welcome_msg: "Se dirija ao ponto de partida  da corrida.",
+              modal_run_accept_cont: this.state.modal_run_accept_cont + 1,
+            });
 
-this.setState({
-  modal_run_accept: true,
-  welcome_msg: "Se dirija ao ponto de partida  da corrida.",
-  modal_run_accept_cont: this.state.modal_run_accept_cont + 1,
-});
-
-if(this.state.modal_run_accept_cont > 5){
-  this.setState({
-    modal_run_accept: false,
-    
-  });
-}
-
-
-
-
+            if (this.state.modal_run_accept_cont > 5) {
+              this.setState({
+                modal_run_accept: false,
+              });
+            }
           }
 
           if (
@@ -656,10 +652,9 @@ if(this.state.modal_run_accept_cont > 5){
             responseData.finished_at === null &&
             responseData.canceled_at === null
           ) {
-
             this.setState({
-              run_status: 2, 
-              welcome_msg: "Sua viagem começou!"
+              run_status: 2,
+              welcome_msg: "Sua viagem começou!",
             });
 
             console.log("Corrida iniciada!");
@@ -684,15 +679,16 @@ if(this.state.modal_run_accept_cont > 5){
               this.setState({
                 run_started: true,
                 modal_run_started: false,
+                point: this.state.region,
               });
             }
           }
           if (responseData.finished_at != null) {
             console.log("-> " + this.state.modal_run_finsih_cont);
 
-   this.deleteDataRun();
+            this.deleteDataRun();
 
-           // toastSucess("Corrida finalizada com sucesso!");
+            // toastSucess("Corrida finalizada com sucesso!");
 
             this.setState({
               destination: { latitude: 0, longitude: 0 },
@@ -721,11 +717,9 @@ if(this.state.modal_run_accept_cont > 5){
               button_alter_address_destination: -15,
             });
 
-          //  clearIntervalAsync(timer);
+            //  clearIntervalAsync(timer);
 
-            
             this.setState({
-             
               modal_run_finish: true,
               modal_run_finish_cont: this.state.modal_run_finish_cont + 1,
             });
@@ -735,19 +729,18 @@ if(this.state.modal_run_accept_cont > 5){
             );
 
             if (this.state.modal_run_finish_cont > 5) {
-
-
-              this.setState({ 
+              this.setState({
                 modal_run_finish: false,
                 run_finished: true,
-                welcome_msg: "Olá " + this.getFirstName() + "! Onde precisa ir?"
+                welcome_msg:
+                  "Olá " + this.getFirstName() + "! Onde precisa ir?",
               });
 
               clearIntervalAsync(timer);
-            
             }
 
-            {/* 
+            {
+              /* 
             if (!this.state.run_finished) {
               clearIntervalAsync(timer);
               this.setState({
@@ -755,23 +748,21 @@ if(this.state.modal_run_accept_cont > 5){
                 run_started: false,
               });
             }
-            */}
-
-            
+            */
+            }
           }
 
           if (responseData.canceled_at != null) {
-          //  toastError(
-          //    "Corrida cancelada!\n\n Motivo: " +
-          //      responseData.cancel_explanation
-          //  );
+            //  toastError(
+            //    "Corrida cancelada!\n\n Motivo: " +
+            //      responseData.cancel_explanation
+            //  );
             console.log(
               "Corrida cancelada!\n\n Motivo: " +
                 responseData.cancel_explanation
             );
 
             this.deleteDataRun();
-
 
             this.setState({ run_wait_checkin: 0, run_status: 4 });
 
@@ -800,37 +791,30 @@ if(this.state.modal_run_accept_cont > 5){
               top_destination_textinput: 65,
               top_destination_icon: 20,
               button_alter_address_destination: -15,
-            }); 
-
-           // clearIntervalAsync(timer);
-
-
-
-           this.setState({
-             
-            modal_run_cancel: true,
-            modal_run_cancel_cont: this.state.modal_run_cancel_cont + 1,
-          });
-
-          console.log(
-            "Corrida finalizada!" + this.state.modal_run_cancel_cont
-          );
-
-          if (this.state.modal_run_cancel_cont > 5) {
-
-
-            this.setState({ 
-              modal_run_cancel: false,
-              run_cancel: true,
-              welcome_msg: "Olá " + this.getFirstName() + "! Onde precisa ir?"
             });
 
-            clearIntervalAsync(timer);
-          
-          }
+            // clearIntervalAsync(timer);
 
+            this.setState({
+              modal_run_cancel: true,
+              modal_run_cancel_cont: this.state.modal_run_cancel_cont + 1,
+            });
 
+            console.log(
+              "Corrida finalizada!" + this.state.modal_run_cancel_cont
+            );
 
+            if (this.state.modal_run_cancel_cont > 5) {
+              this.setState({
+                modal_run_cancel: false,
+                run_cancel: true,
+                welcome_msg:
+                  "Olá " + this.getFirstName() + "! Onde precisa ir?",
+                point: this.state.region,
+              });
+
+              clearIntervalAsync(timer);
+            }
           }
         })
         .catch(function (error) {
@@ -952,8 +936,13 @@ if(this.state.modal_run_accept_cont > 5){
 
         if (responseData.accepted_at != null) {
           console.log("Corrida aceita!! Seguindo para checkin");
-        //  toastSucess("Corrida aceita!!\n Seguindo para checkin");
-          this.setState({ timer: false, cancel_timer: 1, run_status: 2 });
+          //  toastSucess("Corrida aceita!!\n Seguindo para checkin");
+          this.setState({
+            timer: false,
+            cancel_timer: 1,
+            run_status: 2,
+            show_route_origin_destination: false,
+          });
 
           //salva os dados
           this.storeDataRun();
@@ -966,45 +955,42 @@ if(this.state.modal_run_accept_cont > 5){
           responseData.canceled_at != null
         ) {
           this.setState({
-             timer: false, 
+            timer: false,
             cancel_timer: 1,
 
             destination: { latitude: 0, longitude: 0 },
-              origin: { latitude: 0, longitude: 0 },
-              duration: null,
-              location: null,
-              origem: "",
-              short_origin: null,
-              destino: "",
-              short_destination: null,
-              search_adress: false,
-              run_wait_checkin: 0,
-              buttonAddress: 0,
-              run_status: 3,
-              run_started: false,
+            origin: { latitude: 0, longitude: 0 },
+            duration: null,
+            location: null,
+            origem: "",
+            short_origin: null,
+            destino: "",
+            short_destination: null,
+            search_adress: false,
+            run_wait_checkin: 0,
+            buttonAddress: 0,
+            run_status: 3,
+            run_started: false,
 
-              top_origin_label: 75,
-              top_origin_textinput: 95,
-              top_origin_icon: 60,
-              button_alter_address_origin: 25,
-              duration: 0,
+            top_origin_label: 75,
+            top_origin_textinput: 95,
+            top_origin_icon: 60,
+            button_alter_address_origin: 25,
+            duration: 0,
 
-              top_destination_label: 40,
-              top_destination_textinput: 65,
-              top_destination_icon: 20,
-              button_alter_address_destination: -15,
-          
+            top_destination_label: 40,
+            top_destination_textinput: 65,
+            top_destination_icon: 20,
+            button_alter_address_destination: -10,
           });
 
-          toastError( "Corrida cancelada.\n Motivo: " + responseData.cancel_explanation);
-          
+          toastError(
+            "Corrida cancelada.\n Motivo: " + responseData.cancel_explanation
+          );
+
           console.log(
             "Corrida cancelada. Motivo: " + responseData.cancel_explanation
           );
-
-
-
-          
         }
       })
       .catch(function (error) {
@@ -1146,39 +1132,29 @@ if(this.state.modal_run_accept_cont > 5){
     }
   };
 
-
-   
-
   renderContent2 = () => {
     return (
       <View
-      style={{
-        backgroundColor: 'white',
-        padding: 16,
-        height: 450,
-      }} 
-    >
-      <Text>Swipe down to close</Text>
-
-
-     
-     
-
-    </View>
+        style={{
+          backgroundColor: "white",
+          padding: 16,
+          height: 450,
+        }}
+      >
+        <Text>Swipe down to close</Text>
+      </View>
     );
-  }
-   
-  
+  };
+
   usermsg = () => {
-    if(!this.state.openBottomDrawer){
+    if (!this.state.openBottomDrawer) {
       toastSucess("Puxe para cima para expandir!");
       console.log("Puxe para cima para expandir!");
-          }else{
-            console.log("Puxe para baixo para fechar!");
-            toastSucess("Puxe para baixo para fechar!");
-          }
-  }
-
+    } else {
+      console.log("Puxe para baixo para fechar!");
+      toastSucess("Puxe para baixo para fechar!");
+    }
+  };
 
   renderContent = () => {
     return (
@@ -1192,7 +1168,6 @@ if(this.state.modal_run_accept_cont > 5){
           onPress={() => this.usermsg()}
           size={40}
           color="#FFF"
-          
           style={{ top: 10, left: -5, bottom: 5, position: "relative" }}
         />
         {this.state.show_welcome_msg ? (
@@ -1222,7 +1197,6 @@ if(this.state.modal_run_accept_cont > 5){
           </Text>
         )}
 
-       
         <TextInput
           value={"" + this.state.origem}
           onTouchStart={() => this.googleSearch(0)}
@@ -1250,8 +1224,12 @@ if(this.state.modal_run_accept_cont > 5){
             height: 45,
 
             width: 40,
-            top: normalize(Platform.OS === 'ios' ? this.state.top_origin_icon : this.state.top_origin_icon+10),
-            left: normalize(Platform.OS === 'ios' ? -165 : -155),
+            top: normalize(
+              Platform.OS === "ios"
+                ? this.state.top_origin_icon
+                : this.state.top_origin_icon + 10
+            ),
+            left: normalize(Platform.OS === "ios" ? -165 : -155),
             position: "relative",
           }}
         />
@@ -1262,13 +1240,10 @@ if(this.state.modal_run_accept_cont > 5){
             borderRadius: 0,
             width: "25%",
             height: "15%",
-             
-           
+
             //right: 10,
 
-            marginLeft: normalize(275)
-            
-            
+            marginLeft: normalize(275),
           }}
         >
           <ButtonText
@@ -1315,10 +1290,14 @@ if(this.state.modal_run_accept_cont > 5){
             resizeMode: "cover",
             height: 45,
             width: 40,
-            
+
             position: "relative",
-            top: normalize(Platform.OS === 'ios' ? this.state.top_destination_icon : this.state.top_destination_icon  +5),
-            left: normalize(Platform.OS === 'ios' ? -160 : -155),
+            top: normalize(
+              Platform.OS === "ios"
+                ? this.state.top_destination_icon
+                : this.state.top_destination_icon + 5
+            ),
+            left: normalize(Platform.OS === "ios" ? -160 : -155),
           }}
         />
 
@@ -1327,13 +1306,16 @@ if(this.state.modal_run_accept_cont > 5){
             marginTop: normalize(this.state.button_alter_address_destination),
             borderRadius: 0,
             width: "25%",
-            height: normalize(Platform.OS === 'ios' ? 40 : 55, 'height'),
+            height: normalize(Platform.OS === "ios" ? 40 : 55, "height"),
             marginLeft: normalize(275),
-
           }}
         >
           <ButtonText
-            style={{ color: "#307597", textAlign: "center", bottom: Platform.OS === 'ios' ? 5 : 5 }}
+            style={{
+              color: "#307597",
+              textAlign: "center",
+              bottom: Platform.OS === "ios" ? 5 : 5,
+            }}
           >
             Alterar
           </ButtonText>
@@ -1359,7 +1341,7 @@ if(this.state.modal_run_accept_cont > 5){
             style={{
               marginTop: 80,
               borderRadius: 0,
-              width: "100%", 
+              width: "100%",
               marginLeft: -5,
             }}
           >
@@ -1521,10 +1503,10 @@ if(this.state.modal_run_accept_cont > 5){
     const welcome_msg = "Olá " + this.getFirstName() + "! Onde precisa ir?";
     this.setState({ welcome_msg: welcome_msg });
 
-   // this.deleteDataRun();
+    // this.deleteDataRun();
 
     // this.storeDataRun();
-     this.getDataSync();
+    this.getDataSync();
 
     //const {id}   = this.getDataSync();
 
@@ -1561,14 +1543,33 @@ if(this.state.modal_run_accept_cont > 5){
         (position) => {
           const { latitude, longitude } = position.coords;
 
-          this.setState({
-            region: {
-              latitude,
-              longitude,
-              latitudeDelta: 0.0143,
-              longitudeDelta: 0.0134,
-            },
-          });
+          if (this.state.origin.latitude === 0) {
+            this.setState({
+              region: {
+                latitude,
+                longitude,
+                latitudeDelta: 0.0143,
+                longitudeDelta: 0.0134,
+              },
+              origin: {
+                latitude,
+                longitude,
+                latitudeDelta: 0.0143,
+                longitudeDelta: 0.0134,
+              },
+            });
+            this.getAddress(this.state.origin);
+          } else {
+            this.setState({
+              region: {
+                latitude,
+                longitude,
+                latitudeDelta: 0.0143,
+                longitudeDelta: 0.0134,
+              },
+            });
+          }
+
           // this.getAddress(this.state.region);
 
           console.log(" Coordenadas: " + position.coords.latitude);
@@ -1601,14 +1602,11 @@ if(this.state.modal_run_accept_cont > 5){
           prevLatLng: newCoordinate
         }); */
         },
-        (error) => {console.log(error); 
-          toastError(
-            "A permissão da localização deve ser concedida."
-        
-          );
-              
+        (error) => {
+          console.log(error);
+          toastError("A permissão da localização deve ser concedida.");
         },
-        
+
         {
           enableHighAccuracy: true,
           timeout: 20000,
@@ -1617,9 +1615,7 @@ if(this.state.modal_run_accept_cont > 5){
         }
       );
     } else {
-      toastError(
-        "A permissão da localização deve ser concedida."
-      );
+      toastError("A permissão da localização deve ser concedida.");
     }
   }
 
@@ -1702,6 +1698,13 @@ if(this.state.modal_run_accept_cont > 5){
     const coord = {
       latitude: coordinates.latitude,
       longitude: coordinates.longitude,
+
+      /*
+
+      latitudeDelta: 0.0143,
+      longitudeDelta: 0.0134,*/
+
+
       latitudeDelta: 0.0491,
       longitudeDelta: 0.0375,
     };
@@ -1738,13 +1741,17 @@ if(this.state.modal_run_accept_cont > 5){
     const { region, destination, location, duration, origin } = this.state;
 
     return (
-
-      
-       <View style={{ flex: 1 }}>  
+      <View style={{ flex: 1 }}>
         <MapView
           style={styles.map}
-          region={this.state.point}
-          showsUserLocation={true}
+          region={
+            (this.state.point,
+            {
+              latitudeDelta: 0.122,
+              longitudeDelta: 0.121,
+            })
+          }
+          showsUserLocation={false}
           loadingEnabled={true}
           zoomEnabled={true}
           scrollEnabled={true}
@@ -1795,7 +1802,6 @@ if(this.state.modal_run_accept_cont > 5){
                 }}
                 ref={(_marker) => {
                   this.marker = _marker;
-               
                 }}
               >
                 <Image
@@ -1889,7 +1895,7 @@ if(this.state.modal_run_accept_cont > 5){
             </MapView.Marker>
           ) : null}
 
-          {this.state.run_status === 2  ? ( 
+          {this.state.run_status === 2 && this.state.show_route_origin_destination === false ? (
             <Fragment>
               <Directions
                 origin={region}
@@ -1910,8 +1916,8 @@ if(this.state.modal_run_accept_cont > 5){
             </Fragment>
           ) : null}
 
-          {/*this.state.destination && this.state.run_wait_checkin === 0  */}
-          {this.state.run_wait_checkin === 0 && this.state.run_status === 1  ? (
+          {/*this.state.run_wait_checkin === 0 && this.state.run_status === 1  ? (*/}
+          {this.state.show_route_origin_destination ? (
             <Fragment>
               <Directions
                 origin={origin}
@@ -2015,7 +2021,7 @@ if(this.state.modal_run_accept_cont > 5){
             top: 10,
             left: 10,
             backgroundColor: "#B2BF86",
-            position: "absolute"
+            position: "absolute",
           }}
           onPress={() =>
             this.props.navigation.dispatch(DrawerActions.openDrawer())
@@ -2028,17 +2034,17 @@ if(this.state.modal_run_accept_cont > 5){
           animated={true}
           size={40}
           style={{
-            
             top: 10,
-            right: 10,
+            right: 10, 
             backgroundColor: "#B2BF86",
-            position: "absolute"
+            position: "absolute",
           }}
-          onPress={() => this.setState({ point: region })}
+          onPress={() =>  this.mapView.animateToRegion(this.state.region, 1000)
+           
+            }
         />
 
-
-{/** Modal apresentado quando a corrida é aceita pelo motorista */}
+        {/** Modal apresentado quando a corrida é aceita pelo motorista */}
         <Modal
           animationType="slide"
           transparent={true}
@@ -2054,13 +2060,30 @@ if(this.state.modal_run_accept_cont > 5){
               justifyContent: "center",
             }}
           >
-            <Text style={{ color: "#FFF", fontSize: 30, marginBottom: 10, alignSelf: "center", fontWeight: "bold", }}>
-              CORRIDA ACEITA 
-              
+            <Text
+              style={{
+                color: "#FFF",
+                fontSize: 30,
+                marginBottom: 10,
+                alignSelf: "center",
+                fontWeight: "bold",
+              }}
+            >
+              CORRIDA ACEITA
             </Text>
-            <Text style={{ color: "#FFF", fontSize: 25, marginBottom: 10, fontWeight: "bold", marginTop:10, marginLeft:10, marginRight: 10, alignSelf: "center" }}>
+            <Text
+              style={{
+                color: "#FFF",
+                fontSize: 25,
+                marginBottom: 10,
+                fontWeight: "bold",
+                marginTop: 10,
+                marginLeft: 10,
+                marginRight: 10,
+                alignSelf: "center",
+              }}
+            >
               Se dirija ao ponto de origem da corrida.
-              
             </Text>
 
             <Image
@@ -2073,7 +2096,7 @@ if(this.state.modal_run_accept_cont > 5){
         <Modal
           animationType="slide"
           transparent={true}
-          visible={this.state.modal_run_started} 
+          visible={this.state.modal_run_started}
         >
           <ImageBackground
             source={require("../../images/image_fundo.png")}
@@ -2122,9 +2145,11 @@ if(this.state.modal_run_accept_cont > 5){
           </ImageBackground>
         </Modal>
 
-        <Modal animationType="slide" 
-        transparent={true}
-         visible={this.state.modal_run_cancel}>
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={this.state.modal_run_cancel}
+        >
           <ImageBackground
             source={require("../../images/image_fundo.png")}
             style={{
@@ -2149,29 +2174,25 @@ if(this.state.modal_run_accept_cont > 5){
         <Modal
           animationType="slide"
           transparent={false}
-        
           visible={this.state.search_adress}
         >
-          <View   style={{ backgroundColor: "#307597", flex: 1}}>
-
-          {this.state.buttonAddress === 0 ? (
-            <Search
-              onLocationOriginSelected={this.handleLocationOrigSelected}
-              placeholder={"Digite o endereço"}
-              type={0}
-              icon={this.closeSearchGoogle}
-            />
-          ) : (
-            <Search
-              onLocationSelected={this.handleLocationSelected}
-              placeholder={"Digite o endereço"}
-              type={1}
-              icon={this.closeSearchGoogle}
-            />
-          )}
-
-</View>
-
+          <View style={{ backgroundColor: "#307597", flex: 1 }}>
+            {this.state.buttonAddress === 0 ? (
+              <Search
+                onLocationOriginSelected={this.handleLocationOrigSelected}
+                placeholder={"Digite o endereço"}
+                type={0}
+                icon={this.closeSearchGoogle}
+              />
+            ) : (
+              <Search
+                onLocationSelected={this.handleLocationSelected}
+                placeholder={"Digite o endereço"}
+                type={1}
+                icon={this.closeSearchGoogle}
+              />
+            )}
+          </View>
         </Modal>
 
         <Modal
@@ -2181,7 +2202,7 @@ if(this.state.modal_run_accept_cont > 5){
         >
           <View style={styles.containertimer}>
             <Image
-              source={require("../../assets/logoaparecida.png")}
+              source={require("../../assets/logomarca_rodape.png")}
               style={{
                 width: Platform.OS === "ios" ? 220 : 220,
                 height: Platform.OS === "ios" ? 75 : 75,
@@ -2209,7 +2230,7 @@ if(this.state.modal_run_accept_cont > 5){
               <ButtonText>CANCELAR</ButtonText>
             </Button>
           </View>
-        </Modal> 
+        </Modal>
 
         <BottomDrawer
           containerHeight={this.state.full_dim}
@@ -2218,11 +2239,10 @@ if(this.state.modal_run_accept_cont > 5){
           downDisplay={240}
           startUp={false}
           offset={-15}
-          
         >
           {this.renderContent()}
         </BottomDrawer>
-      {/*   
+        {/*   
          <BottomSheet
         ref={(el) => (this.sheetRef = el)}
         snapPoints={[450, 300, 100]}
@@ -2230,24 +2250,17 @@ if(this.state.modal_run_accept_cont > 5){
         renderContent={this.renderContent2}
       />
 */}
-
-
-        
       </View>
-      
     );
   }
 
   openBottomDrawer = () => {
-    
-    
-
     console.log("Abriu!!");
 
     this.setState({
       show_welcome_msg: false,
       openBottomDrawer: true,
-      full_dim: 325
+      full_dim: 325,
     });
 
     if (
@@ -2269,8 +2282,8 @@ if(this.state.modal_run_accept_cont > 5){
 
         top_destination_label: 30,
         top_destination_textinput: 70,
-        top_destination_icon: 40,
-        button_alter_address_destination: 25,
+        top_destination_icon: 55,
+        button_alter_address_destination: 38, 
       });
     }
   };
@@ -2307,8 +2320,8 @@ export default connect(mapStateToProps)(Map);
 
 const styles = StyleSheet.create({
   map: {
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height,
+    width: Dimensions.get("window").width,
+    height: Dimensions.get("window").height,
   },
   logo: {
     marginTop: -730,

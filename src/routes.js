@@ -15,6 +15,8 @@ import Map from './components/Map/index';
 import Search from './components/Search/index';
 import Menu from './components/Menu/index';
 
+import Voice from './components/Voice/Voice';
+
 import driverDetails from './components/Map/driverDetails';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -70,6 +72,7 @@ const AppNavigator = createStackNavigator(
  
   {
      //Main: Main,
+     Voice: Voice,
      formLogin: formLogin,
      driverDetails: driverDetails,
      Menu: {
