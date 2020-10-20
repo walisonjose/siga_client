@@ -10,7 +10,6 @@ import {
   Dimensions,
   StyleSheet,
   TouchableOpacity,
-  TouchableHighlight,
   ScrollView,
   TextInput,
   PermissionsAndroid,
@@ -59,15 +58,10 @@ import backImage from "../../assets/back.png";
 import DrawnerMenu from "../../drawner.js";
 
 import Animated from "react-native-reanimated";
-import BottomSheet from "reanimated-bottom-sheet";
+import BottomSheet from 'reanimated-bottom-sheet'
 
 import { NavigationContainer, DrawerActions } from "@react-navigation/native";
-import {
-  createDrawerNavigator,
-  DrawerContentScrollView,
-  DrawerItemList,
-  DrawerItem,
-} from "@react-navigation/drawer";
+
 
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
@@ -120,6 +114,8 @@ const {
 
 import normalize from "react-native-normalize";
 
+import { TouchableHighlight } from 'react-native-gesture-handler'; 
+
 /* Configuração do Toast*/
 
 const toastError = (msg) =>
@@ -156,7 +152,10 @@ const toastSucess = (msg) =>
     animation: true,
   });
 
-class Map extends Component {
+ 
+
+ 
+  class Map extends Component {
   constructor(props) {
     super(props);
     this.spinValue = new Animated.Value(0);
@@ -268,12 +267,12 @@ class Map extends Component {
     top_destination_textinput:80,
     top_destination_icon:35 */
 
-    top_origin_label: 75,
-    top_origin_textinput: 95,
-    top_origin_icon: 55,
-    button_alter_address_origin: 25,
+    top_origin_label: 10,
+    top_origin_textinput: 30,
+    top_origin_icon: -35,
+    button_alter_address_origin: -125,
 
-    top_destination_label: 40,
+    top_destination_label: -10,
     top_destination_textinput: 65,
     top_destination_icon: 25,
     button_alter_address_destination: -5,
@@ -452,7 +451,8 @@ class Map extends Component {
           }
 
           this.mapView.animateToRegion(this.state.region, 200);
-        } else {
+        }
+         else {
           this.setState({
             destino: response.data.results[0].formatted_address,
             destination: coordinate,
@@ -1132,8 +1132,9 @@ class Map extends Component {
     }
   };
 
-  renderContent2 = () => {
-    return (
+
+
+  renderContent2 = () =>  (
       <View
         style={{
           backgroundColor: "white",
@@ -1142,9 +1143,23 @@ class Map extends Component {
         }}
       >
         <Text>Swipe down to close</Text>
+
+       
+     <TouchableHighlight onPress={() => { console.log("asdasd")}}>
+     <Text  >Abrir</Text>
+     </TouchableHighlight>
+     
+
+
+     
+     <TouchableHighlight onPress={() => { this.sheetRef.current.snapTo(1)}}>
+     <Text  >Fechar</Text>
+     </TouchableHighlight>
+   
+
       </View>
-    );
-  };
+    )
+  
 
   usermsg = () => {
     if (!this.state.openBottomDrawer) {
@@ -1156,28 +1171,33 @@ class Map extends Component {
     }
   };
 
+  
+
   renderContent = () => {
     return (
-      <View style={styles.contentContainer}>
+      <View style={{ backgroundColor: "#307597", alignContent: "center"}}>
+        <TouchableHighlight underlayColor="trasnparent"  onPress={() => { !this.state.openBottomDrawer ? this.sheetRef.current.snapTo(0): this.sheetRef.current.snapTo(2) }} >
         <Icon
           name={
             !this.state.openBottomDrawer
               ? "keyboard-arrow-up"
               : "keyboard-arrow-down"
           }
-          onPress={() => this.usermsg()}
+          
           size={40}
           color="#FFF"
-          style={{ top: 10, left: -5, bottom: 5, position: "relative" }}
+          style={{ top: 10, left: -5, bottom: 5, position: "relative", alignSelf: "center" }}
         />
+
+</TouchableHighlight>
         {this.state.show_welcome_msg ? (
           <Text
             style={{
               color: "#FFF",
               fontSize: 18,
               fontWeight: "bold",
-              marginTop: -30,
-              top: this.state.welcome_msg_top,
+              marginTop: 10,
+              top: 10,
               textAlign: "center",
             }}
           >
@@ -1189,8 +1209,8 @@ class Map extends Component {
               color: "#dcd074",
               fontSize: 18,
               fontWeight: "bold",
-              top: this.state.top_origin_label,
-              left: -10,
+                top: 10,
+              alignSelf: "center"
             }}
           >
             Origem
@@ -1227,21 +1247,20 @@ class Map extends Component {
             top: normalize(
               Platform.OS === "ios"
                 ? this.state.top_origin_icon
-                : this.state.top_origin_icon + 10
+                : -15
             ),
-            left: normalize(Platform.OS === "ios" ? -165 : -155),
+            left: normalize(Platform.OS === "ios" ? -165 : 10),
             position: "relative",
           }}
         />
 
         <Button
           style={{
-            marginTop: this.state.button_alter_address_origin,
+            top: normalize(65),
             borderRadius: 0,
-            width: "25%",
-            height: "15%",
-
-            //right: 10,
+            width: "26%",
+            height: normalize(Platform.OS === "ios" ? 40 : 50, "height"),
+            position: "absolute",
 
             marginLeft: normalize(275),
           }}
@@ -1259,7 +1278,8 @@ class Map extends Component {
             fontSize: 18,
             fontWeight: "bold",
             top: this.state.top_destination_label,
-            left: -10,
+           
+            alignSelf: "center"
           }}
         >
           Destino
@@ -1278,7 +1298,8 @@ class Map extends Component {
             borderRadius: 15,
             width: "100%",
             bottom: 10,
-            top: this.state.top_destination_textinput,
+            marginTop: 10,
+           // top: this.state.top_destination_textinput,
             left: 5,
           }}
           placeholder="Digite o endereço"
@@ -1291,19 +1312,16 @@ class Map extends Component {
             height: 45,
             width: 40,
 
-            position: "relative",
-            top: normalize(
-              Platform.OS === "ios"
-                ? this.state.top_destination_icon
-                : this.state.top_destination_icon + 5
-            ),
-            left: normalize(Platform.OS === "ios" ? -160 : -155),
+            position: "absolute",
+            top: normalize(195),
+            left: normalize(Platform.OS === "ios" ? -160 : 10),
           }}
         />
 
         <Button
           style={{
-            marginTop: normalize(this.state.button_alter_address_destination),
+            top: normalize(155),
+            position: "absolute",
             borderRadius: 0,
             width: "25%",
             height: normalize(Platform.OS === "ios" ? 40 : 55, "height"),
@@ -1321,25 +1339,37 @@ class Map extends Component {
           </ButtonText>
         </Button>
 
+        
         <Text
           style={{
             color: "#FFF",
             fontSize: 16,
             fontWeight: "bold",
-            top: 25,
+            marginTop: 10,
             left: -10,
+            alignSelf: "center"
+
           }}
         >
-          {this.state.run_wait_checkin === 0
+          { this.state.run_wait_checkin === 0
             ? this.getDurationMsgs(0)
             : this.getDurationMsgs(1)}
 
-          {this.state.msg_duration}
-        </Text>
+          { this.state.duration > 0 ? this.state.msg_duration : this.setState({ msg_duration: "Vc precisa definir o destino!"}) }
+
+       
+        </Text> 
+
+        
+              
         {this.state.duration > 0 ? (
+
+<TouchableHighlight onPress={() => {
+                  this.timer();
+                }}>
           <Button
             style={{
-              marginTop: 80,
+              marginTop: 40,
               borderRadius: 0,
               width: "100%",
               marginLeft: -5,
@@ -1366,7 +1396,34 @@ class Map extends Component {
               </ButtonText>
             )}
           </Button>
-        ) : null}
+          </TouchableHighlight>
+              ) : 
+              
+              <Button
+             
+            style={{
+              marginTop: 40,
+              borderRadius: 0,
+              width: "100%",
+              marginLeft: -5,
+              
+            }}
+          
+          >
+            <ButtonText
+          onPress={() => {
+            toastSucess("Vc precisa definir o destino primeiro!");
+          }}
+          style={{ color: "#307597", fontSize: 18 }}
+        >
+          CHAMAR CARRO
+        </ButtonText></Button>
+
+              
+              
+            
+              
+              }
 
         {/* 
         <View style={styles.buttonContainerOrigem}>
@@ -1496,8 +1553,8 @@ class Map extends Component {
         
         </View>*/}
       </View>
-    );
-  };
+    )
+  }; 
 
   async componentDidMount() {
     const welcome_msg = "Olá " + this.getFirstName() + "! Onde precisa ir?";
@@ -1736,6 +1793,7 @@ class Map extends Component {
 
     // }
   }
+  sheetRef = React.createRef();
 
   render() {
     const { region, destination, location, duration, origin } = this.state;
@@ -2231,7 +2289,7 @@ class Map extends Component {
             </Button>
           </View>
         </Modal>
-
+{/*
         <BottomDrawer
           containerHeight={this.state.full_dim}
           onExpanded={this.openBottomDrawer}
@@ -2241,18 +2299,33 @@ class Map extends Component {
           offset={-15}
         >
           {this.renderContent()}
-        </BottomDrawer>
-        {/*   
+        </BottomDrawer> */}
+           
          <BottomSheet
-        ref={(el) => (this.sheetRef = el)}
-        snapPoints={[450, 300, 100]}
+        ref={this.sheetRef}
+        snapPoints={[400, 300, 130]}
         borderRadius={10} 
-        renderContent={this.renderContent2}
+        enabledInnerScrolling={true}
+        onOpenStart={this.openBottomDrawer}
+        onCloseStart={this.closeBottomDrawer}
+        renderHeader={this.renderHeader}
+        renderContent={this.renderContent}
+        initialSnap={2}
       />
-*/}
+
       </View>
     );
   }
+
+
+
+  renderHeader = () => (
+    <View style={styles.header}>
+      <View style={styles.panelHeader}>
+        <View style={styles.panelHandle} />
+      </View>
+    </View>
+  )
 
   openBottomDrawer = () => {
     console.log("Abriu!!");
@@ -2270,7 +2343,7 @@ class Map extends Component {
       this.setState({ welcome_msg: "Ok! Agora basta definir o seu destino!" });
     }
 
-    if (
+   {/*  if (
       this.state.origin.latitude != 0 &&
       this.state.destination.latitude != 0
     ) {
@@ -2285,7 +2358,7 @@ class Map extends Component {
         top_destination_icon: 55,
         button_alter_address_destination: 38, 
       });
-    }
+    } */}
   };
   closeBottomDrawer = () => {
     console.log("Fechou!!");
@@ -2293,16 +2366,16 @@ class Map extends Component {
     this.setState({
       show_welcome_msg: true,
       openBottomDrawer: false,
-      welcome_msg_top: 75,
+     // welcome_msg_top: 75,
     });
 
     if (this.state.destination.latitude != 0) {
       this.setState({
         welcome_msg: "Tudo certo! Puxe aqui para solicitar a corrida",
 
-        top_origin_textinput: 195,
-        top_origin_icon: 190,
-        button_alter_address_origin: 125,
+      //  top_origin_textinput: 195,
+      //  top_origin_icon: 190,
+       // button_alter_address_origin: 125,
       });
     }
   };
@@ -2456,5 +2529,24 @@ const styles = StyleSheet.create({
   },
   buttonTextReset: {
     color: "#FF851B",
+  },
+
+  header: {
+    backgroundColor: '#f7f5eee8',
+    opacity: 0.7,
+    shadowColor: '#000000',
+    paddingTop: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  panelHeader: {
+    alignItems: 'center',
+  },
+  panelHandle: {
+    width: 40,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#00000040',
+    marginBottom: 10,
   },
 });

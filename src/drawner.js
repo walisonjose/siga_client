@@ -21,6 +21,8 @@ import driverDetails from './components/Map/driverDetails';
 
 import Voice from './components/Voice/Voice';
 
+import BootomSheet from './components/Map/BootomSheet';
+
 
 const Tab = createStackNavigator();
 
@@ -139,9 +141,9 @@ const Drawer = createDrawerNavigator(
 
 function Root() { 
   return (
-    <Stack.Navigator initialRouteName='Login'  >   
+    <Stack.Navigator initialRouteName='Login'  >    
 
-<Stack.Screen name="Voice" component={Voice}  options={{headerShown: false}} />
+<Stack.Screen name="BootomSheet" component={BootomSheet}  options={{headerShown: false}} />
   <Stack.Screen name="Map" component={Map}  options={{headerShown: false}} />
       <Stack.Screen name="Timer" component={Timer}  options={{headerShown: false}} />
       <Stack.Screen name="Login" component={formLogin} options={{headerShown: false}} />
