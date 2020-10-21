@@ -114,7 +114,7 @@ const {
 
 import normalize from "react-native-normalize";
 
-import { TouchableHighlight } from 'react-native-gesture-handler'; 
+import { TouchableHighlight, TouchableWithoutFeedback } from 'react-native-gesture-handler'; 
 
 /* Configuração do Toast*/
 
@@ -1155,7 +1155,14 @@ const toastSucess = (msg) =>
     }
   };
 
-  
+  reloadMap = (menuDmension) => {
+
+    console.log("Aqui");
+    this.sheetRef.current.snapTo(menuDmension);
+    this.mapView.animateToRegion(this.state.region, 1000);
+
+    
+  };
 
   renderContent = () => {
 
@@ -1166,20 +1173,56 @@ const toastSucess = (msg) =>
 
 
       <View style={{  backgroundColor: "#307597", alignContent: "center"}}>
-        <TouchableHighlight underlayColor="trasnparent"  onPress={() => { !this.state.openBottomDrawer ? this.sheetRef.current.snapTo(0): this.sheetRef.current.snapTo(2) }} >
-        <Icon
+       
+     
+       
+{ Platform.OS === "android" ?  
+
+<TouchableHighlight  underlayColor="transparent"  onPress={() => { !this.state.openBottomDrawer ? this.sheetRef.current.snapTo(0): this.sheetRef.current.snapTo(2) }}>  
+    
+       <Icon
           name={
             !this.state.openBottomDrawer
               ? "keyboard-arrow-up"
               : "keyboard-arrow-down"
           }
-          
+       
+          onPress={() => { !this.state.openBottomDrawer ? this.sheetRef.current.snapTo(0): this.sheetRef.current.snapTo(2) }}
+
           size={40}
           color="#FFF"
           style={{ top: 10, left: -5, bottom: 5, position: "relative", alignSelf: "center" }}
         />
 
 </TouchableHighlight>
+
+: <TouchableOpacity  underlayColor="transparent"  onPress={() => { !this.state.openBottomDrawer ? this.reloadMap(0) : this.reloadMap(2) }} >
+  
+  
+  <Icon
+          name={
+            !this.state.openBottomDrawer
+              ? "keyboard-arrow-up"
+              : "keyboard-arrow-down"
+          }
+       
+          onPress={() => { !this.state.openBottomDrawer ? this.sheetRef.current.snapTo(0): this.sheetRef.current.snapTo(2) }}
+
+          size={40}
+          color="#FFF"
+          style={{ top: 10, left: -5, bottom: 5, position: "relative", alignSelf: "center" }}
+        />
+        </TouchableOpacity>
+  
+  
+  
+   }
+
+
+
+
+
+
         {this.state.show_welcome_msg ? (
           <Text
             style={{
@@ -1236,20 +1279,20 @@ const toastSucess = (msg) =>
             width: 40,
             top: normalize(
               Platform.OS === "ios"
-                ? this.state.top_origin_icon
+                ? -15
                 : -15
             ),
-            left: normalize(Platform.OS === "ios" ? -165 : 10),
+            left: normalize(Platform.OS === "ios" ? 10 : 10),
             position: "relative",
           }}
         />
 
         <Button
           style={{
-            top: normalize(65),
+            top: normalize(Platform.OS === "ios" ? 50 : 65),
             borderRadius: 0,
             width: "26%",
-            height: normalize(Platform.OS === "ios" ? 40 : 50, "height"),
+            height: normalize(Platform.OS === "ios" ? 38 : 50, "height"),
             position: "absolute",
 
             marginLeft: normalize(275),
@@ -1302,19 +1345,19 @@ const toastSucess = (msg) =>
             height: 45,
             width: 40,
 
-            position: "absolute",
-            top: normalize(195),
-            left: normalize(Platform.OS === "ios" ? -160 : 10),
+            position: Platform.OS === "ios" ? "relative" : "absolute",
+            top: normalize(Platform.OS === "ios" ? -50 : 195),
+            left: normalize(Platform.OS === "ios" ? 10 : 10),
           }}
         />
 
         <Button
           style={{
-            top: normalize(155),
+            top: normalize(Platform.OS === "ios" ? 127 : 155),
             position: "absolute",
             borderRadius: 0,
             width: "25%",
-            height: normalize(Platform.OS === "ios" ? 40 : 55, "height"),
+            height: normalize(Platform.OS === "ios" ? 38 : 55, "height"),
             marginLeft: normalize(275),
           }}
         >
@@ -1335,7 +1378,7 @@ const toastSucess = (msg) =>
             color: "#FFF",
             fontSize: 16,
             fontWeight: "bold",
-            marginTop: 10,
+            marginTop: normalize(10),
             left: -10,
             alignSelf: "center"
 
@@ -1352,8 +1395,49 @@ const toastSucess = (msg) =>
 
         
               
-        {this.state.duration > 0 ? (
+        {Platform.OS === "ios" && this.state.duration > 0 ? (
 
+ 
+
+<TouchableOpacity  underlayColor="transparent" onPress={() => {
+                  this.timer();
+                }}>
+          <Button
+            style={{
+              
+              borderRadius: 0,
+              width: "100%",
+            marginLeft: -10,
+            bottom: normalize(30)
+             
+            }}
+          >
+            {this.state.run_wait_checkin === 0 &&
+            this.state.run_started === false ? (
+              <ButtonText
+                onPress={() => {
+                  this.timer();
+                }}
+                style={{ color: "#307597", fontSize: 18 }}
+              >
+                CHAMAR CARRO
+              </ButtonText>
+            ) : (
+              <ButtonText
+                onPress={() => {
+                  this.showDriverData();
+                }}
+                style={{ color: "#307597", fontSize: 18 }}
+              >
+                INFO
+              </ButtonText>
+            )}
+          </Button>
+          </TouchableOpacity> 
+          
+
+         ) : 
+         (
 <TouchableHighlight  underlayColor="transparent" onPress={() => {
                   this.timer();
                 }}>
@@ -1386,10 +1470,20 @@ const toastSucess = (msg) =>
                 INFO
               </ButtonText>
             )}
-          </Button>
-          </TouchableHighlight>
-              ) : 
-              
+          </Button> 
+
+          </TouchableHighlight> 
+          
+
+
+         )
+         
+         }
+  
+  
+{Platform.OS ==="android" ? 
+
+
 <TouchableHighlight underlayColor="transparent" onPress={() => {
                   toastSucess("Vc precisa definir o destino primeiro!");
                 }}> 
@@ -1416,11 +1510,35 @@ const toastSucess = (msg) =>
 
         </TouchableHighlight>
 
+              : 
+              <TouchableOpacity>
               
+              <Button
+             
+            style={{
+              marginTop: 30,
+              borderRadius: 0,
+              width: "100%",
+              marginLeft: -5,
+              
+            }}
+          
+          >
+            <ButtonText
+          onPress={() => {
+            toastSucess("Vc precisa definir o destino primeiro!");
+          }}
+          style={{ color: "#307597", fontSize: 18 }}
+        >
+          CHAMAR CARRO
+        </ButtonText></Button>
+              
+              </TouchableOpacity>
+        }
               
             
               
-              }
+              
 
         {/* 
         <View style={styles.buttonContainerOrigem}>

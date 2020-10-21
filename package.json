@@ -68,7 +68,7 @@
     "react-native-svg": "12.1.0",
     "react-native-tiny-toast": "^1.0.7",
     "react-native-vector-icons": "^6.6.0",
-    "react-native-voice": "^0.3.0",
+    
     "react-native-web": "~0.11.7",
     "react-navigation": "^4.4.0",
     "react-navigation-custom-bottom-tab-component": "^1.1.1",

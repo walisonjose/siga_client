@@ -19,7 +19,7 @@ import Search from './components/Search/index';
 import Menu from './components/Menu/index';
 import driverDetails from './components/Map/driverDetails';
 
-import Voice from './components/Voice/Voice';
+
 
 import BootomSheet from './components/Map/BootomSheet';
 
