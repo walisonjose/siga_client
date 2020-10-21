@@ -282,17 +282,24 @@ const toastSucess = (msg) =>
 
   getDurationMsgs = (index) => {
     var msg = null;
-    if (index === 0) {
-      msg =
-        "O destino fica a " + this.state.duration + " minutos de distância.";
+ 
+    if(this.state.duration > 0){
+      if (index === 0) {
+        msg =
+          "O destino fica a " + this.state.duration + " minutos de distância.";
+      }
+      if (index === 1) {
+        msg =
+          "O motorista está a " + this.state.duration + " minutos de distância.";
+      }
+      if (index === 3) {
+        msg = "O destino fica a " + this.state.duration + "minutos de distância.";
+      }
+    }else{
+      msg = "Defina o destino para solicitar um motorista.";
     }
-    if (index === 1) {
-      msg =
-        "O motorista está a " + this.state.duration + " minutos de distância.";
-    }
-    if (index === 3) {
-      msg = "O destino fica a " + this.state.duration + "minutos de distância.";
-    }
+
+    
     return msg;
   };
 
@@ -476,6 +483,8 @@ const toastSucess = (msg) =>
           });
           //this.mapView.animateToRegion(this.state.destination, 1000);
 
+          this.sheetRef.current.snapTo(0);
+
           this.mapView.animateCamera({
             center: {
               latitude: this.state.destination.latitude,
@@ -633,6 +642,7 @@ const toastSucess = (msg) =>
             });
 
             this.getDriverLocation();
+            //this.sheetRef.current.snapTo(2);
 
             this.setState({
               modal_run_accept: true,
@@ -705,16 +715,7 @@ const toastSucess = (msg) =>
               run_status: 3,
               run_started: false,
 
-              top_origin_label: 75,
-              top_origin_textinput: 95,
-              top_origin_icon: 60,
-              button_alter_address_origin: 25,
-              duration: 0,
-
-              top_destination_label: 40,
-              top_destination_textinput: 65,
-              top_destination_icon: 20,
-              button_alter_address_destination: -15,
+             
             });
 
             //  clearIntervalAsync(timer);
@@ -769,6 +770,7 @@ const toastSucess = (msg) =>
             this.setState({
               destination: { latitude: 0, longitude: 0 },
               origin: { latitude: 0, longitude: 0 },
+              point: this.state.origin,
               duration: null,
               location: null,
               origem: "",
@@ -781,16 +783,7 @@ const toastSucess = (msg) =>
               run_status: 3,
               run_started: false,
 
-              top_origin_label: 75,
-              top_origin_textinput: 95,
-              top_origin_icon: 60,
-              button_alter_address_origin: 25,
-              duration: 0,
-
-              top_destination_label: 40,
-              top_destination_textinput: 65,
-              top_destination_icon: 20,
-              button_alter_address_destination: -15,
+             
             });
 
             // clearIntervalAsync(timer);
@@ -972,16 +965,7 @@ const toastSucess = (msg) =>
             run_status: 3,
             run_started: false,
 
-            top_origin_label: 75,
-            top_origin_textinput: 95,
-            top_origin_icon: 60,
-            button_alter_address_origin: 25,
-            duration: 0,
 
-            top_destination_label: 40,
-            top_destination_textinput: 65,
-            top_destination_icon: 20,
-            button_alter_address_destination: -10,
           });
 
           toastError(
@@ -1174,8 +1158,14 @@ const toastSucess = (msg) =>
   
 
   renderContent = () => {
+
+
+
     return (
-      <View style={{ backgroundColor: "#307597", alignContent: "center"}}>
+
+
+
+      <View style={{  backgroundColor: "#307597", alignContent: "center"}}>
         <TouchableHighlight underlayColor="trasnparent"  onPress={() => { !this.state.openBottomDrawer ? this.sheetRef.current.snapTo(0): this.sheetRef.current.snapTo(2) }} >
         <Icon
           name={
@@ -1355,7 +1345,7 @@ const toastSucess = (msg) =>
             ? this.getDurationMsgs(0)
             : this.getDurationMsgs(1)}
 
-          { this.state.duration > 0 ? this.state.msg_duration : this.setState({ msg_duration: "Vc precisa definir o destino!"}) }
+{  this.state.msg_duration  }
 
        
         </Text> 
@@ -1364,15 +1354,16 @@ const toastSucess = (msg) =>
               
         {this.state.duration > 0 ? (
 
-<TouchableHighlight onPress={() => {
+<TouchableHighlight  underlayColor="transparent" onPress={() => {
                   this.timer();
                 }}>
           <Button
             style={{
-              marginTop: 40,
+              marginTop: 30,
               borderRadius: 0,
               width: "100%",
-              marginLeft: -5,
+            marginLeft: -10,
+             
             }}
           >
             {this.state.run_wait_checkin === 0 &&
@@ -1399,10 +1390,14 @@ const toastSucess = (msg) =>
           </TouchableHighlight>
               ) : 
               
+<TouchableHighlight underlayColor="transparent" onPress={() => {
+                  toastSucess("Vc precisa definir o destino primeiro!");
+                }}> 
+
               <Button
              
             style={{
-              marginTop: 40,
+              marginTop: 30,
               borderRadius: 0,
               width: "100%",
               marginLeft: -5,
@@ -1418,6 +1413,8 @@ const toastSucess = (msg) =>
         >
           CHAMAR CARRO
         </ButtonText></Button>
+
+        </TouchableHighlight>
 
               
               
@@ -1770,12 +1767,13 @@ const toastSucess = (msg) =>
   }
 
   onRegionChangeComplete = () => {
-    if (
-      this.marker &&
-      marker.current &&
-      this.state.marker.current.showCallout
-    ) {
-      this.state.marker.current.showCallout();
+
+
+    console.log("");
+
+    //this.markerMotora.current.showCallout();
+    if (markerRef && markerRef.current && markerRef.current.showCallout) {
+      markerRef.current.showCallout();
     }
 
     // if(this.state.run_wait_checkin === 1){
@@ -1784,16 +1782,26 @@ const toastSucess = (msg) =>
   };
 
   componentDidUpdate() {
-    if (this.marker) {
-      this.marker.showCallout();
+
+
+console.log("");
+
+
+
+    //this.markerMotora.showCallout();
+    //if (this.markerMotora) {
+      console.log("asdasd");
+    //  this.markerMotora.current.showCallout();
     }
 
     //if(this.state.run_wait_checkin === 1 ){
     //   this.marker_motora.showCallout();
 
     // }
-  }
+ // }
+
   sheetRef = React.createRef();
+  markerRef = React.createRef();
 
   render() {
     const { region, destination, location, duration, origin } = this.state;
@@ -1821,7 +1829,10 @@ const toastSucess = (msg) =>
             }
           }}
         >
-          <Marker coordinate={this.state.region}>
+          <Marker coordinate={this.state.region}
+          
+          calloutVisible={true}
+          >
             <Image
               style={{
                 height: 80,
@@ -1829,7 +1840,15 @@ const toastSucess = (msg) =>
                 borderColor: "#000",
               }}
               source={require("../../images/user_marker.png")}
+
+              ref={(_marker) => {
+                this.markerRef = _marker;
+               
+              }}
+
             />
+
+
           </Marker>
 
           {this.state.run_wait_checkin === 1 ? (
@@ -1858,9 +1877,7 @@ const toastSucess = (msg) =>
                   latitude: this.state.driver_location.latitude,
                   longitude: this.state.driver_location.longitude,
                 }}
-                ref={(_marker) => {
-                  this.marker = _marker;
-                }}
+               
               >
                 <Image
                   style={{
@@ -2305,7 +2322,7 @@ const toastSucess = (msg) =>
         ref={this.sheetRef}
         snapPoints={[400, 300, 130]}
         borderRadius={10} 
-        enabledInnerScrolling={true}
+        enabledInnerScrolling={true} 
         onOpenStart={this.openBottomDrawer}
         onCloseStart={this.closeBottomDrawer}
         renderHeader={this.renderHeader}
@@ -2371,7 +2388,7 @@ const toastSucess = (msg) =>
 
     if (this.state.destination.latitude != 0) {
       this.setState({
-        welcome_msg: "Tudo certo! Puxe aqui para solicitar a corrida",
+        welcome_msg: "Puxe aqui para solicitar a corrida.",
 
       //  top_origin_textinput: 195,
       //  top_origin_icon: 190,
