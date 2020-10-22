@@ -1159,7 +1159,7 @@ const toastSucess = (msg) =>
 
     console.log("Aqui");
     this.sheetRef.current.snapTo(menuDmension);
-    this.mapView.animateToRegion(this.state.region, 1000);
+    this.setState({ point: this.state.region});
 
     
   };
@@ -1292,14 +1292,15 @@ const toastSucess = (msg) =>
             top: normalize(Platform.OS === "ios" ? 50 : 65),
             borderRadius: 0,
             width: "26%",
-            height: normalize(Platform.OS === "ios" ? 38 : 50, "height"),
+            height: normalize(Platform.OS === "ios" ? 47 : 55, "height"),
             position: "absolute",
 
             marginLeft: normalize(275),
           }}
         >
           <ButtonText
-            style={{ color: "#307597", textAlign: "center", bottom: 5 }}
+            style={{ color: "#307597", textAlign: "center", bottom: 5,
+            fontSize: normalize(Platform.OS === "ios" ? 12 : 16)}}
           >
             Alterar
           </ButtonText>
@@ -1357,19 +1358,23 @@ const toastSucess = (msg) =>
             position: "absolute",
             borderRadius: 0,
             width: "25%",
-            height: normalize(Platform.OS === "ios" ? 38 : 55, "height"),
+            alignItems: "center",
+            height: normalize(Platform.OS === "ios" ? 47 : 55, "height"),
             marginLeft: normalize(275),
           }}
-        >
-          <ButtonText
+        > 
+        
+
+
+         <ButtonText
             style={{
               color: "#307597",
-              textAlign: "center",
-              bottom: Platform.OS === "ios" ? 5 : 5,
+              fontSize: normalize(Platform.OS === "ios" ? 12 : 16),
+              
             }}
           >
             Alterar
-          </ButtonText>
+          </ButtonText>   
         </Button>
 
         
@@ -1379,7 +1384,9 @@ const toastSucess = (msg) =>
             fontSize: 16,
             fontWeight: "bold",
             marginTop: normalize(10),
-            left: -10,
+  top: 250,
+  position: "absolute",
+            left: 15,
             alignSelf: "center"
 
           }}
@@ -1404,11 +1411,13 @@ const toastSucess = (msg) =>
                 }}>
           <Button
             style={{
-              
-              borderRadius: 0,
-              width: "100%",
-            marginLeft: -10,
-            bottom: normalize(30)
+             
+              width: "120%",
+            marginLeft: -35,
+
+          bottom:10,
+          alignContent: "center"
+          
              
             }}
           >
@@ -1437,13 +1446,14 @@ const toastSucess = (msg) =>
           
 
          ) : 
-         (
+         (   
+
 <TouchableHighlight  underlayColor="transparent" onPress={() => {
                   this.timer();
                 }}>
           <Button
             style={{
-              marginTop: 30,
+              marginTop: normalize(70),
               borderRadius: 0,
               width: "100%",
             marginLeft: -10,
@@ -1478,10 +1488,10 @@ const toastSucess = (msg) =>
 
          )
          
-         }
+              }
   
   
-{Platform.OS ==="android" ? 
+{ Platform.OS ==="android" ? 
 
 
 <TouchableHighlight underlayColor="transparent" onPress={() => {
@@ -1904,7 +1914,7 @@ const toastSucess = (msg) =>
 
 console.log("");
 
-
+this.mapView.animateToRegion(this.state.region, 1000);
 
     //this.markerMotora.showCallout();
     //if (this.markerMotora) {
@@ -2464,6 +2474,8 @@ console.log("");
 
   openBottomDrawer = () => {
     console.log("Abriu!!");
+
+  
 
     this.setState({
       show_welcome_msg: false,
