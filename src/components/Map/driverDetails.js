@@ -66,14 +66,31 @@ export default class driverDetails extends Component {
             style={{ left: -140, marginTop: 10 }}
             onPress={() => this.props.navigation.goBack()}
           />
+          
           <Avatar.Image
             size={84}
+
+            
+
             source={{
+
+              
+
               uri:
-              this.state.driver.profile_picture.thumb
-            }}
+              this.state.driver.profile_picture.thumb  
+           
+
+            }}  
+        
+         
+          
+          
             style={{ marginTop: -35 }}
           />
+         
+
+
+  
 
           <Text
             style={{

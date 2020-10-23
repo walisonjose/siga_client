@@ -58,10 +58,9 @@ import backImage from "../../assets/back.png";
 import DrawnerMenu from "../../drawner.js";
 
 import Animated from "react-native-reanimated";
-import BottomSheet from 'reanimated-bottom-sheet'
+import BottomSheet from "reanimated-bottom-sheet";
 
 import { NavigationContainer, DrawerActions } from "@react-navigation/native";
-
 
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
@@ -114,7 +113,11 @@ const {
 
 import normalize from "react-native-normalize";
 
-import { TouchableHighlight, TouchableWithoutFeedback } from 'react-native-gesture-handler'; 
+import {
+  TouchableHighlight,
+  TouchableWithoutFeedback,
+} from "react-native-gesture-handler";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 /* Configuração do Toast*/
 
@@ -152,10 +155,7 @@ const toastSucess = (msg) =>
     animation: true,
   });
 
- 
-
- 
-  class Map extends Component {
+class Map extends Component {
   constructor(props) {
     super(props);
     this.spinValue = new Animated.Value(0);
@@ -282,24 +282,26 @@ const toastSucess = (msg) =>
 
   getDurationMsgs = (index) => {
     var msg = null;
- 
-    if(this.state.duration > 0){
+
+    if (this.state.duration > 0) {
       if (index === 0) {
         msg =
           "O destino fica a " + this.state.duration + " minutos de distância.";
       }
       if (index === 1) {
         msg =
-          "O motorista está a " + this.state.duration + " minutos de distância.";
+          "O motorista está a " +
+          this.state.duration +
+          " minutos de distância.";
       }
       if (index === 3) {
-        msg = "O destino fica a " + this.state.duration + "minutos de distância.";
+        msg =
+          "O destino fica a " + this.state.duration + "minutos de distância.";
       }
-    }else{
+    } else {
       msg = "Defina o destino para solicitar um motorista.";
     }
 
-    
     return msg;
   };
 
@@ -380,13 +382,13 @@ const toastSucess = (msg) =>
           },
         });
         //if(this.state.short_origin === null){
-        this.getAddress(this.state.origin);
+        this.getSomeAddress(this.state.origin, 0);
 
         // this.getAddress(this.state.origin);
         console.log("Button " + this.state.buttonAddress);
         this.setState({
           destination: {
-            latitude: parseFloat(run.destination.lat),
+            latitude: parseFloat(run.destination.lat), 
             longitude: parseFloat(run.destination.long),
             latitudeDelta: 0.0491,
             longitudeDelta: 0.0375,
@@ -394,7 +396,7 @@ const toastSucess = (msg) =>
           },
         });
         // if(this.state.short_destination === null){
-        this.getAddress(this.state.destination);
+        this.getSomeAddress(this.state.destination, 1); 
         //  }
 
         //this.getAddress(this.state.destination);
@@ -425,6 +427,62 @@ const toastSucess = (msg) =>
       search_adress: true,
     });
   }
+
+  getSomeAddress = async (coordinate, type) => {
+    const response = await api
+    .post(
+      "/geocode/json?latlng=" +
+        coordinate.latitude +
+        "," +
+        coordinate.longitude +
+        "&key=AIzaSyD157FiAI8dfBRzoH4qvzjFi3iKSPzA860"
+    )
+    .then((response) => {
+      if(type === 0){
+
+      
+        this.setState({
+          origem: response.data.results[0].formatted_address,
+          origin: coordinate,
+          point: coordinate,
+          short_origin:
+            response.data.results[0].address_components[1].short_name,
+          
+        });
+
+        
+      } else {
+        this.setState({
+          destino: response.data.results[0].formatted_address,
+          destination: coordinate,
+          point: coordinate,
+          short_destination:
+            response.data.results[0].address_components[1].short_name,
+          run_status: this.state.origin.latitude != 0 ? 2 : 1,
+          //buttonAddress: 0,
+
+         
+        });
+        
+        this.sheetRef.current.snapTo(0);
+
+        this.mapView.animateCamera({
+          center: {
+            latitude: this.state.destination.latitude,
+            longitude: this.state.destination.longitude,
+          },
+        });
+
+    
+      }
+    })
+    .catch(function (error) {
+      toastError("Ocorreu algum erro ao obter os dados da corrida!");
+      console.log("Login ou senha inválidos!");
+    });
+};
+  
+
 
   getAddress = async (coordinate) => {
     const response = await api
@@ -458,8 +516,7 @@ const toastSucess = (msg) =>
           }
 
           this.mapView.animateToRegion(this.state.region, 200);
-        }
-         else {
+        } else {
           this.setState({
             destino: response.data.results[0].formatted_address,
             destination: coordinate,
@@ -501,10 +558,17 @@ const toastSucess = (msg) =>
   };
 
   showDriverData = () => {
+
+  if(this.state.id_run){
     this.props.navigation.navigate("driverDetails", {
       driver: this.state.driver,
       duration: this.state.duration,
     });
+  }else{
+    toastSucess("Vc precisa solicitar uma corrida primeiro.");
+  }
+
+    
   };
 
   timer = async () => {
@@ -639,10 +703,11 @@ const toastSucess = (msg) =>
               driver: driver,
               run_wait_checkin: 1,
               run_status: 1,
+             
             });
 
             this.getDriverLocation();
-            //this.sheetRef.current.snapTo(2);
+            
 
             this.setState({
               modal_run_accept: true,
@@ -655,6 +720,7 @@ const toastSucess = (msg) =>
                 modal_run_accept: false,
               });
             }
+            //this.sheetRef.current.snapTo(2);
           }
 
           if (
@@ -691,6 +757,8 @@ const toastSucess = (msg) =>
                 modal_run_started: false,
                 point: this.state.region,
               });
+             // this.sheetRef.current.snapTo(2);
+              //this.sheetRef.current.snapTo(0);
             }
           }
           if (responseData.finished_at != null) {
@@ -701,8 +769,9 @@ const toastSucess = (msg) =>
             // toastSucess("Corrida finalizada com sucesso!");
 
             this.setState({
+              point: this.state.region,
               destination: { latitude: 0, longitude: 0 },
-              origin: { latitude: 0, longitude: 0 },
+              origin: this.state.region,
               duration: null,
               location: null,
               origem: "",
@@ -712,10 +781,9 @@ const toastSucess = (msg) =>
               search_adress: false,
               run_wait_checkin: 0,
               buttonAddress: 0,
-              run_status: 3,
+              run_status: 0,
               run_started: false,
-
-             
+              point: this.state.region,
             });
 
             //  clearIntervalAsync(timer);
@@ -782,8 +850,6 @@ const toastSucess = (msg) =>
               buttonAddress: 0,
               run_status: 3,
               run_started: false,
-
-             
             });
 
             // clearIntervalAsync(timer);
@@ -935,7 +1001,11 @@ const toastSucess = (msg) =>
             cancel_timer: 1,
             run_status: 2,
             show_route_origin_destination: false,
+            
+            
           });
+        // this.mapView.animateToRegion(this.state.origin, 200); 
+        //  this.sheetRef.current.snapTo(2);
 
           //salva os dados
           this.storeDataRun();
@@ -964,8 +1034,6 @@ const toastSucess = (msg) =>
             buttonAddress: 0,
             run_status: 3,
             run_started: false,
-
-
           });
 
           toastError(
@@ -1116,34 +1184,33 @@ const toastSucess = (msg) =>
     }
   };
 
+  renderContent2 = () => (
+    <View
+      style={{
+        backgroundColor: "white",
+        padding: 16,
+        height: 450,
+      }}
+    >
+      <Text>Swipe down to close</Text>
 
-
-  renderContent2 = () =>  (
-      <View
-        style={{
-          backgroundColor: "white",
-          padding: 16,
-          height: 450,
+      <TouchableHighlight
+        onPress={() => {
+          console.log("asdasd");
         }}
       >
-        <Text>Swipe down to close</Text>
+        <Text>Abrir</Text>
+      </TouchableHighlight>
 
-       
-     <TouchableHighlight onPress={() => { console.log("asdasd")}}>
-     <Text  >Abrir</Text>
-     </TouchableHighlight>
-     
-
-
-     
-     <TouchableHighlight onPress={() => { this.sheetRef.current.snapTo(1)}}>
-     <Text  >Fechar</Text>
-     </TouchableHighlight>
-   
-
-      </View>
-    )
-  
+      <TouchableHighlight
+        onPress={() => {
+          this.sheetRef.current.snapTo(1);
+        }}
+      >
+        <Text>Fechar</Text>
+      </TouchableHighlight>
+    </View>
+  );
 
   usermsg = () => {
     if (!this.state.openBottomDrawer) {
@@ -1156,72 +1223,80 @@ const toastSucess = (msg) =>
   };
 
   reloadMap = (menuDmension) => {
-
     console.log("Aqui");
     this.sheetRef.current.snapTo(menuDmension);
     this.mapView.animateToRegion(this.state.region, 1000);
-
-    
   };
 
   renderContent = () => {
-
-
-
     return (
+     <SafeAreaView  style={{ backgroundColor: "#307597", alignContent: "center" }} > 
+      {/*<View style={{ backgroundColor: "#307597", alignContent: "center" }}> */}
+        {Platform.OS === "android" ? (
+          <TouchableHighlight
+            underlayColor="transparent"
+           
+            onPress={() => {
+              !this.state.openBottomDrawer
+                ? this.sheetRef.current.snapTo(0)
+                : this.sheetRef.current.snapTo(2);
+            }}
 
-
-
-      <View style={{  backgroundColor: "#307597", alignContent: "center"}}>
-       
-     
-       
-{ Platform.OS === "android" ?  
-
-<TouchableHighlight  underlayColor="transparent"  onPress={() => { !this.state.openBottomDrawer ? this.sheetRef.current.snapTo(0): this.sheetRef.current.snapTo(2) }}>  
-    
-       <Icon
-          name={
-            !this.state.openBottomDrawer
-              ? "keyboard-arrow-up"
-              : "keyboard-arrow-down"
-          }
-       
-          onPress={() => { !this.state.openBottomDrawer ? this.sheetRef.current.snapTo(0): this.sheetRef.current.snapTo(2) }}
-
-          size={40}
-          color="#FFF"
-          style={{ top: 10, left: -5, bottom: 5, position: "relative", alignSelf: "center" }}
-        />
-
-</TouchableHighlight>
-
-: <TouchableOpacity  underlayColor="transparent"  onPress={() => { !this.state.openBottomDrawer ? this.reloadMap(0) : this.reloadMap(2) }} >
-  
-  
-  <Icon
-          name={
-            !this.state.openBottomDrawer
-              ? "keyboard-arrow-up"
-              : "keyboard-arrow-down"
-          }
-       
-          onPress={() => { !this.state.openBottomDrawer ? this.sheetRef.current.snapTo(0): this.sheetRef.current.snapTo(2) }}
-
-          size={40}
-          color="#FFF"
-          style={{ top: 10, left: -5, bottom: 5, position: "relative", alignSelf: "center" }}
-        />
-        </TouchableOpacity>
-  
-  
-  
-   }
-
-
-
-
-
+          >
+            <Icon
+              name={
+                !this.state.openBottomDrawer
+                  ? "keyboard-arrow-up"
+                  : "keyboard-arrow-down"
+              }
+              onPress={() => {
+                !this.state.openBottomDrawer
+                  ? this.sheetRef.current.snapTo(0)
+                  : this.sheetRef.current.snapTo(2);
+              }}
+              size={40}
+              color="#FFF"
+              style={{
+                top: 10,
+                left: -5,
+                bottom: 5,
+                position: "relative",
+                alignSelf: "center",
+              }}
+            />
+          </TouchableHighlight>
+        ) : (
+          <TouchableOpacity
+            underlayColor="transparent"
+            onPress={() => {
+              !this.state.openBottomDrawer
+                ? this.reloadMap(0)
+                : this.reloadMap(2);
+            }}
+          >
+            <Icon
+              name={
+                !this.state.openBottomDrawer
+                  ? "keyboard-arrow-up"
+                  : "keyboard-arrow-down"
+              }
+              onPress={() => {
+                !this.state.openBottomDrawer
+                  ? this.sheetRef.current.snapTo(0)
+                  : this.sheetRef.current.snapTo(2);
+              }}
+              size={40}
+              color="#FFF"
+              style={{
+                top: 10,
+                left: -5,
+                bottom: 5,
+                position: "relative",
+                alignSelf: "center",
+              }}
+            />
+          </TouchableOpacity>
+        )}
 
         {this.state.show_welcome_msg ? (
           <Text
@@ -1242,8 +1317,8 @@ const toastSucess = (msg) =>
               color: "#dcd074",
               fontSize: 18,
               fontWeight: "bold",
-                top: 10,
-              alignSelf: "center"
+              top: 10,
+              alignSelf: "center",
             }}
           >
             Origem
@@ -1277,11 +1352,7 @@ const toastSucess = (msg) =>
             height: 45,
 
             width: 40,
-            top: normalize(
-              Platform.OS === "ios"
-                ? -15
-                : -15
-            ),
+            top: normalize(Platform.OS === "ios" ? -15 : -15),
             left: normalize(Platform.OS === "ios" ? 10 : 10),
             position: "relative",
           }}
@@ -1311,8 +1382,8 @@ const toastSucess = (msg) =>
             fontSize: 18,
             fontWeight: "bold",
             top: this.state.top_destination_label,
-           
-            alignSelf: "center"
+
+            alignSelf: "center",
           }}
         >
           Destino
@@ -1332,7 +1403,7 @@ const toastSucess = (msg) =>
             width: "100%",
             bottom: 10,
             marginTop: 10,
-           // top: this.state.top_destination_textinput,
+            // top: this.state.top_destination_textinput,
             left: 5,
           }}
           placeholder="Digite o endereço"
@@ -1372,7 +1443,6 @@ const toastSucess = (msg) =>
           </ButtonText>
         </Button>
 
-        
         <Text
           style={{
             color: "#FFF",
@@ -1380,63 +1450,87 @@ const toastSucess = (msg) =>
             fontWeight: "bold",
             marginTop: normalize(10),
             left: -10,
-            alignSelf: "center"
-
+            alignSelf: "center",
           }}
         >
-          { this.state.run_wait_checkin === 0
+          {this.state.run_wait_checkin === 0
             ? this.getDurationMsgs(0)
             : this.getDurationMsgs(1)}
 
-{  this.state.msg_duration  }
+          {this.state.msg_duration}
+        </Text>
 
-       
-        </Text> 
-
-        
-              
-        {Platform.OS === "ios" && this.state.duration > 0 ? (
-
- 
-
-<TouchableOpacity  underlayColor="transparent" onPress={() => {
-                  this.timer();
-                }}>
-          <Button
-            style={{
-              
-              borderRadius: 0,
-              width: "100%",
-            marginLeft: -10,
-            bottom: normalize(30)
-             
+        {this.state.duration > 0 && this.state.run_wait_checkin === 0 &&
+              this.state.run_started === false  ? (
+          <TouchableHighlight
+            underlayColor="transparent"
+            onPress={() => {
+              this.timer();
             }}
           >
-            {this.state.run_wait_checkin === 0 &&
-            this.state.run_started === false ? (
-              <ButtonText
-                onPress={() => {
-                  this.timer();
-                }}
-                style={{ color: "#307597", fontSize: 18 }}
-              >
-                CHAMAR CARRO
-              </ButtonText>
-            ) : (
-              <ButtonText
+            <Button
+             
+              style={{
+                borderRadius: 0,
+                width: "100%",
+                marginLeft: -10,
+                bottom: normalize(30),
+              }}
+            >
+              
+      
+
+
+                <ButtonText
+                  onPress={() => {
+                    this.timer();
+                  }}
+                  style={{ color: "#307597", fontSize: 18 }}
+                >
+                  CHAMAR CARRO
+                </ButtonText>
+                </Button>
+          </TouchableHighlight>
+
+              ) :   (
+
+                <TouchableHighlight
+                underlayColor="transparent"
                 onPress={() => {
                   this.showDriverData();
                 }}
-                style={{ color: "#307597", fontSize: 18 }}
               >
-                INFO
-              </ButtonText>
-            )}
-          </Button>
-          </TouchableOpacity> 
-          
+                <Button
+                 
+                  style={{
+                    borderRadius: 0,
+                    width: "100%",
+                    marginLeft: -10,
+                    bottom: normalize(30),
+                  }}
 
-         ) : 
+                  onPress={() => {
+                    this.showDriverData();
+                  }}
+
+                >
+
+
+
+                <ButtonText
+                 
+                  style={{ color: "#307597", fontSize: 18 }}
+                >
+                  INFO
+                </ButtonText>
+
+                </Button>
+          </TouchableHighlight> 
+              ) }
+           
+        
+        {/*
+
          (
 <TouchableHighlight  underlayColor="transparent" onPress={() => {
                   this.timer();
@@ -1458,7 +1552,7 @@ const toastSucess = (msg) =>
                 }}
                 style={{ color: "#307597", fontSize: 18 }}
               >
-                CHAMAR CARRO
+                CHAMAR CARRO2
               </ButtonText>
             ) : (
               <ButtonText
@@ -1478,10 +1572,9 @@ const toastSucess = (msg) =>
 
          )
          
-         }
-  
-  
-{Platform.OS ==="android" ? 
+              */}
+
+        {/*Platform.OS ==="android" ? 
 
 
 <TouchableHighlight underlayColor="transparent" onPress={() => {
@@ -1534,11 +1627,7 @@ const toastSucess = (msg) =>
         </ButtonText></Button>
               
               </TouchableOpacity>
-        }
-              
-            
-              
-              
+        */}
 
         {/* 
         <View style={styles.buttonContainerOrigem}>
@@ -1666,16 +1755,18 @@ const toastSucess = (msg) =>
             />
           </ImageBackground>
         
-        </View>*/}
-      </View>
-    )
-  }; 
+        </View> 
+      </View>*/}
+
+     </SafeAreaView>
+    );
+  };
 
   async componentDidMount() {
     const welcome_msg = "Olá " + this.getFirstName() + "! Onde precisa ir?";
     this.setState({ welcome_msg: welcome_msg });
 
-    // this.deleteDataRun();
+     //this.deleteDataRun();
 
     // this.storeDataRun();
     this.getDataSync();
@@ -1876,7 +1967,6 @@ const toastSucess = (msg) =>
       latitudeDelta: 0.0143,
       longitudeDelta: 0.0134,*/
 
-
       latitudeDelta: 0.0491,
       longitudeDelta: 0.0375,
     };
@@ -1885,8 +1975,6 @@ const toastSucess = (msg) =>
   }
 
   onRegionChangeComplete = () => {
-
-
     console.log("");
 
     //this.markerMotora.current.showCallout();
@@ -1900,23 +1988,19 @@ const toastSucess = (msg) =>
   };
 
   componentDidUpdate() {
-
-
-console.log("");
-
-
+    console.log("");
 
     //this.markerMotora.showCallout();
     //if (this.markerMotora) {
-      console.log("asdasd");
+    console.log("asdasd");
     //  this.markerMotora.current.showCallout();
-    }
+  }
 
-    //if(this.state.run_wait_checkin === 1 ){
-    //   this.marker_motora.showCallout();
+  //if(this.state.run_wait_checkin === 1 ){
+  //   this.marker_motora.showCallout();
 
-    // }
- // }
+  // }
+  // }
 
   sheetRef = React.createRef();
   markerRef = React.createRef();
@@ -1947,10 +2031,7 @@ console.log("");
             }
           }}
         >
-          <Marker coordinate={this.state.region}
-          
-          calloutVisible={true}
-          >
+          <Marker coordinate={this.state.region} calloutVisible={true}>
             <Image
               style={{
                 height: 80,
@@ -1958,15 +2039,10 @@ console.log("");
                 borderColor: "#000",
               }}
               source={require("../../images/user_marker.png")}
-
               ref={(_marker) => {
                 this.markerRef = _marker;
-               
               }}
-
             />
-
-
           </Marker>
 
           {this.state.run_wait_checkin === 1 ? (
@@ -1995,7 +2071,6 @@ console.log("");
                   latitude: this.state.driver_location.latitude,
                   longitude: this.state.driver_location.longitude,
                 }}
-               
               >
                 <Image
                   style={{
@@ -2088,7 +2163,8 @@ console.log("");
             </MapView.Marker>
           ) : null}
 
-          {this.state.run_status === 2 && this.state.show_route_origin_destination === false ? (
+          {this.state.run_status === 2 &&
+          this.state.show_route_origin_destination === false ? (
             <Fragment>
               <Directions
                 origin={region}
@@ -2228,13 +2304,11 @@ console.log("");
           size={40}
           style={{
             top: 10,
-            right: 10, 
+            right: 10,
             backgroundColor: "#B2BF86",
             position: "absolute",
           }}
-          onPress={() =>  this.mapView.animateToRegion(this.state.region, 1000)
-           
-            }
+          onPress={() => this.mapView.animateToRegion(this.state.region, 1000)}
         />
 
         {/** Modal apresentado quando a corrida é aceita pelo motorista */}
@@ -2424,7 +2498,7 @@ console.log("");
             </Button>
           </View>
         </Modal>
-{/*
+        {/*
         <BottomDrawer
           containerHeight={this.state.full_dim}
           onExpanded={this.openBottomDrawer}
@@ -2435,24 +2509,22 @@ console.log("");
         >
           {this.renderContent()}
         </BottomDrawer> */}
-           
-         <BottomSheet
-        ref={this.sheetRef}
-        snapPoints={[400, 300, 130]}
-        borderRadius={10} 
-        enabledInnerScrolling={true} 
-        onOpenStart={this.openBottomDrawer}
-        onCloseStart={this.closeBottomDrawer}
-        renderHeader={this.renderHeader}
-        renderContent={this.renderContent}
-        initialSnap={2}
-      />
 
+        <BottomSheet
+          ref={this.sheetRef}
+          snapPoints={[410, 295, 130]}
+          borderRadius={10}
+          scrollEnabled={false}
+          enabledInnerScrolling={true}
+          onOpenStart={this.openBottomDrawer}
+          onCloseStart={this.closeBottomDrawer}
+          renderHeader={this.renderHeader}
+          renderContent={this.renderContent}
+          initialSnap={2}
+        />
       </View>
     );
   }
-
-
 
   renderHeader = () => (
     <View style={styles.header}>
@@ -2460,7 +2532,7 @@ console.log("");
         <View style={styles.panelHandle} />
       </View>
     </View>
-  )
+  );
 
   openBottomDrawer = () => {
     console.log("Abriu!!");
@@ -2478,7 +2550,8 @@ console.log("");
       this.setState({ welcome_msg: "Ok! Agora basta definir o seu destino!" });
     }
 
-   {/*  if (
+    {
+      /*  if (
       this.state.origin.latitude != 0 &&
       this.state.destination.latitude != 0
     ) {
@@ -2493,7 +2566,8 @@ console.log("");
         top_destination_icon: 55,
         button_alter_address_destination: 38, 
       });
-    } */}
+    } */
+    }
   };
   closeBottomDrawer = () => {
     console.log("Fechou!!");
@@ -2501,16 +2575,16 @@ console.log("");
     this.setState({
       show_welcome_msg: true,
       openBottomDrawer: false,
-     // welcome_msg_top: 75,
+      // welcome_msg_top: 75,
     });
 
     if (this.state.destination.latitude != 0) {
       this.setState({
         welcome_msg: "Puxe aqui para solicitar a corrida.",
 
-      //  top_origin_textinput: 195,
-      //  top_origin_icon: 190,
-       // button_alter_address_origin: 125,
+        //  top_origin_textinput: 195,
+        //  top_origin_icon: 190,
+        // button_alter_address_origin: 125,
       });
     }
   };
@@ -2667,21 +2741,21 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    backgroundColor: '#f7f5eee8',
+    backgroundColor: "#f7f5eee8",
     opacity: 0.7,
-    shadowColor: '#000000',
+    shadowColor: "#000000",
     paddingTop: 20,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
   },
   panelHeader: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   panelHandle: {
     width: 40,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#00000040',
+    backgroundColor: "#00000040",
     marginBottom: 10,
   },
 });

@@ -31,9 +31,11 @@ class SideMenu extends Component {
         style={{ height: 75, width: 75, left: 10, borderRadius: 35, top: 35 }}
         source={ {uri: this.props.avatar}}
       /> 
+      
+       
         <Image
-      style={{  left: 90, bottom: 35, height: 60, width: 210 }}
-      source={require('../../images/logoaparecida.png')}
+      style={{  left: 110, bottom: 35, height: 60, width: 150 }}
+      source={require('../../assets/logomarca_rodape.png')} 
     />
       <Text style={{ color: '#FFF', fontSize: 16,  left: 10, top: -25}}>{this.props.name}</Text>
       <Text style={{ color: '#FFF', fontSize: 16,  left: 10, top: -20}}>{this.props.email}</Text>
