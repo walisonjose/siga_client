@@ -784,6 +784,7 @@ class Map extends Component {
               run_status: 0,
               run_started: false,
               point: this.state.region,
+              show_route_origin_destination: true,
             });
 
             //  clearIntervalAsync(timer);
@@ -2463,7 +2464,7 @@ class Map extends Component {
         </Modal>
 
         <Modal
-          animationType="slide"
+          animationType="slide" 
           transparent={true}
           visible={this.state.timer}
         >
