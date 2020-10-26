@@ -1231,7 +1231,7 @@ class Map extends Component {
 
   renderContent = () => {
     return (
-     <SafeAreaView  style={{ backgroundColor: "#307597", alignContent: "center" }} > 
+     <SafeAreaView  style={{ backgroundColor: "#307597"}} > 
       {/*<View style={{ backgroundColor: "#307597", alignContent: "center" }}> */}
         {Platform.OS === "android" ? (
           <TouchableHighlight
@@ -1253,12 +1253,12 @@ class Map extends Component {
               onPress={() => {
                 !this.state.openBottomDrawer
                   ? this.sheetRef.current.snapTo(0)
-                  : this.sheetRef.current.snapTo(2);
+                  : this.sheetRef.current.snapTo(2); 
               }}
               size={40}
               color="#FFF"
               style={{
-                top: 10,
+                top: normalize(10), 
                 left: -5,
                 bottom: 5,
                 position: "relative",
@@ -1269,6 +1269,7 @@ class Map extends Component {
         ) : (
           <TouchableOpacity
             underlayColor="transparent"
+            
             onPress={() => {
               !this.state.openBottomDrawer
                 ? this.reloadMap(0)
@@ -1289,9 +1290,11 @@ class Map extends Component {
               size={40}
               color="#FFF"
               style={{
-                top: 10,
-                left: -5,
-                bottom: 5,
+               
+               // left: 165,
+                marginTop: normalize(5),
+                //top: 5,
+                
                 position: "relative",
                 alignSelf: "center",
               }}
@@ -1305,9 +1308,10 @@ class Map extends Component {
               color: "#FFF",
               fontSize: 18,
               fontWeight: "bold",
-              marginTop: 10,
-              top: 10,
+              marginTop: normalize(10),
+              top: normalize(-10),
               textAlign: "center",
+              position: "relative"
             }}
           >
             {this.state.welcome_msg}
@@ -1318,8 +1322,9 @@ class Map extends Component {
               color: "#dcd074",
               fontSize: 18,
               fontWeight: "bold",
-              top: 10,
+              top: normalize(10),
               alignSelf: "center",
+              position: "relative"
             }}
           >
             Origem
@@ -1338,7 +1343,7 @@ class Map extends Component {
             paddingLeft: 55,
             borderRadius: 15,
             width: "100%",
-            top: this.state.top_origin_textinput,
+            top: normalize(this.state.top_origin_textinput),
             left: 5,
           }}
           placeholder="Digite o endereço"
@@ -1359,15 +1364,18 @@ class Map extends Component {
           }}
         />
 
+        {/* 
+
         <Button
           style={{
-            top: normalize(Platform.OS === "ios" ? 50 : 65),
+            //top: normalize(Platform.OS === "ios" ? 65 : 65),
             borderRadius: 0,
             width: "26%",
             height: normalize(Platform.OS === "ios" ? 38 : 50, "height"),
             position: "absolute",
 
             marginLeft: normalize(275),
+            
           }}
         >
           <ButtonText
@@ -1376,6 +1384,8 @@ class Map extends Component {
             Alterar
           </ButtonText>
         </Button>
+
+*/}
 
         <Text
           style={{
@@ -1422,7 +1432,7 @@ class Map extends Component {
             left: normalize(Platform.OS === "ios" ? 10 : 10),
           }}
         />
-
+{/*
         <Button
           style={{
             top: normalize(Platform.OS === "ios" ? 127 : 155),
@@ -1444,13 +1454,17 @@ class Map extends Component {
           </ButtonText>
         </Button>
 
+*/}
+
+
         <Text
           style={{
             color: "#FFF",
             fontSize: 16,
             fontWeight: "bold",
-            marginTop: normalize(10),
+            marginTop: normalize( Platform.OS === "ios" ?  -10 : 30),
             left: -10,
+            bottom: 15,
             alignSelf: "center",
           }}
         >
@@ -1461,16 +1475,20 @@ class Map extends Component {
           {this.state.msg_duration}
         </Text>
 
+
+
         {this.state.duration > 0 && this.state.run_wait_checkin === 0 &&
               this.state.run_started === false  ? (
-          <TouchableHighlight
-            underlayColor="transparent"
-            onPress={() => {
-              this.timer();
-            }}
-          >
+
+
+          
+        
             <Button
              
+             onPress={() => {
+               this.timer();
+              }}
+
               style={{
                 borderRadius: 0,
                 width: "100%",
@@ -1478,29 +1496,25 @@ class Map extends Component {
                 bottom: normalize(30),
               }}
             >
-              
-      
-
-
                 <ButtonText
-                  onPress={() => {
-                    this.timer();
-                  }}
-                  style={{ color: "#307597", fontSize: 18 }}
+                 // onPress={() => {
+                  //  this.timer();
+                 // }}
+                   style={{ color: "#307597", fontSize: 18 }}
                 >
                   CHAMAR CARRO
                 </ButtonText>
                 </Button>
-          </TouchableHighlight>
+          
 
               ) :   (
 
-                <TouchableHighlight
-                underlayColor="transparent"
-                onPress={() => {
-                  this.showDriverData();
-                }}
-              >
+              //  <TouchableHighlight
+             //   underlayColor="transparent"
+             //   onPress={() => {
+              //    this.showDriverData();
+              //  }}
+             // >
                 <Button
                  
                   style={{
@@ -1526,10 +1540,9 @@ class Map extends Component {
                 </ButtonText>
 
                 </Button>
-          </TouchableHighlight> 
+          
               ) }
-           
-        
+
         {/*
 
          (
@@ -2472,8 +2485,8 @@ class Map extends Component {
             <Image
               source={require("../../assets/logomarca_rodape.png")}
               style={{
-                width: Platform.OS === "ios" ? 220 : 220,
-                height: Platform.OS === "ios" ? 75 : 75,
+                width: Platform.OS === "ios" ? 260 : 220,
+                height: Platform.OS === "ios" ? 95 : 75,
                 borderWidth: 10,
                 top: -100,
               }}
@@ -2490,7 +2503,7 @@ class Map extends Component {
             <Text style={styles.timerText}>{this.state.secs} segundos</Text>
 
             <Button
-              style={{ top: 120 }}
+              style={{ top: 120, backgroundColor: "#D9D919" }}
               onPress={() => {
                 this.cancel_run();
               }}
@@ -2516,7 +2529,7 @@ class Map extends Component {
           snapPoints={[410, 295, 130]}
           borderRadius={10}
           scrollEnabled={false}
-          enabledInnerScrolling={true}
+          enabledInnerScrolling={false}
           onOpenStart={this.openBottomDrawer}
           onCloseStart={this.closeBottomDrawer}
           renderHeader={this.renderHeader}
