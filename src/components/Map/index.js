@@ -2068,6 +2068,10 @@ class Map extends Component {
   componentDidUpdate() {
     console.log("");
 
+    if(this.state.platform === 0){
+      this.mapView.animateToRegion(this.state.region, 1000);
+    }
+
     //this.markerMotora.showCallout();
     //if (this.markerMotora) {
     console.log("asdasd");
