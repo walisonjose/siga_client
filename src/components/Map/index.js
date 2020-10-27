@@ -278,6 +278,8 @@ class Map extends Component {
     button_alter_address_destination: -5,
 
     msg_duration: null,
+
+    platform: null,
   };
 
   getDurationMsgs = (index) => {
@@ -323,6 +325,107 @@ class Map extends Component {
 
       // console.log("Cont "+ this.state.secs)
     }, 1000);
+  };
+
+  /* Essa função é responsável por retronar o componente do botão para solictação da corrida de acorodo com a plataforma(IOS ou Android)*/
+
+  getButtonPlatform = () => {
+    if (this.state.platform === 0) {
+      return this.state.duration > 0 &&
+        this.state.run_wait_checkin === 0 &&
+        this.state.run_started === false ? (
+        <Button
+          onPress={() => {
+            this.timer();
+          }}
+          style={{
+            borderRadius: 0,
+            width: "100%",
+            marginLeft: -10,
+            bottom: normalize(30),
+          }}
+        >
+          <ButtonText
+           
+            style={{ color: "#307597", fontSize: 18 }}
+          >
+            CHAMAR CARRO
+          </ButtonText>
+        </Button>
+      ) : (
+        <Button
+          style={{
+            borderRadius: 0,
+            width: "100%",
+            marginLeft: -10,
+            bottom: normalize(30),
+          }}
+          onPress={() => {
+            this.showDriverData();
+          }}
+        >
+          <ButtonText style={{ color: "#307597", fontSize: 18 }}>
+            INFO
+          </ButtonText>
+        </Button>
+      );
+    } else {
+      return this.state.duration > 0 &&
+        this.state.run_wait_checkin === 0 &&
+        this.state.run_started === false ? (
+        <TouchableHighlight
+        underlayColor="transparent"
+          onPress={() => {
+            this.timer();
+          }}
+        >
+          <Button
+            onPress={() => {
+              this.timer();
+            }}
+            style={{
+              borderRadius: 0,
+              width: "100%",
+              marginLeft: -10,
+              bottom: normalize(30),
+            }}
+          >
+            <ButtonText
+              // onPress={() => {
+              //  this.timer();
+              // }}
+              style={{ color: "#307597", fontSize: 18 }}
+            >
+              CHAMAR CARRO
+            </ButtonText>
+          </Button>
+        </TouchableHighlight>
+      ) : (
+        <TouchableHighlight
+
+        underlayColor="transparent"
+          onPress={() => {
+            this.showDriverData();
+          }}
+        >
+          <Button
+            style={{
+              borderRadius: 0,
+              width: "100%",
+              marginLeft: -10,
+              bottom: normalize(30),
+            }}
+            onPress={() => {
+              this.showDriverData();
+            }}
+          >
+            <ButtonText style={{ color: "#307597", fontSize: 18 }}>
+              INFO
+            </ButtonText>
+          </Button>
+        </TouchableHighlight>
+      );
+    }
   };
 
   /*Métodos que salvas as coordenadas já definidas em um corrida em andamento.*/
@@ -388,7 +491,7 @@ class Map extends Component {
         console.log("Button " + this.state.buttonAddress);
         this.setState({
           destination: {
-            latitude: parseFloat(run.destination.lat), 
+            latitude: parseFloat(run.destination.lat),
             longitude: parseFloat(run.destination.long),
             latitudeDelta: 0.0491,
             longitudeDelta: 0.0375,
@@ -396,7 +499,7 @@ class Map extends Component {
           },
         });
         // if(this.state.short_destination === null){
-        this.getSomeAddress(this.state.destination, 1); 
+        this.getSomeAddress(this.state.destination, 1);
         //  }
 
         //this.getAddress(this.state.destination);
@@ -430,59 +533,48 @@ class Map extends Component {
 
   getSomeAddress = async (coordinate, type) => {
     const response = await api
-    .post(
-      "/geocode/json?latlng=" +
-        coordinate.latitude +
-        "," +
-        coordinate.longitude +
-        "&key=AIzaSyD157FiAI8dfBRzoH4qvzjFi3iKSPzA860"
-    )
-    .then((response) => {
-      if(type === 0){
+      .post(
+        "/geocode/json?latlng=" +
+          coordinate.latitude +
+          "," +
+          coordinate.longitude +
+          "&key=AIzaSyD157FiAI8dfBRzoH4qvzjFi3iKSPzA860"
+      )
+      .then((response) => {
+        if (type === 0) {
+          this.setState({
+            origem: response.data.results[0].formatted_address,
+            origin: coordinate,
+            point: coordinate,
+            short_origin:
+              response.data.results[0].address_components[1].short_name,
+          });
+        } else {
+          this.setState({
+            destino: response.data.results[0].formatted_address,
+            destination: coordinate,
+            point: coordinate,
+            short_destination:
+              response.data.results[0].address_components[1].short_name,
+            run_status: this.state.origin.latitude != 0 ? 2 : 1,
+            //buttonAddress: 0,
+          });
 
-      
-        this.setState({
-          origem: response.data.results[0].formatted_address,
-          origin: coordinate,
-          point: coordinate,
-          short_origin:
-            response.data.results[0].address_components[1].short_name,
-          
-        });
+          this.sheetRef.current.snapTo(0);
 
-        
-      } else {
-        this.setState({
-          destino: response.data.results[0].formatted_address,
-          destination: coordinate,
-          point: coordinate,
-          short_destination:
-            response.data.results[0].address_components[1].short_name,
-          run_status: this.state.origin.latitude != 0 ? 2 : 1,
-          //buttonAddress: 0,
-
-         
-        });
-        
-        this.sheetRef.current.snapTo(0);
-
-        this.mapView.animateCamera({
-          center: {
-            latitude: this.state.destination.latitude,
-            longitude: this.state.destination.longitude,
-          },
-        });
-
-    
-      }
-    })
-    .catch(function (error) {
-      toastError("Ocorreu algum erro ao obter os dados da corrida!");
-      console.log("Login ou senha inválidos!");
-    });
-};
-  
-
+          this.mapView.animateCamera({
+            center: {
+              latitude: this.state.destination.latitude,
+              longitude: this.state.destination.longitude,
+            },
+          });
+        }
+      })
+      .catch(function (error) {
+        toastError("Ocorreu algum erro ao obter os dados da corrida!");
+        console.log("Login ou senha inválidos!");
+      });
+  };
 
   getAddress = async (coordinate) => {
     const response = await api
@@ -558,17 +650,14 @@ class Map extends Component {
   };
 
   showDriverData = () => {
-
-  if(this.state.id_run){
-    this.props.navigation.navigate("driverDetails", {
-      driver: this.state.driver,
-      duration: this.state.duration,
-    });
-  }else{
-    toastSucess("Vc precisa solicitar uma corrida primeiro.");
-  }
-
-    
+    if (this.state.id_run) {
+      this.props.navigation.navigate("driverDetails", {
+        driver: this.state.driver,
+        duration: this.state.duration,
+      });
+    } else {
+      toastSucess("Vc precisa solicitar uma corrida primeiro.");
+    }
   };
 
   timer = async () => {
@@ -703,11 +792,9 @@ class Map extends Component {
               driver: driver,
               run_wait_checkin: 1,
               run_status: 1,
-             
             });
 
             this.getDriverLocation();
-            
 
             this.setState({
               modal_run_accept: true,
@@ -757,7 +844,7 @@ class Map extends Component {
                 modal_run_started: false,
                 point: this.state.region,
               });
-             // this.sheetRef.current.snapTo(2);
+              // this.sheetRef.current.snapTo(2);
               //this.sheetRef.current.snapTo(0);
             }
           }
@@ -1002,11 +1089,9 @@ class Map extends Component {
             cancel_timer: 1,
             run_status: 2,
             show_route_origin_destination: false,
-            
-            
           });
-        // this.mapView.animateToRegion(this.state.origin, 200); 
-        //  this.sheetRef.current.snapTo(2);
+          // this.mapView.animateToRegion(this.state.origin, 200);
+          //  this.sheetRef.current.snapTo(2);
 
           //salva os dados
           this.storeDataRun();
@@ -1231,18 +1316,16 @@ class Map extends Component {
 
   renderContent = () => {
     return (
-     <SafeAreaView  style={{ backgroundColor: "#307597"}} > 
-      {/*<View style={{ backgroundColor: "#307597", alignContent: "center" }}> */}
+      <SafeAreaView style={{ backgroundColor: "#307597" }}>
+        {/*<View style={{ backgroundColor: "#307597", alignContent: "center" }}> */}
         {Platform.OS === "android" ? (
           <TouchableHighlight
             underlayColor="transparent"
-           
             onPress={() => {
               !this.state.openBottomDrawer
                 ? this.sheetRef.current.snapTo(0)
                 : this.sheetRef.current.snapTo(2);
             }}
-
           >
             <Icon
               name={
@@ -1253,12 +1336,12 @@ class Map extends Component {
               onPress={() => {
                 !this.state.openBottomDrawer
                   ? this.sheetRef.current.snapTo(0)
-                  : this.sheetRef.current.snapTo(2); 
+                  : this.sheetRef.current.snapTo(2);
               }}
               size={40}
               color="#FFF"
               style={{
-                top: normalize(10), 
+                top: normalize(10),
                 left: -5,
                 bottom: 5,
                 position: "relative",
@@ -1269,7 +1352,6 @@ class Map extends Component {
         ) : (
           <TouchableOpacity
             underlayColor="transparent"
-            
             onPress={() => {
               !this.state.openBottomDrawer
                 ? this.reloadMap(0)
@@ -1290,11 +1372,10 @@ class Map extends Component {
               size={40}
               color="#FFF"
               style={{
-               
-               // left: 165,
+                // left: 165,
                 marginTop: normalize(5),
                 //top: 5,
-                
+
                 position: "relative",
                 alignSelf: "center",
               }}
@@ -1311,7 +1392,7 @@ class Map extends Component {
               marginTop: normalize(10),
               top: normalize(-10),
               textAlign: "center",
-              position: "relative"
+              position: "relative",
             }}
           >
             {this.state.welcome_msg}
@@ -1324,7 +1405,7 @@ class Map extends Component {
               fontWeight: "bold",
               top: normalize(10),
               alignSelf: "center",
-              position: "relative"
+              position: "relative",
             }}
           >
             Origem
@@ -1432,7 +1513,7 @@ class Map extends Component {
             left: normalize(Platform.OS === "ios" ? 10 : 10),
           }}
         />
-{/*
+        {/*
         <Button
           style={{
             top: normalize(Platform.OS === "ios" ? 127 : 155),
@@ -1456,13 +1537,12 @@ class Map extends Component {
 
 */}
 
-
         <Text
           style={{
             color: "#FFF",
             fontSize: 16,
             fontWeight: "bold",
-            marginTop: normalize( Platform.OS === "ios" ?  -10 : 30),
+            marginTop: normalize(Platform.OS === "ios" ? -10 : 30),
             left: -10,
             bottom: 15,
             alignSelf: "center",
@@ -1475,73 +1555,50 @@ class Map extends Component {
           {this.state.msg_duration}
         </Text>
 
+        {this.getButtonPlatform()}
 
-
-        {this.state.duration > 0 && this.state.run_wait_checkin === 0 &&
-              this.state.run_started === false  ? (
-
-
-          
-        
-            <Button
-             
-             onPress={() => {
-               this.timer();
-              }}
-
-              style={{
-                borderRadius: 0,
-                width: "100%",
-                marginLeft: -10,
-                bottom: normalize(30),
-              }}
+        {/*this.state.duration > 0 &&
+        this.state.run_wait_checkin === 0 &&
+        this.state.run_started === false &&
+        Platform.OS === "ios" ? (
+          <Button
+            onPress={() => {
+              this.timer();
+            }}
+            style={{
+              borderRadius: 0,
+              width: "100%",
+              marginLeft: -10,
+              bottom: normalize(30),
+            }}
+          >
+            <ButtonText
+              
+              style={{ color: "#307597", fontSize: 18 }}
             >
-                <ButtonText
-                 // onPress={() => {
-                  //  this.timer();
-                 // }}
-                   style={{ color: "#307597", fontSize: 18 }}
-                >
-                  CHAMAR CARRO
-                </ButtonText>
-                </Button>
+              CHAMAR CARRO
+            </ButtonText>
+          </Button>
+        ) : (
           
+          <Button
+            style={{
+              borderRadius: 0,
+              width: "100%",
+              marginLeft: -10,
+              bottom: normalize(30),
+            }}
+            onPress={() => {
+              this.showDriverData();
+            }}
+          >
+            <ButtonText style={{ color: "#307597", fontSize: 18 }}>
+              INFO
+            </ButtonText>
+          </Button>
+          )*/}
 
-              ) :   (
-
-              //  <TouchableHighlight
-             //   underlayColor="transparent"
-             //   onPress={() => {
-              //    this.showDriverData();
-              //  }}
-             // >
-                <Button
-                 
-                  style={{
-                    borderRadius: 0,
-                    width: "100%",
-                    marginLeft: -10,
-                    bottom: normalize(30),
-                  }}
-
-                  onPress={() => {
-                    this.showDriverData();
-                  }}
-
-                >
-
-
-
-                <ButtonText
-                 
-                  style={{ color: "#307597", fontSize: 18 }}
-                >
-                  INFO
-                </ButtonText>
-
-                </Button>
-          
-              ) }
+        {/*Código Plataforma IOS */}
 
         {/*
 
@@ -1771,8 +1828,7 @@ class Map extends Component {
         
         </View> 
       </View>*/}
-
-     </SafeAreaView>
+      </SafeAreaView>
     );
   };
 
@@ -1780,7 +1836,15 @@ class Map extends Component {
     const welcome_msg = "Olá " + this.getFirstName() + "! Onde precisa ir?";
     this.setState({ welcome_msg: welcome_msg });
 
-     //this.deleteDataRun();
+    if (Platform.OS === "ios") {
+      console.log("IOS");
+      this.setState({ platform: 0 });
+    } else {
+      console.log("Android");
+      this.setState({ platform: 1 });
+    }
+
+    //this.deleteDataRun();
 
     // this.storeDataRun();
     this.getDataSync();
@@ -2477,7 +2541,7 @@ class Map extends Component {
         </Modal>
 
         <Modal
-          animationType="slide" 
+          animationType="slide"
           transparent={true}
           visible={this.state.timer}
         >
