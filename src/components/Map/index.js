@@ -119,6 +119,8 @@ import {
 } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+const URL = "https://sigadev.aparecida.go.gov.br";
+
 /* Configuração do Toast*/
 
 const toastError = (msg) =>
@@ -673,11 +675,16 @@ class Map extends Component {
         clearInterval(this.state.interval);
         this.setState({ timer: false, cancel_timer: 0 });
 
-        if (!this.state.id_run) {
-          toastError(
-            "Não há motoristas disponíveis! \nPor favor, tente novamente mais tarde!"
-          );
+
+        //console.log("STATUS-> "+this.state.run_status);
+
+        if (!this.state.id_run  ) {
+         // toastError(
+         //   "Não há motoristas disponíveis! \nPor favor, tente novamente mais tarde!"
+         // );
           this.cancel_run();
+
+         // this.renew_run();
         }
       }
 
@@ -690,10 +697,14 @@ class Map extends Component {
   };
 
   renew_run = async () => {
-    const url = "https://sigadev.aparecida.go.gov.br";
+
+    toastSucess("Renovando corrida!");
+
+
+    //const url = "https://siga.aparecida.go.gov.br";
 
     const response = await fetch(
-      url + "/runs/" + this.state.id_run + "/renew",
+      URL + "/runs/" + this.state.id_run + "/renew",
       {
         credentials: "same-origin",
         method: "POST",
@@ -709,7 +720,9 @@ class Map extends Component {
         return response.json();
       })
       .then((responseData) => {
-        toastSucess("Renovando corrida!");
+      //  toastSucess("Renovando corrida!");
+        //this.timer();
+       
         return responseData;
       })
       .catch(function (error) {
@@ -717,13 +730,16 @@ class Map extends Component {
       });
   };
 
-  cancel_run = async () => {
-    const token = this.props.token;
 
-    const url = "https://sigadev.aparecida.go.gov.br";
+
+  cancel_run = async () => {
+
+  const token = this.props.token;
+
+    //const url = "https://siga.aparecida.go.gov.br";
 
     const response = await fetch(
-      url + "/runs/" + this.state.id_run + "/user_cancel",
+      URL + "/runs/" + this.state.id_run + "/user_cancel",
       {
         credentials: "same-origin",
         method: "POST",
@@ -744,7 +760,7 @@ class Map extends Component {
       })
       .catch(function (error) {
         console.log("Deu ruim:" + error);
-      });
+      }); 
   };
 
   modal_run_started = () => {
@@ -762,10 +778,10 @@ class Map extends Component {
     const token = this.props.token;
 
     const timer = setIntervalAsync(() => {
-      const url = "https://sigadev.aparecida.go.gov.br";
+     // const url = "https://siga.aparecida.go.gov.br";
 
       const response = fetch(
-        url + "/runs/" + this.state.id_run + ".json",
+        URL + "/runs/" + this.state.id_run + ".json",
 
         {
           credentials: "same-origin",
@@ -1020,9 +1036,9 @@ class Map extends Component {
 
   getDriverLocation = async () => {
     const token = this.props.token;
-    const url = "https://sigadev.aparecida.go.gov.br";
+   // const url = "https://siga.aparecida.go.gov.br";
     const response = await fetch(
-      url + "/runs/" + this.state.id_run + "/driver_location",
+      URL + "/runs/" + this.state.id_run + "/driver_location",
 
       {
         credentials: "same-origin",
@@ -1059,9 +1075,9 @@ class Map extends Component {
 
   getDataRun = async () => {
     const token = this.props.token;
-    const url = "https://sigadev.aparecida.go.gov.br";
+   // const url = "https://siga.aparecida.go.gov.br";
     const response = await fetch(
-      url + "/runs/" + this.state.id_run + ".json",
+     URL + "/runs/" + this.state.id_run + ".json",
 
       {
         credentials: "same-origin",
@@ -1100,8 +1116,35 @@ class Map extends Component {
         }
 
         if (
-          responseData.driver_has_canceled != null ||
-          responseData.canceled_at != null
+          responseData.driver_has_canceled != null) {
+
+
+            this.setState({
+              timer: false,
+              cancel_timer: 1,
+  
+              destination: { latitude: 0, longitude: 0 },
+              origin: { latitude: 0, longitude: 0 },
+              duration: null,
+              location: null,
+              origem: "",
+              short_origin: null,
+              destino: "",
+              short_destination: null,
+              search_adress: false,
+              run_wait_checkin: 0,
+              buttonAddress: 0,
+              run_status: 3,
+              run_started: false, 
+            });
+  
+            toastError(
+              "Corrida cancelada.\n Motivo: " + responseData.cancel_explanation === null ? "Não definido" : responseData.cancel_explanation
+            );
+          } 
+
+
+          if ( responseData.canceled_at != null
         ) {
           this.setState({
             timer: false,
@@ -1123,7 +1166,7 @@ class Map extends Component {
           });
 
           toastError(
-            "Corrida cancelada.\n Motivo: " + responseData.cancel_explanation
+            "Corrida cancelada.\n Motivo: " + responseData.cancel_explanation === null ? "Não definido" : responseData.cancel_explanation
           );
 
           console.log(
@@ -1145,10 +1188,10 @@ class Map extends Component {
 
     const token = this.props.token;
 
-    const url = "https://sigadev.aparecida.go.gov.br";
+   // const url = "https://siga.aparecida.go.gov.br";
 
     fetch(
-      url +
+      URL +
         "/runs/user_create.json?run[origin_lat]=" +
         this.state.origin.latitude +
         "&run[origin_lng]=" +
