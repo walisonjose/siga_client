@@ -119,7 +119,8 @@ import {
 } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const URL = "https://sigadev.aparecida.go.gov.br";
+const URL = "https://siga.aparecida.go.gov.br"; 
+const TIME_RUN = 55;
 
 /* Configuração do Toast*/
 
@@ -280,6 +281,9 @@ class Map extends Component {
     button_alter_address_destination: -5,
 
     msg_duration: null,
+
+    /*variavé para contar a quantidade de renovações de corrida*/
+    cont_renew: 0,
 
     platform: null,
   };
@@ -662,34 +666,97 @@ class Map extends Component {
     }
   };
 
+renovar = () =>{
+
+  if(this.state.cont_renew >= 3  ){
+    toastSucess("Cancelar corrida!");
+    this.cancel_run();
+    // this.setState({ cont_renew : 0 });
+    //console.log("Cancelar corrida!");
+ }else{
+
+   //  console.log("Renovar!!");
+     this.setState({ cont_renew: this.state.cont_renew + 1 });
+     console.log("Renovar timer e corrida!");
+     toastSucess("Renovar timer e corrida!");
+    this.renew_run();
+     this.timer();
+   }
+
+};
+
+
+
   timer = async () => {
     //this.getDataRun();
 
-    this.create_run();
+    if(this.state.cont_renew === 0){
+      this.create_run();
+    }
+    
 
-    this.setState({ timer: true, secs: 45 });
+    this.setState({ timer: true, secs: TIME_RUN});
 
     this.state.interval = setInterval(() => {
-      if (this.state.secs === 0 || this.state.cancel_timer === 1) {
+
+      console.log(" Cont renew: "+this.state.cont_renew);
+
+
+      if (this.state.secs === 0 || this.state.cancel_timer === 1  ) {
         console.log("parou!! ");
         clearInterval(this.state.interval);
         this.setState({ timer: false, cancel_timer: 0 });
 
+        //if ( this.state.run_wait_checkin === 0  ) {
+        //  toastError(
+         //      "Não há motoristas disponíveis! \nPor favor, tente novamente mais tarde!"
+         //    );
+         //   this.cancel_run();
+         // }
+      // if(this.state.run_status === 0){
+      //  this.renew_run();
+      //  this.timer();
+     //  }else{
+      //  this.cancel_run();
+      //  clearInterval(this.state.interval);
+      // }
 
+       /*
+        if(this.state.cont_renew >= 3  ){
+          toastSucess("Cancelar corrida!");
+          this.cancel_run();
+          // this.setState({ cont_renew : 0 });
+          //console.log("Cancelar corrida!");
+       }else{
+      
+         //  console.log("Renovar!!");
+           this.setState({ cont_renew: this.state.cont_renew + 1 });
+           console.log("Renovar timer e corrida!");
+           toastSucess("Renovar timer e corrida!");
+          this.renew_run();
+           this.timer();
+         }
+
+*/
+       
+       
         //console.log("STATUS-> "+this.state.run_status);
 
-        if (!this.state.id_run  ) {
+       // if (!this.state.id_run  ) {
          // toastError(
          //   "Não há motoristas disponíveis! \nPor favor, tente novamente mais tarde!"
          // );
-          this.cancel_run();
+        //  this.cancel_run();
 
          // this.renew_run();
-        }
+       // }
       }
+
+
 
       if (this.state.id_run != null) {
         this.getDataRun();
+        
       }
 
       this.setState({ secs: this.state.secs - 1 });
@@ -721,7 +788,7 @@ class Map extends Component {
       })
       .then((responseData) => {
       //  toastSucess("Renovando corrida!");
-        //this.timer();
+        
        
         return responseData;
       })
@@ -806,7 +873,7 @@ class Map extends Component {
             console.log("Motorista-> " + driver.name);
             this.setState({
               driver: driver,
-              run_wait_checkin: 1,
+              run_wait_checkin: 1, 
               run_status: 1,
             });
 
@@ -1103,7 +1170,8 @@ class Map extends Component {
           this.setState({
             timer: false,
             cancel_timer: 1,
-            run_status: 2,
+            run_status: 1,
+            
             show_route_origin_destination: false,
           });
           // this.mapView.animateToRegion(this.state.origin, 200);
@@ -2140,8 +2208,8 @@ class Map extends Component {
           region={
             (this.state.point,
             {
-              latitudeDelta: 0.122,
-              longitudeDelta: 0.121,
+              latitudeDelta: 0.0422,
+              longitudeDelta: 0.0421,
             })
           }
           showsUserLocation={false}
