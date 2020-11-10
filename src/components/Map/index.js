@@ -67,6 +67,10 @@ import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplet
 
 import { connect } from "react-redux";
 
+import Modal2 from "react-native-modal";
+
+import { Picker } from "@react-native-picker/picker";
+
 import {
   Back,
   LocationBox,
@@ -119,7 +123,7 @@ import {
 } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const URL = "https://siga.aparecida.go.gov.br"; 
+const URL = "https://sigadev.aparecida.go.gov.br";
 const TIME_RUN = 55;
 
 /* Configuração do Toast*/
@@ -157,6 +161,37 @@ const toastSucess = (msg) =>
     duration: 2000,
     animation: true,
   });
+
+const dataset = [
+  {
+    value: 101,
+    label: "Javascript",
+  },
+  {
+    value: "golang_101",
+    label: "Go",
+  },
+  {
+    value: "kotlin_dsl",
+    label: "Kotlin",
+  },
+  {
+    value: "java_101",
+    label: "Java",
+  },
+  {
+    value: "cplusplus",
+    label: "C++",
+  },
+  {
+    value: "csharp_201",
+    label: "C#",
+  },
+  {
+    value: "php_201",
+    label: "PHP",
+  },
+];
 
 class Map extends Component {
   constructor(props) {
@@ -286,6 +321,8 @@ class Map extends Component {
     cont_renew: 0,
 
     platform: null,
+
+    reasonRun: [],
   };
 
   getDurationMsgs = (index) => {
@@ -351,10 +388,7 @@ class Map extends Component {
             bottom: normalize(30),
           }}
         >
-          <ButtonText
-           
-            style={{ color: "#307597", fontSize: 18 }}
-          >
+          <ButtonText style={{ color: "#307597", fontSize: 18 }}>
             CHAMAR CARRO
           </ButtonText>
         </Button>
@@ -380,7 +414,7 @@ class Map extends Component {
         this.state.run_wait_checkin === 0 &&
         this.state.run_started === false ? (
         <TouchableHighlight
-        underlayColor="transparent"
+          underlayColor="transparent"
           onPress={() => {
             this.timer();
           }}
@@ -408,8 +442,7 @@ class Map extends Component {
         </TouchableHighlight>
       ) : (
         <TouchableHighlight
-
-        underlayColor="transparent"
+          underlayColor="transparent"
           onPress={() => {
             this.showDriverData();
           }}
@@ -536,6 +569,45 @@ class Map extends Component {
       search_adress: true,
     });
   }
+
+  getReasonsRequestRace = async () => {
+    const response = await fetch(URL + "/request_reasons.json", {
+      credentials: "same-origin",
+      method: "get",
+
+      headers: {
+        Accept: "application/json", // This is set on request
+        "Content-Type": "application/json",
+        Cookie: this.props.token,
+      },
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((responseData) => {
+        var result = [];
+
+        var keys = Object.keys(responseData);
+        keys.forEach(function (key) {
+          //console.log("-> "+responseData[key]['name']);
+          result.push(responseData[key]);
+        });
+
+        //armazenando os motivos de solictação
+        this.setState({ reasonRun: result });
+
+        //this.state.reasonRun.map((reason)=>{
+        // console.log("-> "+reason.name);
+        //});
+
+        console.log("-> " + result.length);
+
+        return responseData;
+      })
+      .catch(function (error) {
+        console.log("Deu ruim:" + error);
+      });
+  };
 
   getSomeAddress = async (coordinate, type) => {
     const response = await api
@@ -666,97 +738,57 @@ class Map extends Component {
     }
   };
 
-renovar = () =>{
-
-  if(this.state.cont_renew >= 3  ){
-    toastSucess("Cancelar corrida!");
-    this.cancel_run();
-    // this.setState({ cont_renew : 0 });
-    //console.log("Cancelar corrida!");
- }else{
-
-   //  console.log("Renovar!!");
-     this.setState({ cont_renew: this.state.cont_renew + 1 });
-     console.log("Renovar timer e corrida!");
-     toastSucess("Renovar timer e corrida!");
-    this.renew_run();
-     this.timer();
-   }
-
-};
-
-
+  renovar = () => {
+    if (this.state.cont_renew >= 3) {
+      toastSucess("Cancelar corrida!");
+      this.cancel_run();
+      // this.setState({ cont_renew : 0 });
+      //console.log("Cancelar corrida!");
+    } else {
+      //  console.log("Renovar!!");
+      this.setState({ cont_renew: this.state.cont_renew + 1 });
+      console.log("Renovar timer e corrida!");
+      toastSucess("Renovar timer e corrida!");
+      this.renew_run();
+      this.timer();
+    }
+  };
 
   timer = async () => {
-    //this.getDataRun();
+   
 
-    if(this.state.cont_renew === 0){
+    if (this.state.id_run === null) {
       this.create_run();
     }
-    
 
-    this.setState({ timer: true, secs: TIME_RUN});
+    this.setState({ timer: true, secs: TIME_RUN });
 
     this.state.interval = setInterval(() => {
+      console.log(" Cont renew: " + this.state.cont_renew);
 
-      console.log(" Cont renew: "+this.state.cont_renew);
-
-
-      if (this.state.secs === 0 || this.state.cancel_timer === 1  ) {
+      if (this.state.secs === 0 || this.state.cancel_timer === 1) {
         console.log("parou!! ");
         clearInterval(this.state.interval);
         this.setState({ timer: false, cancel_timer: 0 });
 
-        //if ( this.state.run_wait_checkin === 0  ) {
-        //  toastError(
-         //      "Não há motoristas disponíveis! \nPor favor, tente novamente mais tarde!"
-         //    );
-         //   this.cancel_run();
-         // }
-      // if(this.state.run_status === 0){
-      //  this.renew_run();
-      //  this.timer();
-     //  }else{
-      //  this.cancel_run();
-      //  clearInterval(this.state.interval);
-      // }
+        console.log("->" + this.state.run_status);
+        if (this.state.run_status === 0 || this.state.run_status === 2) {
+          if (this.state.cont_renew < 3) {
+            console.log("RENOVAR!!");
+            this.setState({ cont_renew: this.state.cont_renew + 1});
+            this.timer();
+            this.renew_run();
+          } else {
+            console.log("CANCELAR!!");
+            this.cancel_run();
 
-       /*
-        if(this.state.cont_renew >= 3  ){
-          toastSucess("Cancelar corrida!");
-          this.cancel_run();
-          // this.setState({ cont_renew : 0 });
-          //console.log("Cancelar corrida!");
-       }else{
-      
-         //  console.log("Renovar!!");
-           this.setState({ cont_renew: this.state.cont_renew + 1 });
-           console.log("Renovar timer e corrida!");
-           toastSucess("Renovar timer e corrida!");
-          this.renew_run();
-           this.timer();
-         }
+          }
+        }
 
-*/
-       
-       
-        //console.log("STATUS-> "+this.state.run_status);
-
-       // if (!this.state.id_run  ) {
-         // toastError(
-         //   "Não há motoristas disponíveis! \nPor favor, tente novamente mais tarde!"
-         // );
-        //  this.cancel_run();
-
-         // this.renew_run();
-       // }
       }
-
-
 
       if (this.state.id_run != null) {
         this.getDataRun();
-        
       }
 
       this.setState({ secs: this.state.secs - 1 });
@@ -764,9 +796,7 @@ renovar = () =>{
   };
 
   renew_run = async () => {
-
     toastSucess("Renovando corrida!");
-
 
     //const url = "https://siga.aparecida.go.gov.br";
 
@@ -787,9 +817,8 @@ renovar = () =>{
         return response.json();
       })
       .then((responseData) => {
-      //  toastSucess("Renovando corrida!");
-        
-       
+        //  toastSucess("Renovando corrida!");
+
         return responseData;
       })
       .catch(function (error) {
@@ -797,11 +826,8 @@ renovar = () =>{
       });
   };
 
-
-
   cancel_run = async () => {
-
-  const token = this.props.token;
+    const token = this.props.token;
 
     //const url = "https://siga.aparecida.go.gov.br";
 
@@ -822,12 +848,12 @@ renovar = () =>{
         return response.json();
       })
       .then((responseData) => {
-        this.setState({ timer: false, cancel_timer: 1 });
+        this.setState({ timer: false, cancel_timer: 1, cont_renew: 0 });
         return responseData;
       })
       .catch(function (error) {
         console.log("Deu ruim:" + error);
-      }); 
+      });
   };
 
   modal_run_started = () => {
@@ -845,7 +871,7 @@ renovar = () =>{
     const token = this.props.token;
 
     const timer = setIntervalAsync(() => {
-     // const url = "https://siga.aparecida.go.gov.br";
+      // const url = "https://siga.aparecida.go.gov.br";
 
       const response = fetch(
         URL + "/runs/" + this.state.id_run + ".json",
@@ -873,7 +899,7 @@ renovar = () =>{
             console.log("Motorista-> " + driver.name);
             this.setState({
               driver: driver,
-              run_wait_checkin: 1, 
+              run_wait_checkin: 1,
               run_status: 1,
             });
 
@@ -1004,7 +1030,7 @@ renovar = () =>{
 
             this.deleteDataRun();
 
-            this.setState({ run_wait_checkin: 0, run_status: 4 });
+            this.setState({ run_wait_checkin: 0, run_status: 0 });
 
             this.setState({
               destination: { latitude: 0, longitude: 0 },
@@ -1019,7 +1045,7 @@ renovar = () =>{
               search_adress: false,
               run_wait_checkin: 0,
               buttonAddress: 0,
-              run_status: 3,
+              run_status: 0,
               run_started: false,
             });
 
@@ -1050,7 +1076,7 @@ renovar = () =>{
         .catch(function (error) {
           console.log("Deu ruim:" + error);
         });
-    }, 1000);
+    }, 3000);
     /*
 
   const url = "https://sigadev.aparecida.go.gov.br";
@@ -1103,7 +1129,7 @@ renovar = () =>{
 
   getDriverLocation = async () => {
     const token = this.props.token;
-   // const url = "https://siga.aparecida.go.gov.br";
+    // const url = "https://siga.aparecida.go.gov.br";
     const response = await fetch(
       URL + "/runs/" + this.state.id_run + "/driver_location",
 
@@ -1142,9 +1168,9 @@ renovar = () =>{
 
   getDataRun = async () => {
     const token = this.props.token;
-   // const url = "https://siga.aparecida.go.gov.br";
+    // const url = "https://siga.aparecida.go.gov.br";
     const response = await fetch(
-     URL + "/runs/" + this.state.id_run + ".json",
+      URL + "/runs/" + this.state.id_run + ".json",
 
       {
         credentials: "same-origin",
@@ -1171,7 +1197,7 @@ renovar = () =>{
             timer: false,
             cancel_timer: 1,
             run_status: 1,
-            
+
             show_route_origin_destination: false,
           });
           // this.mapView.animateToRegion(this.state.origin, 200);
@@ -1183,37 +1209,7 @@ renovar = () =>{
           this.status_check_run();
         }
 
-        if (
-          responseData.driver_has_canceled != null) {
-
-
-            this.setState({
-              timer: false,
-              cancel_timer: 1,
-  
-              destination: { latitude: 0, longitude: 0 },
-              origin: { latitude: 0, longitude: 0 },
-              duration: null,
-              location: null,
-              origem: "",
-              short_origin: null,
-              destino: "",
-              short_destination: null,
-              search_adress: false,
-              run_wait_checkin: 0,
-              buttonAddress: 0,
-              run_status: 3,
-              run_started: false, 
-            });
-  
-            toastError(
-              "Corrida cancelada.\n Motivo: " + responseData.cancel_explanation === null ? "Não definido" : responseData.cancel_explanation
-            );
-          } 
-
-
-          if ( responseData.canceled_at != null
-        ) {
+        if (responseData.driver_has_canceled != null) {
           this.setState({
             timer: false,
             cancel_timer: 1,
@@ -1229,12 +1225,45 @@ renovar = () =>{
             search_adress: false,
             run_wait_checkin: 0,
             buttonAddress: 0,
-            run_status: 3,
+            run_status: 0,
             run_started: false,
           });
 
           toastError(
-            "Corrida cancelada.\n Motivo: " + responseData.cancel_explanation === null ? "Não definido" : responseData.cancel_explanation
+            "Corrida cancelada.\n Motivo: " +
+              responseData.cancel_explanation ===
+              null
+              ? "Não definido"
+              : responseData.cancel_explanation
+          );
+        }
+
+        if (responseData.canceled_at != null) {
+          this.setState({
+            timer: false,
+            cancel_timer: 1,
+
+            destination: { latitude: 0, longitude: 0 },
+            origin: { latitude: 0, longitude: 0 },
+            duration: null,
+            location: null,
+            origem: "",
+            short_origin: null,
+            destino: "",
+            short_destination: null,
+            search_adress: false,
+            run_wait_checkin: 0,
+            buttonAddress: 0,
+            run_status: 0,
+            run_started: false,
+          });
+
+          toastError(
+            "Corrida cancelada.\n Motivo: " +
+              responseData.cancel_explanation ===
+              null
+              ? "Não definido"
+              : responseData.cancel_explanation
           );
 
           console.log(
@@ -1256,7 +1285,7 @@ renovar = () =>{
 
     const token = this.props.token;
 
-   // const url = "https://siga.aparecida.go.gov.br";
+    // const url = "https://siga.aparecida.go.gov.br";
 
     fetch(
       URL +
@@ -1525,7 +1554,7 @@ renovar = () =>{
 
         <TextInput
           value={"" + this.state.origem}
-          onTouchStart={() => this.googleSearch(0)}
+          onTouchStart={  () => this.googleSearch(0)}
           placeholderTextColor="#307597"
           backgroundColor="#FFF"
           style={{
@@ -1955,6 +1984,8 @@ renovar = () =>{
       this.setState({ platform: 1 });
     }
 
+    this.getReasonsRequestRace();
+
     //this.deleteDataRun();
 
     // this.storeDataRun();
@@ -2179,7 +2210,7 @@ renovar = () =>{
   componentDidUpdate() {
     console.log("");
 
-    if(this.state.platform === 0){
+    if (this.state.platform === 0) {
       this.mapView.animateToRegion(this.state.region, 1000);
     }
 
@@ -2303,7 +2334,7 @@ renovar = () =>{
                   latitude: this.state.origin.latitude,
                   longitude: this.state.origin.longitude,
                 }}
-                image={markerImage}
+                //  image={markerImage}
               >
                 <Image
                   source={require("../../images/pin_origem.png")}
@@ -2326,7 +2357,7 @@ renovar = () =>{
                 latitude: this.state.origin.latitude,
                 longitude: this.state.origin.longitude,
               }}
-              image={markerImage}
+              // image={markerImage}
               ref={(_marker) => {
                 this.marker = _marker;
               }}
@@ -2344,7 +2375,7 @@ renovar = () =>{
                 latitude: this.state.destination.latitude,
                 longitude: this.state.destination.longitude,
               }}
-              image={markerImage}
+              //  image={markerImage}
               ref={(_marker) => {
                 this.marker = _marker;
               }}
@@ -2403,7 +2434,7 @@ renovar = () =>{
                   latitude: this.state.origin.latitude,
                   longitude: this.state.origin.longitude,
                 }}
-                image={markerImage}
+                //  image={markerImage}
               >
                 <Image
                   source={require("../../images/pin_origem.png")}
@@ -2605,6 +2636,56 @@ renovar = () =>{
           </ImageBackground>
         </Modal>
 
+        <Modal2 isVisible={false}>
+          <View
+            style={{
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: "white",
+              borderRadius: 10,
+              padding: 15,
+            }}
+          >
+            <Text style={{ alignSelf: "center", fontSize: 20 }}>
+              Selecione o motivo da viagem
+            </Text>
+
+            <Picker
+              selectedValue={this.state.language}
+              style={{ height: 50, width: 100, alignItems: "center" }}
+              onValueChange={(itemValue, itemIndex) =>
+                this.setState({ language: itemValue })
+              }
+            >
+              <Picker.Item label="Java" value="java" />
+              <Picker.Item label="JavaScript" value="js" />
+            </Picker>
+          </View>
+        </Modal2>
+
+        {/* 
+
+        <Modal animationType="slide" transparent={true} visible={true}>
+          <View style={{ flex: 1, alignContent: "center" }}>
+            <Text style={{ alignSelf: "center", fontSize: 20 }}>
+              Selecione o motivo da viagem
+            </Text>
+            <View style={{ backgroundColor: "#FFF",height: 50, width: 100,  alignContent: "center" }}>
+              <Picker
+                selectedValue={this.state.language}
+                style={{ height: 50, width: 100, alignItems: "center" }}
+                onValueChange={(itemValue, itemIndex) =>
+                  this.setState({ language: itemValue })
+                }
+              >
+                <Picker.Item label="Java" value="java" />
+                <Picker.Item label="JavaScript" value="js" />
+              </Picker>
+            </View>
+          </View>
+        </Modal>
+        */}
+
         <Modal
           animationType="slide"
           transparent={true}
@@ -2762,6 +2843,7 @@ renovar = () =>{
     } */
     }
   };
+
   closeBottomDrawer = () => {
     console.log("Fechou!!");
 
