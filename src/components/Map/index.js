@@ -14,6 +14,7 @@ import {
   TextInput,
   PermissionsAndroid,
   Alert,
+  
 } from "react-native";
 import MapView, { Marker, Callout, AnimatedRegion } from "react-native-maps";
 
@@ -162,36 +163,7 @@ const toastSucess = (msg) =>
     animation: true,
   });
 
-const dataset = [
-  {
-    value: 101,
-    label: "Javascript",
-  },
-  {
-    value: "golang_101",
-    label: "Go",
-  },
-  {
-    value: "kotlin_dsl",
-    label: "Kotlin",
-  },
-  {
-    value: "java_101",
-    label: "Java",
-  },
-  {
-    value: "cplusplus",
-    label: "C++",
-  },
-  {
-    value: "csharp_201",
-    label: "C#",
-  },
-  {
-    value: "php_201",
-    label: "PHP",
-  },
-];
+
 
 class Map extends Component {
   constructor(props) {
@@ -323,6 +295,8 @@ class Map extends Component {
     platform: null,
 
     reasonRun: [],
+    request_reason_id: 0,
+    modal_reason: false,
   };
 
   getDurationMsgs = (index) => {
@@ -370,6 +344,19 @@ class Map extends Component {
     }, 1000);
   };
 
+
+  loadTimer = async (id)=>{
+
+
+    this.setState({modal_reason: false,
+      
+    });
+   
+    
+
+     this.timer(id);
+  }
+
   /* Essa função é responsável por retronar o componente do botão para solictação da corrida de acorodo com a plataforma(IOS ou Android)*/
 
   getButtonPlatform = () => {
@@ -379,7 +366,8 @@ class Map extends Component {
         this.state.run_started === false ? (
         <Button
           onPress={() => {
-            this.timer();
+           // this.timer();
+           this.setState({modal_reason: true})
           }}
           style={{
             borderRadius: 0,
@@ -416,12 +404,14 @@ class Map extends Component {
         <TouchableHighlight
           underlayColor="transparent"
           onPress={() => {
-            this.timer();
+          //  this.timer();
+          this.setState({modal_reason: true});
           }}
         >
           <Button
             onPress={() => {
-              this.timer();
+          //    this.timer();
+          this.setState({modal_reason: true})
             }}
             style={{
               borderRadius: 0,
@@ -609,6 +599,13 @@ class Map extends Component {
       });
   };
 
+
+
+
+
+
+
+
   getSomeAddress = async (coordinate, type) => {
     const response = await api
       .post(
@@ -754,11 +751,22 @@ class Map extends Component {
     }
   };
 
-  timer = async () => {
+  timer2 =  async(id) => {
+
+  console.log("ID2->"+ id); 
+};
+
+
+
+  timer = async (id) => {
+
+
+    console.log("ID2->"+ id); 
+    
    
 
     if (this.state.id_run === null) {
-      this.create_run();
+      this.create_run(id);
     }
 
     this.setState({ timer: true, secs: TIME_RUN });
@@ -773,7 +781,8 @@ class Map extends Component {
 
         console.log("->" + this.state.run_status);
         if (this.state.run_status === 0 || this.state.run_status === 2) {
-          if (this.state.cont_renew < 3) {
+          this.cancel_run();
+        /*  if (this.state.cont_renew < 3) {
             console.log("RENOVAR!!");
             this.setState({ cont_renew: this.state.cont_renew + 1});
             this.timer();
@@ -782,7 +791,7 @@ class Map extends Component {
             console.log("CANCELAR!!");
             this.cancel_run();
 
-          }
+          }*/
         }
 
       }
@@ -1276,7 +1285,12 @@ class Map extends Component {
       });
   };
 
-  create_run = async () => {
+  create_run = async (id) => {
+
+
+//console.log("Aqui22-> "+id);
+
+    
     if (this.state.cancel_timer === 1) {
       this.setState({ cancel_timer: 0 });
     }
@@ -1295,7 +1309,9 @@ class Map extends Component {
         this.state.origin.longitude +
         "&run[origin_address]=" +
         this.state.origem +
-        "&run[run_type]=run&run[request_reason_id]=3&run[destination_lat]=" +
+        "&run[run_type]=run&run[request_reason_id]="+
+        id+
+        "&run[destination_lat]=" +
         this.state.destination.latitude +
         "&run[destination_lng]=" +
         this.state.destination.longitude +
@@ -2173,6 +2189,9 @@ class Map extends Component {
     console.log(" Aqui " + data.structured_formatting.main_text);
   };
 
+
+
+
   handleBack = () => {
     this.setState({ duration: 0 });
   };
@@ -2636,7 +2655,11 @@ class Map extends Component {
           </ImageBackground>
         </Modal>
 
-        <Modal2 isVisible={false}>
+        <Modal2 isVisible={this.state.modal_reason}
+        
+        animationType="slide"
+
+        >
           <View
             style={{
               alignItems: "center",
@@ -2650,41 +2673,27 @@ class Map extends Component {
               Selecione o motivo da viagem
             </Text>
 
-            <Picker
-              selectedValue={this.state.language}
-              style={{ height: 50, width: 100, alignItems: "center" }}
-              onValueChange={(itemValue, itemIndex) =>
-                this.setState({ language: itemValue })
-              }
-            >
-              <Picker.Item label="Java" value="java" />
-              <Picker.Item label="JavaScript" value="js" />
-            </Picker>
+          
+           
+            {this.state.reasonRun.map((person) => (
+
+       
+<Button onPress={
+  ()=>{
+    this.setState({modal_reason: false, });
+       this.timer(person.id);}}
+       >
+  <ButtonText>{person.name}</ButtonText>
+</Button>
+        
+    ))}
+  
+  
+
           </View>
         </Modal2>
 
-        {/* 
-
-        <Modal animationType="slide" transparent={true} visible={true}>
-          <View style={{ flex: 1, alignContent: "center" }}>
-            <Text style={{ alignSelf: "center", fontSize: 20 }}>
-              Selecione o motivo da viagem
-            </Text>
-            <View style={{ backgroundColor: "#FFF",height: 50, width: 100,  alignContent: "center" }}>
-              <Picker
-                selectedValue={this.state.language}
-                style={{ height: 50, width: 100, alignItems: "center" }}
-                onValueChange={(itemValue, itemIndex) =>
-                  this.setState({ language: itemValue })
-                }
-              >
-                <Picker.Item label="Java" value="java" />
-                <Picker.Item label="JavaScript" value="js" />
-              </Picker>
-            </View>
-          </View>
-        </Modal>
-        */}
+     
 
         <Modal
           animationType="slide"

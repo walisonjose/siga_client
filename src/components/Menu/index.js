@@ -73,7 +73,7 @@ class SideMenu extends Component {
           
         </ScrollView>
          <View style={styles.footerContainer}>
-          <Text>Versão aqui</Text>
+          <Text>Diretoria de Inovação</Text> 
         </View>
         
       </View>
