@@ -4,7 +4,7 @@
     "slug": "ubersiga",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/ic_siga_client2-web.png",
+    "icon": "./assets/1024.png",
     "splash": {
     
       "image": "./assets/logomarca_rodape.png", 
@@ -32,6 +32,7 @@
     
     "ios": {
       "bundleIdentifier": "siga.cliente",
+      
       "supportsTablet": true,
       "infoPlist": {
         "UIBackgroundModes": [
@@ -39,10 +40,10 @@
           "fetch"
         ],
        
-        "NSLocationAlwaysUsageDescription": "Localizacao necessaria para rastreio das bolsas de sangue",
-        "NSLocationWhenInUseUsageDescription": "Localizacao necessaria para rastreio das bolsas de sangue",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "Localizacao necessaria para rastreio das bolsas de sangue",
-        "UNUserNotificationCenter": "Notificações de atividades da conta"
+        "NSLocationAlwaysUsageDescription": "Localizacao necessaria para definição da origem e destino das corridas do usuário",
+        "NSLocationWhenInUseUsageDescription": "Localizacao necessaria para definição da origem e destino das corridas do usuário",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Localizacao necessaria para definição da origem e destino das corridas do usuário"
+        
         
       }
     }

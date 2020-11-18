@@ -381,6 +381,8 @@ class Map extends Component {
           </ButtonText>
         </Button>
       ) : (
+       
+       
         <Button
           style={{
             borderRadius: 0,
@@ -437,6 +439,8 @@ class Map extends Component {
             this.showDriverData();
           }}
         >
+
+           
           <Button
             style={{
               borderRadius: 0,
@@ -452,6 +456,9 @@ class Map extends Component {
               INFO
             </ButtonText>
           </Button>
+
+
+
         </TouchableHighlight>
       );
     }
@@ -910,6 +917,7 @@ class Map extends Component {
               driver: driver,
               run_wait_checkin: 1,
               run_status: 1,
+              point: driver
             });
 
             this.getDriverLocation();
@@ -1043,7 +1051,7 @@ class Map extends Component {
 
             this.setState({
               destination: { latitude: 0, longitude: 0 },
-              origin: { latitude: 0, longitude: 0 },
+              origin: this.state.region,
               point: this.state.origin,
               duration: null,
               location: null,
@@ -1245,6 +1253,7 @@ class Map extends Component {
               ? "Não definido"
               : responseData.cancel_explanation
           );
+
         }
 
         if (responseData.canceled_at != null) {
@@ -1253,7 +1262,8 @@ class Map extends Component {
             cancel_timer: 1,
 
             destination: { latitude: 0, longitude: 0 },
-            origin: { latitude: 0, longitude: 0 },
+           // origin: { latitude: 0, longitude: 0 },
+           origin: this.state.region,
             duration: null,
             location: null,
             origem: "",
@@ -1275,6 +1285,7 @@ class Map extends Component {
               : responseData.cancel_explanation
           );
 
+          this.getAddress(this.state.origin);
           console.log(
             "Corrida cancelada. Motivo: " + responseData.cancel_explanation
           );
