@@ -46,6 +46,7 @@ class SideMenu extends Component {
 
 <View style={{ paddingLeft: 10, paddingTop: 10}}> 
 
+{/* 
  <Icon name="map" size={35} color="grey"  />
  <Text style={{ left: 50, top: -30, fontSize: 17, fontWeight: 'bold', color: 'grey'}}>Mapa</Text>
  
@@ -60,7 +61,7 @@ class SideMenu extends Component {
 
 <Icon name="hearing" size={35} color="grey"  />
 <Text style={{ left: 50, top: -30, fontSize: 17, fontWeight: 'bold', color: 'grey'}}>Reclamação/Elogio</Text>
-
+**/}
 <TouchableOpacity
        
         onPress={()=> { console.log("QQQQ"); this.props.navigation.navigate("Login"); } }

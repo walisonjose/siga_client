@@ -366,8 +366,8 @@ class Map extends Component {
         this.state.run_started === false ? (
         <Button
           onPress={() => {
-           // this.timer();
-           this.setState({modal_reason: true})
+            this.timer(8);
+           //this.setState({modal_reason: true})
           }}
           style={{
             borderRadius: 0,
@@ -768,7 +768,7 @@ class Map extends Component {
   timer = async (id) => {
 
 
-    console.log("ID2->"+ id); 
+    console.log("Timer ->"+ this.state.timer); 
     
    
 
@@ -2691,7 +2691,7 @@ class Map extends Component {
        
 <Button onPress={
   ()=>{
-    this.setState({modal_reason: false, });
+    this.setState({modal_reason: false, timer: false });
        this.timer(person.id);}}
        >
   <ButtonText>{person.name}</ButtonText>
