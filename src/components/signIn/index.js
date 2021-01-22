@@ -13,7 +13,7 @@ import {
 } from "../actions/AuthenticationActions";
 
 
-const  resetPasswordURL = "https://siga.aparecida.go.gov.br/pt-BR/users/password/new";
+const  resetPasswordURL = "https://sigadev.aparecida.go.gov.br/pt-BR/users/password/new";
 
 const toastError = (msg) =>
   Toast.show(msg, {

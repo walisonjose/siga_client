@@ -126,7 +126,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { ToastAndroid } from "react-native";
 
 const URL = "https://sigadev.aparecida.go.gov.br";
-const TIME_RUN = 15;
+const TIME_RUN = 55;
 
 /* Configuração do Toast*/
 
@@ -770,12 +770,9 @@ class Map extends Component {
   timer = async (id) => {
 
 
-<<<<<<< HEAD
+
     console.log("Timer ->"+ this.state.timer); 
-=======
-    console.log("Timer ->"+ this.state.id_run); 
->>>>>>> b4442c5f992f275facddf4d09717ca9311d586c6
-    
+
    
 
     if (this.state.id_run === null) {
