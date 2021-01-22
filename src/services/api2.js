@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'https://sigadev.aparecida.go.gov.br'
+    baseURL: 'https://siga.aparecida.go.gov.br'
    
 }); 
 

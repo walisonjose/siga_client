@@ -8,36 +8,7 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:485941880852:android:608599e76d8a95ad161f01",
-        "android_client_info": {
-          "package_name": "br.gov.go.aparecida.sigaCliente"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "485941880852-02uctcmnkbio349obcosljh2qvjf06gs.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBN4l2Jo7OD7CVPtqjbb7FCyE5tTuoscTY"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "485941880852-02uctcmnkbio349obcosljh2qvjf06gs.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:485941880852:android:4a3a1f8953c45733161f01",
+        "mobilesdk_app_id": "1:485941880852:android:55fd9b54e4ddad31161f01",
         "android_client_info": {
           "package_name": "br.gov.go.aparecida.sigaCliente"
         }

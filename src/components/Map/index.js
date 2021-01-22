@@ -123,9 +123,10 @@ import {
   TouchableWithoutFeedback,
 } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { ToastAndroid } from "react-native";
 
 const URL = "https://sigadev.aparecida.go.gov.br";
-const TIME_RUN = 55;
+const TIME_RUN = 15;
 
 /* Configuração do Toast*/
 
@@ -159,7 +160,7 @@ const toastSucess = (msg) =>
     imgStyle: {},
     mask: false,
     maskStyle: {},
-    duration: 2000,
+    duration: 5000,
     animation: true,
   });
 
@@ -407,6 +408,7 @@ class Map extends Component {
           underlayColor="transparent"
           onPress={() => {
           //  this.timer();
+          ///Carrega os motivos de corrida
           this.setState({modal_reason: true});
           }}
         >
@@ -732,7 +734,7 @@ class Map extends Component {
   };
 
   showDriverData = () => {
-    if (this.state.id_run) {
+    if (this.state.id_run && this.state.driver) {
       this.props.navigation.navigate("driverDetails", {
         driver: this.state.driver,
         duration: this.state.duration,
@@ -760,7 +762,7 @@ class Map extends Component {
 
   timer2 =  async(id) => {
 
-  console.log("ID2->"+ id); 
+  console.log("Timer 2->"+ id); 
 };
 
 
@@ -768,7 +770,11 @@ class Map extends Component {
   timer = async (id) => {
 
 
+<<<<<<< HEAD
     console.log("Timer ->"+ this.state.timer); 
+=======
+    console.log("Timer ->"+ this.state.id_run); 
+>>>>>>> b4442c5f992f275facddf4d09717ca9311d586c6
     
    
 
@@ -788,7 +794,8 @@ class Map extends Component {
 
         console.log("->" + this.state.run_status);
         if (this.state.run_status === 0 || this.state.run_status === 2) {
-          this.cancel_run();
+          console.log("RENOVAR!!");
+         // this.cancel_run();
         /*  if (this.state.cont_renew < 3) {
             console.log("RENOVAR!!");
             this.setState({ cont_renew: this.state.cont_renew + 1});
@@ -982,9 +989,10 @@ class Map extends Component {
             // toastSucess("Corrida finalizada com sucesso!");
 
             this.setState({
-              point: this.state.region,
+              
               destination: { latitude: 0, longitude: 0 },
               origin: this.state.region,
+              point: this.state.origin,
               duration: null,
               location: null,
               origem: "",
@@ -998,6 +1006,8 @@ class Map extends Component {
               run_started: false,
               point: this.state.region,
               show_route_origin_destination: true,
+              driver: null,
+              
             });
 
             //  clearIntervalAsync(timer);
@@ -1010,6 +1020,8 @@ class Map extends Component {
             console.log(
               "Corrida finalizada!" + this.state.modal_run_finish_cont
             );
+
+           
 
             if (this.state.modal_run_finish_cont > 5) {
               this.setState({
@@ -1045,9 +1057,10 @@ class Map extends Component {
                 responseData.cancel_explanation
             );
 
+//this.cancel_run();
             this.deleteDataRun();
 
-            this.setState({ run_wait_checkin: 0, run_status: 0 });
+            this.getSomeAddress(this.state.region, 0);
 
             this.setState({
               destination: { latitude: 0, longitude: 0 },
@@ -1064,9 +1077,11 @@ class Map extends Component {
               buttonAddress: 0,
               run_status: 0,
               run_started: false,
+              id_run: null
+              
             });
 
-            // clearIntervalAsync(timer);
+             //clearIntervalAsync(timer);
 
             this.setState({
               modal_run_cancel: true,
@@ -1582,6 +1597,7 @@ class Map extends Component {
         <TextInput
           value={"" + this.state.origem}
           onTouchStart={  () => this.googleSearch(0)}
+          editable={this.state.driver ? false : true}
           placeholderTextColor="#307597"
           backgroundColor="#FFF"
           style={{
@@ -1649,7 +1665,8 @@ class Map extends Component {
         </Text>
 
         <TextInput
-          value={"" + this.state.destino}
+          value={"" + this.state.destino} 
+          editable={this.state.driver ? false : true}
           onTouchStart={() => this.googleSearch(1)}
           placeholderTextColor="#307597"
           backgroundColor="#FFF"
@@ -1999,7 +2016,31 @@ class Map extends Component {
     );
   };
 
+
   async componentDidMount() {
+
+    //toastSucess("Este aplicativo coleta dados de localização para permitir que o motorista do Siga saiba onde deve te encontrar antes do início de uma corrida.  mesmo quando o aplicativo está fechado ou não em uso.");
+
+    Alert.alert(
+      "",
+      "Este app coleta dados da sua localização apenas para que vc se oriente durante a experiência. Não se preocupe que os dados coletados não são compartilhados e nem armazenados de forma alguma.",
+      [
+       /* {
+          text: "Ask me later",
+          onPress: () => console.log("Ask me later pressed")
+        },
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel"
+        },*/
+        { text: "OK", onPress: () => console.log("OK Pressed") }
+      ],
+      { cancelable: false }
+    );
+
+
+
     const welcome_msg = "Olá " + this.getFirstName() + "! Onde precisa ir?";
     this.setState({ welcome_msg: welcome_msg });
 

@@ -13,8 +13,8 @@
     },
     "android": {
       "googleServicesFile": "./google-services.json",
-      "package": "siga.cliente",
-      "versionCode": 1,
+      "package": "br.gov.go.aparecida.sigaCliente",
+      "versionCode": 2,
       "softwareKeyboardLayoutMode": "pan",
       "permissions": [
         "ACCESS_FINE_LOCATION",
