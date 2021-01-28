@@ -125,7 +125,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ToastAndroid } from "react-native";
 
-const URL = "https://sigadev.aparecida.go.gov.br";
+const URL = "https://siga.aparecida.go.gov.br"; 
 const TIME_RUN = 55;
 
 /* Configuração do Toast*/
@@ -407,15 +407,15 @@ class Map extends Component {
         <TouchableHighlight
           underlayColor="transparent"
           onPress={() => {
-          //  this.timer();
+            this.timer(8);
           ///Carrega os motivos de corrida
-          this.setState({modal_reason: true});
+          //this.setState({modal_reason: true});
           }}
         >
           <Button
             onPress={() => {
-          //    this.timer();
-          this.setState({modal_reason: true})
+             this.timer(8);
+          //this.setState({modal_reason: true})
             }}
             style={{
               borderRadius: 0,
@@ -986,7 +986,7 @@ class Map extends Component {
             // toastSucess("Corrida finalizada com sucesso!");
 
             this.setState({
-              
+               
               destination: { latitude: 0, longitude: 0 },
               origin: this.state.region,
               point: this.state.origin,
