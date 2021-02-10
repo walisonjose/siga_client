@@ -20,57 +20,36 @@ import MapView, { Marker, Callout, AnimatedRegion } from "react-native-maps";
 
 import { Avatar, IconButton, Colors } from "react-native-paper";
 
-import Geocoder from "react-native-geocoding";
-
-//import Geolocation from 'react-native-geolocation-service';
-
 import Icon from "react-native-vector-icons/MaterialIcons";
 
-const GOOGLE_MAPS_APIKEY = "AIzaSyD157FiAI8dfBRzoH4qvzjFi3iKSPzA860";
+import { GOOGLE_MAPS_APIKEY, HEADER_HEIGHT, TAB_BAR_HEIGHT, URL_API, TIME_RUN } from '../../configs/Types';
+import { styles } from '../../configs/styles';
+ 
+
 
 import { getPixelSize } from "../../utils";
 
 import Search from "../Search";
-import DriverDetails from "./driverDetails";
-import Origin from "../Search/origin";
 
-import SideMenu from "react-native-side-menu";
 
 import Directions from "../Directions";
-import Details from "../Details";
 
-import BottomDrawer from "rn-bottom-drawer";
 
 import "react-native-gesture-handler";
 
-import { MenuSiga } from "../Menu/index";
-
-import uberx from "../../assets/uberx.png";
 
 import api from "../../services/api";
-import api2 from "../../services/api2";
-
-const TAB_BAR_HEIGHT = 50;
-const HEADER_HEIGHT = 0;
-
-import markerImage from "../../assets/marker.png";
-import backImage from "../../assets/back.png";
-
-import DrawnerMenu from "../../drawner.js";
 
 import Animated from "react-native-reanimated";
 import BottomSheet from "reanimated-bottom-sheet";
 
 import { NavigationContainer, DrawerActions } from "@react-navigation/native";
 
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 
 import { connect } from "react-redux";
 
 import Modal2 from "react-native-modal";
 
-import { Picker } from "@react-native-picker/picker";
 
 import {
   Back,
@@ -125,8 +104,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ToastAndroid } from "react-native";
 
-const URL = "https://siga.aparecida.go.gov.br"; 
-const TIME_RUN = 55;
+//const URL_API = "https://sigadev.aparecida.go.gov.br"; 
+//const TIME_RUN = 55;
 
 /* Configuração do Toast*/
 
@@ -221,7 +200,7 @@ class Map extends Component {
     timer: false,
     secs: 0,
     cancel_timer: 0,
-    id_run: null,
+    id_run: 0,
     run_status: 0 /* a corrida pode ter 4 estados. 
     1 - Aceita; 2 - Iniciada; 3 - Finalizada; 4 - Cancelada;
     */,
@@ -425,9 +404,9 @@ class Map extends Component {
             }}
           >
             <ButtonText
-              // onPress={() => {
-              //  this.timer();
-              // }}
+               onPress={() => {
+                this.timer(8);
+               }}
               style={{ color: "#307597", fontSize: 18 }}
             >
               CHAMAR CARRO
@@ -570,7 +549,7 @@ class Map extends Component {
   }
 
   getReasonsRequestRace = async () => {
-    const response = await fetch(URL + "/request_reasons.json", {
+    const response = await fetch(URL_API + "/request_reasons.json", {
       credentials: "same-origin",
       method: "get",
 
@@ -745,7 +724,7 @@ class Map extends Component {
   };
 
   renovar = () => {
-    if (this.state.cont_renew >= 3) {
+    if (this.state.cont_renew >= 2) {
       toastSucess("Cancelar corrida!");
       this.cancel_run();
       // this.setState({ cont_renew : 0 });
@@ -756,7 +735,7 @@ class Map extends Component {
       console.log("Renovar timer e corrida!");
       toastSucess("Renovar timer e corrida!");
       this.renew_run();
-      this.timer();
+      this.timer(8);
     }
   };
 
@@ -771,11 +750,14 @@ class Map extends Component {
 
 
 
-    console.log("Timer ->"+ this.state.timer); 
+    console.log("Timer ->"+ this.state.timer);
+    
+    console.log("Run ID ->"+ this.state.id_run); 
+   // toastSucess("->"+this.state.id_run);
 
    
 
-    if (this.state.id_run === null) {
+    if (this.state.id_run === 0 ) {
       this.create_run(id);
     }
 
@@ -790,24 +772,26 @@ class Map extends Component {
         this.setState({ timer: false, cancel_timer: 0 });
 
         console.log("->" + this.state.run_status);
-        if (this.state.run_status === 0 || this.state.run_status === 2) {
-          console.log("RENOVAR!!");
+        if (this.state.run_status === 0 ) {
+         {/*/ console.log("RENOVAR!!");
          // this.cancel_run();
-        /*  if (this.state.cont_renew < 3) {
-            console.log("RENOVAR!!");
+          if (this.state.cont_renew < 2) {
+            console.log("RENOVAR!!"); 
             this.setState({ cont_renew: this.state.cont_renew + 1});
-            this.timer();
-            this.renew_run();
+            this.timer(8); 
+            this.renew_run(); 
           } else {
             console.log("CANCELAR!!");
             this.cancel_run();
 
-          }*/
+            clearIntervalAsync(this.state.interval);
+
+          */ }
         }
 
       }
 
-      if (this.state.id_run != null) {
+      if (this.state.id_run != null ) {
         this.getDataRun();
       }
 
@@ -818,10 +802,10 @@ class Map extends Component {
   renew_run = async () => {
     toastSucess("Renovando corrida!");
 
-    //const url = "https://siga.aparecida.go.gov.br";
+    //const URL_API = "https://siga.aparecida.go.gov.br";
 
     const response = await fetch(
-      URL + "/runs/" + this.state.id_run + "/renew",
+      URL_API + "/runs/" + this.state.id_run + "/renew",
       {
         credentials: "same-origin",
         method: "POST",
@@ -849,10 +833,10 @@ class Map extends Component {
   cancel_run = async () => {
     const token = this.props.token;
 
-    //const url = "https://siga.aparecida.go.gov.br";
+    //const URL_API = "https://siga.aparecida.go.gov.br";
 
     const response = await fetch(
-      URL + "/runs/" + this.state.id_run + "/user_cancel",
+      URL_API + "/runs/" + this.state.id_run + "/user_cancel",
       {
         credentials: "same-origin",
         method: "POST",
@@ -891,10 +875,10 @@ class Map extends Component {
     const token = this.props.token;
 
     const timer = setIntervalAsync(() => {
-      // const url = "https://siga.aparecida.go.gov.br";
+   
 
       const response = fetch(
-        URL + "/runs/" + this.state.id_run + ".json",
+        URL_API + "/runs/" + this.state.id_run + ".json",
 
         {
           credentials: "same-origin",
@@ -963,10 +947,7 @@ class Map extends Component {
               modal_run_started_cont: this.state.modal_run_started_cont + 1,
             });
 
-            //deverá ser retirado...
-            // if (this.state.modal_run_started != false) {
-            //   toastSucess("Corrida iniciada!");
-            //  }
+            
 
             if (this.state.modal_run_started_cont > 5) {
               this.setState({
@@ -974,14 +955,15 @@ class Map extends Component {
                 modal_run_started: false,
                 point: this.state.region,
               });
-              // this.sheetRef.current.snapTo(2);
-              //this.sheetRef.current.snapTo(0);
+              
             }
           }
           if (responseData.finished_at != null) {
             console.log("-> " + this.state.modal_run_finsih_cont);
 
             this.deleteDataRun();
+
+             
 
             // toastSucess("Corrida finalizada com sucesso!");
 
@@ -1004,10 +986,11 @@ class Map extends Component {
               point: this.state.region,
               show_route_origin_destination: true,
               driver: null,
+              id_run: 0,
               
             });
 
-            //  clearIntervalAsync(timer);
+              clearIntervalAsync(timer);
 
             this.setState({
               modal_run_finish: true,
@@ -1018,6 +1001,15 @@ class Map extends Component {
               "Corrida finalizada!" + this.state.modal_run_finish_cont
             );
 
+toastSucess("Corrida finalizada!");
+
+            //teste
+            this.setState({
+              modal_run_finish: false,
+              run_finished: true,
+              welcome_msg:
+                "Olá " + this.getFirstName() + "! Onde precisa ir?",
+            });
            
 
             if (this.state.modal_run_finish_cont > 5) {
@@ -1031,30 +1023,17 @@ class Map extends Component {
               clearIntervalAsync(timer);
             }
 
-            {
-              /* 
-            if (!this.state.run_finished) {
-              clearIntervalAsync(timer);
-              this.setState({
-                modal_run_finsih: false,
-                run_started: false,
-              });
-            }
-            */
-            }
+           
           }
 
           if (responseData.canceled_at != null) {
-            //  toastError(
-            //    "Corrida cancelada!\n\n Motivo: " +
-            //      responseData.cancel_explanation
-            //  );
+            
             console.log(
               "Corrida cancelada!\n\n Motivo: " +
                 responseData.cancel_explanation
             );
 
-//this.cancel_run();
+this.cancel_run();
             this.deleteDataRun();
 
             this.getSomeAddress(this.state.region, 0);
@@ -1099,6 +1078,7 @@ class Map extends Component {
               });
 
               clearIntervalAsync(timer);
+
             }
           }
         })
@@ -1106,61 +1086,14 @@ class Map extends Component {
           console.log("Deu ruim:" + error);
         });
     }, 3000);
-    /*
-
-  const url = "https://sigadev.aparecida.go.gov.br";
-
-
-
-  this.state.interval = setInterval(async () => {
-
-    if(this.state.run_status === 0 || this.state.run_status === 4 ){
-      console.log("Corrida finalizada! ");
-      clearInterval(this.state.interval);
-     
-    }
-  
     
- const response = await fetch(url+'/runs/'+this.state.id_run+'.json',
-
- {
-  credentials: "same-origin",
-  method: 'GET',
-  headers: { 
-    'Accept': 'application/json', // This is set on request
-  'Content-Type': 'application/json',
-    'Cookie': token
-  }
- }
-  ).then(response => {return response.json();})
-  .then((responseData) => {
-
-    console.log(responseData.accepted_at);
-   
-
-
-  
-  }
-
-  ) .catch(
-          function (error) {
-            
-            console.log("Deu ruim:"+error);
-            
-    
-          } 
-        )
-
-
-
-      }, 1000); */
   };
 
   getDriverLocation = async () => {
     const token = this.props.token;
-    // const url = "https://siga.aparecida.go.gov.br";
+    // const URL_API = "https://siga.aparecida.go.gov.br";
     const response = await fetch(
-      URL + "/runs/" + this.state.id_run + "/driver_location",
+      URL_API + "/runs/" + this.state.id_run + "/driver_location",
 
       {
         credentials: "same-origin",
@@ -1197,9 +1130,9 @@ class Map extends Component {
 
   getDataRun = async () => {
     const token = this.props.token;
-    // const url = "https://siga.aparecida.go.gov.br";
+    // const URL_API = "https://siga.aparecida.go.gov.br";
     const response = await fetch(
-      URL + "/runs/" + this.state.id_run + ".json",
+      URL_API + "/runs/" + this.state.id_run + ".json",
 
       {
         credentials: "same-origin",
@@ -1258,13 +1191,13 @@ class Map extends Component {
             run_started: false,
           });
 
-          toastError(
-            "Corrida cancelada.\n Motivo: " +
-              responseData.cancel_explanation ===
-              null
-              ? "Não definido"
-              : responseData.cancel_explanation
-          );
+         // toastError(
+          //  "Corrida cancelada.\n Motivo: " +
+          //    responseData.cancel_explanation ===
+          //    null
+          //    ? "Não definido"
+          //    : responseData.cancel_explanation
+         // );
 
         }
 
@@ -1287,6 +1220,7 @@ class Map extends Component {
             buttonAddress: 0,
             run_status: 0,
             run_started: false,
+            id_run: 0
           });
 
           toastError(
@@ -1301,6 +1235,9 @@ class Map extends Component {
           console.log(
             "Corrida cancelada. Motivo: " + responseData.cancel_explanation
           );
+
+          this.componentDidMount
+
         }
       })
       .catch(function (error) {
@@ -1318,22 +1255,20 @@ class Map extends Component {
       this.setState({ cancel_timer: 0 });
     }
 
-    console.log("Timer " + this.state.cancel_timer);
+    console.log("Timer " + URL_API);
 
     const token = this.props.token;
 
-    // const url = "https://siga.aparecida.go.gov.br";
 
     fetch(
-      URL +
+      URL_API +
         "/runs/user_create.json?run[origin_lat]=" +
         this.state.origin.latitude +
         "&run[origin_lng]=" +
         this.state.origin.longitude +
         "&run[origin_address]=" +
         this.state.origem +
-        "&run[run_type]=run&run[request_reason_id]="+
-        id+
+        "&run[run_type]=run&run[request_reason_id]=8"+
         "&run[destination_lat]=" +
         this.state.destination.latitude +
         "&run[destination_lng]=" +
@@ -2056,35 +1991,6 @@ class Map extends Component {
     // this.storeDataRun();
     this.getDataSync();
 
-    //const {id}   = this.getDataSync();
-
-    //this._getLocationAsync();
-
-    /*
-    navigator.geolocation.getCurrentPosition(
-      async ({ coords: { latitude, longitude } }) => {
-        const response = await Geocoder.from({ latitude, longitude });
-        const address = response.results[0].formatted_address;
-        const location = address.substring(0, address.indexOf(","));
-
-        this.setState({
-          location,
-          region: {
-            latitude,
-            longitude,
-            latitudeDelta: 0.0143,
-            longitudeDelta: 0.0134,
-          },
-        });
-        this.getAddress(this.state.region);
-      }, //sucesso
-      () => {}, //erro
-      {
-        timeout: 2000,
-        enableHighAccuracy: true,
-        maximumAge: 1000,
-      }
-    );*/
     const { status } = await Location.requestPermissionsAsync();
     if (status === "granted") {
       this.watchID = navigator.geolocation.watchPosition(
@@ -2121,34 +2027,7 @@ class Map extends Component {
           // this.getAddress(this.state.region);
 
           console.log(" Coordenadas: " + position.coords.latitude);
-          /*
-        const { routeCoordinates, distanceTravelled } = this.state;
-        const { latitude, longitude } = position.coords;
-
-        const newCoordinate = {
-          latitude,
-          longitude
-        };
-
-        if (Platform.OS === "android") {
-          if (this.marker) {
-            this.marker._component.animateMarkerToCoordinate(
-              newCoordinate,
-              500
-            );
-          }
-        } else {
-          coordinate.timing(newCoordinate).start();
-        }
-
-        this.setState({
-          latitude,
-          longitude,
-          routeCoordinates: routeCoordinates.concat([newCoordinate]),
-          distanceTravelled:
-            distanceTravelled + this.calcDistance(newCoordinate),
-          prevLatLng: newCoordinate
-        }); */
+          
         },
         (error) => {
           console.log(error);
@@ -2190,12 +2069,7 @@ class Map extends Component {
       short_destination: data.structured_formatting.main_text,
       search_adress: false,
 
-      /* region: {
-        latitude: latitude,
-        longitude: longitude,
-        latitudeDelta: 0.0491,
-        longitudeDelta: 0.0375,
-      },*/
+     
     });
 
     this.mapView.animateToRegion(this.state.destination, 1000);
@@ -2225,12 +2099,7 @@ class Map extends Component {
       short_origin: data.structured_formatting.main_text,
       search_adress: false,
 
-      /*region: {
-        latitude: latitude,
-        longitude: longitude,
-        latitudeDelta: 0.0491,
-        longitudeDelta: 0.0375,
-      },*/
+      
     });
 
     this.mapView.animateToRegion(this.state.origin, 1000);
@@ -2250,11 +2119,7 @@ class Map extends Component {
       latitude: coordinates.latitude,
       longitude: coordinates.longitude,
 
-      /*
-
-      latitudeDelta: 0.0143,
-      longitudeDelta: 0.0134,*/
-
+      
       latitudeDelta: 0.0491,
       longitudeDelta: 0.0375,
     };
@@ -2270,9 +2135,7 @@ class Map extends Component {
       markerRef.current.showCallout();
     }
 
-    // if(this.state.run_wait_checkin === 1){
-    //  this.marker_motora.showCallout();
-    // }
+    
   };
 
   componentDidUpdate() {
@@ -2288,11 +2151,7 @@ class Map extends Component {
     //  this.markerMotora.current.showCallout();
   }
 
-  //if(this.state.run_wait_checkin === 1 ){
-  //   this.marker_motora.showCallout();
-
-  // }
-  // }
+  
 
   sheetRef = React.createRef();
   markerRef = React.createRef();
@@ -2402,7 +2261,7 @@ class Map extends Component {
                   latitude: this.state.origin.latitude,
                   longitude: this.state.origin.longitude,
                 }}
-                //  image={markerImage}
+                
               >
                 <Image
                   source={require("../../images/pin_origem.png")}
@@ -2410,12 +2269,7 @@ class Map extends Component {
                 />
               </MapView.Marker>
 
-              {/* <Marker coordinate={destination} anchor={{ x: 0, y: 0 }}>
-                <Image
-                  source={require("../../images/pin_destino.png")}
-                  style={{ height: 60, width: 45 }}
-                />
-              </Marker> */}
+              
             </Fragment>
           ) : null}
 
@@ -2477,7 +2331,7 @@ class Map extends Component {
             </Fragment>
           ) : null}
 
-          {/*this.state.run_wait_checkin === 0 && this.state.run_status === 1  ? (*/}
+         
           {this.state.show_route_origin_destination ? (
             <Fragment>
               <Directions
@@ -2525,51 +2379,7 @@ class Map extends Component {
             </Fragment>
           ) : null}
 
-          {/* && this.state.run_wait_checkin === 0 
-
-          {destination && this.state.run_started != false ? (
-            <Fragment>
-              <Directions
-                origin={this.state.origin}
-                destination={destination}
-                onReady={(result) => {
-                  this.setState({ duration: Math.floor(result.duration) });
-
-                  this.mapView.fitToCoordinates(result.coordinates, {
-                    edgePadding: {
-                      right: getPixelSize(50),
-                      left: getPixelSize(50),
-                      top: getPixelSize(50),
-                      bottom: getPixelSize(350),
-                    },
-                  });
-                }}
-              />
-             
-            </Fragment>
-          ):(
-
-            <Fragment>
-            <Directions
-              origin={this.state.region}
-              destination={destination}
-              onReady={(result) => {
-                this.setState({ duration: Math.floor(result.duration) });
-
-                this.mapView.fitToCoordinates(result.coordinates, {
-                  edgePadding: {
-                    right: getPixelSize(50),
-                    left: getPixelSize(50),
-                    top: getPixelSize(50),
-                    bottom: getPixelSize(350),
-                  },
-                });
-              }}
-            />
-           
-          </Fragment>
-
-          )} */}
+          
         </MapView>
 
         {/*Alterar as cores dos ícones para #B2BF86 quando for publicar o app */}
@@ -2830,17 +2640,7 @@ class Map extends Component {
             </Button>
           </View>
         </Modal>
-        {/*
-        <BottomDrawer
-          containerHeight={this.state.full_dim}
-          onExpanded={this.openBottomDrawer}
-          onCollapsed={this.closeBottomDrawer}
-          downDisplay={240}
-          startUp={false}
-          offset={-15}
-        >
-          {this.renderContent()}
-        </BottomDrawer> */}
+       
 
         <BottomSheet
           ref={this.sheetRef}
@@ -2858,6 +2658,7 @@ class Map extends Component {
     );
   }
 
+  
   renderHeader = () => (
     <View style={styles.header}>
       <View style={styles.panelHeader}>
@@ -2882,24 +2683,6 @@ class Map extends Component {
       this.setState({ welcome_msg: "Ok! Agora basta definir o seu destino!" });
     }
 
-    {
-      /*  if (
-      this.state.origin.latitude != 0 &&
-      this.state.destination.latitude != 0
-    ) {
-      this.setState({
-        top_origin_label: 25,
-        top_origin_textinput: 65,
-        top_origin_icon: 45,
-        button_alter_address_origin: 30,
-
-        top_destination_label: 30,
-        top_destination_textinput: 70,
-        top_destination_icon: 55,
-        button_alter_address_destination: 38, 
-      });
-    } */
-    }
   };
 
   closeBottomDrawer = () => {
@@ -2908,16 +2691,13 @@ class Map extends Component {
     this.setState({
       show_welcome_msg: true,
       openBottomDrawer: false,
-      // welcome_msg_top: 75,
+      
     });
 
     if (this.state.destination.latitude != 0) {
       this.setState({
-        welcome_msg: "Puxe aqui para solicitar a corrida.",
+        welcome_msg: "Puxe aqui para solicitar a corrida."
 
-        //  top_origin_textinput: 195,
-        //  top_origin_icon: 190,
-        // button_alter_address_origin: 125,
       });
     }
   };
@@ -2933,6 +2713,7 @@ const mapStateToProps = (state) => {
 
 export default connect(mapStateToProps)(Map);
 
+/*
 const styles = StyleSheet.create({
   map: {
     width: Dimensions.get("window").width,
@@ -3091,4 +2872,4 @@ const styles = StyleSheet.create({
     backgroundColor: "#00000040",
     marginBottom: 10,
   },
-});
+}); */

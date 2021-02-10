@@ -1,9 +1,10 @@
 {
   "devToolsPort": 19002,
-  "expoServerPort": null,
-  "packagerPort": null,
-  "packagerPid": null,
-  "expoServerNgrokUrl": "https://i8-z3t.ingohsys.siga-client.exp.direct",
-  "packagerNgrokUrl": "https://packager.i8-z3t.ingohsys.siga-client.exp.direct",
-  "ngrokPid": 4099
+  "expoServerPort": 19000,
+  "packagerPort": 19001,
+  "packagerPid": 16624,
+  "expoServerNgrokUrl": "https://hd-p8j.ingohsys.siga-client.exp.direct",
+  "packagerNgrokUrl": "https://packager.hd-p8j.ingohsys.siga-client.exp.direct",
+  "ngrokPid": 15684,
+  "webpackServerPort": null
 }
